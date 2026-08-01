@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "Celadon",
+    "slug": "celadon",
+    "scheme": "celadon",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#f7f5f0",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.celadon.app"
+    },
+    "android": {
+      "package": "com.celadon.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#e9f1ea",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Celadon uses the camera to analyse your meal. Photos are analysed to estimate ingredients and aren't stored unless you save them."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Celadon reads the photo you choose so it can estimate the ingredients in your meal."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#f7f5f0",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160
+        }
+      ],
+      "expo-font"
+    ]
+  }
+}

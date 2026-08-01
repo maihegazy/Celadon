@@ -1,25 +1,100 @@
-# CODING AGENTS: READ THIS FIRST
+# Celadon
 
-This is a **handoff bundle** from Claude Design (claude.ai/design).
+A nutrition and wellness app for people living with autoimmune conditions, and
+anyone following an anti-inflammatory way of eating. Personalised meal plans,
+AI meal scanning from a photo, a Celadon Score for every meal, and progress
+tracking that reads as observation rather than verdict.
 
-A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported this bundle so a coding agent can implement the designs for real.
+Built with Expo (React Native + TypeScript) for iOS and Android, from the
+approved design in `design/`.
 
-## What you should do — IMPORTANT
+## Running it
 
-**Read the chat transcripts first.** There are 1 chat transcript(s) in `chats/`. The transcripts show the full back-and-forth between the user and the design assistant — they tell you **what the user actually wants** and **where they landed** after iterating. Don't skip them. The final HTML files are the output, but the chat is where the intent lives.
+```bash
+npm install
+npm start          # then scan the QR code with Expo Go
+npm run ios        # or press "i" in the Expo CLI
+npm run android    # or press "a"
+npm run typecheck  # tsc --noEmit
+```
 
-**Read `project/Celadon App.dc.html` in full.** The user had this file open when they triggered the handoff, so it's almost certainly the primary design they want built. Read it top to bottom — don't skim. Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) so you understand how the pieces fit together before you start implementing.
+`npm run web` also works and is handy for reviewing layout in a browser,
+though the camera path is device-only.
 
-**If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
+## Meal analysis
 
-## About the design files
+The scan flow talks to a `MealAnalysisService` (`src/services/mealAnalysis/`)
+with two steps — `detect` (what's on the plate, with per-ingredient
+confidence) and `analyze` (Celadon Score, classification, macros, reasoning).
 
-The design medium is **HTML/CSS/JS** — these are prototypes, not production code. Your job is to **recreate them pixel-perfectly** in whatever technology makes sense for the target codebase (React, Vue, native, whatever fits). Match the visual output; don't copy the prototype's internal structure unless it happens to fit.
+Two implementations ship:
 
-**Don't render these files in a browser or take screenshots unless the user asks you to.** Everything you need — dimensions, colors, layout rules — is spelled out in the source. Read the HTML and CSS directly; a screenshot won't tell you anything they don't.
+| Implementation              | When it's used                                      |
+| --------------------------- | --------------------------------------------------- |
+| `StubMealAnalysisService`   | Default. Runs on-device, returns the design's reference plate, and covers the failure path. |
+| `RemoteMealAnalysisService` | Used when `EXPO_PUBLIC_MEAL_ANALYSIS_URL` is set. Uploads the photo as multipart form data. |
 
-## Bundle contents
+```bash
+# .env
+EXPO_PUBLIC_MEAL_ANALYSIS_URL=https://api.example.com/v1/meals
+EXPO_PUBLIC_MEAL_ANALYSIS_TOKEN=…       # optional bearer token
+```
 
-- `README.md` — this file
-- `chats/` — conversation transcripts (read these!)
-- `project/` — the `Sage: Inflammatory diet app` project files (HTML prototypes, assets, components)
+The backend is expected to expose `POST /detect` and `POST /analyze`; the
+request and response shapes are documented in
+`src/services/mealAnalysis/RemoteMealAnalysisService.ts`. Screens only ever
+see the types in `types.ts`, so swapping models changes nothing above the
+service layer.
+
+Camera capture uses `expo-camera` and gallery picks use `expo-image-picker`,
+both behind a priming dialog that explains the ask before the OS prompt.
+
+## Structure
+
+```
+App.tsx                      root providers, font loading, safe-area frame
+src/
+  theme/                     colours, type, radii — lifted from the design
+  components/                shared primitives (Text, Card, Chip, ScoreRing, TabBar…)
+  screens/                   one file per screen
+  navigation/                stack, route types, deep links
+  state/AppState.tsx         single store: assessment answers, plan, diary, settings
+  services/mealAnalysis/     analysis contract + stub and remote implementations
+  data/                      content fixtures (meals, recipes, insights, copy)
+design/                      the Claude Design handoff this was built from
+```
+
+Deep links follow the route table in `src/navigation/RootNavigator.tsx` —
+`celadon://plan`, `celadon://scan`, `celadon://check-in`, and so on — so a
+meal reminder can open the right screen.
+
+## Things worth knowing before you change anything
+
+**Gentle mode is not a cosmetic toggle.** `comfort` in `AppState` decides
+whether calories, macros and weight appear anywhere in the app. Read
+`numbersOn` from `useAppState()` rather than rendering numbers directly, or
+they'll leak into a mode built for people in eating-disorder recovery.
+
+**Photo-derived numbers are always labelled as estimates.** Every surface that
+shows calories or portions from a scan says so. That wording is a product
+commitment, not filler.
+
+**The app never diagnoses.** Copy throughout describes patterns and
+observations. Correlations on the Progress screen are framed as things worth
+watching, never as findings — and the doctor report says the same in writing.
+
+**Food photography is stubbed.** `<Hatch>` stands in for imagery everywhere a
+photo will eventually go. Replacing it with `<Image>` is a per-call-site swap;
+sizes and radii already match the design.
+
+**Content is fixtures.** `src/data/` holds the meals, recipes, shopping list
+and insights from the design. They're plain objects, ready to be replaced by
+API responses.
+
+## Design source
+
+`design/` is the original Claude Design handoff — the prototype
+(`design/project/Celadon App.dc.html`), its shared components, the conversation
+that produced it (`design/chats/`), and the original handoff note
+(`design/HANDOFF.md`). It stays in the repo as the reference for anything not
+yet built; the app itself doesn't read from it.
