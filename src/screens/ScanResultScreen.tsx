@@ -1,0 +1,182 @@
+import { RouteProp, useRoute } from '@react-navigation/native';
+import React from 'react';
+import { View } from 'react-native';
+import {
+  Card,
+  Display,
+  Dot,
+  NoteCard,
+  Pill,
+  PrimaryButton,
+  Screen,
+  ScoreDial,
+  SmallButton,
+  Strong,
+  Text,
+  TextButton,
+  TintCard,
+} from '../components';
+import { confidenceLabel, IngredientTone, MealAnalysisResult } from '../services/mealAnalysis';
+import { useAppState } from '../state/AppState';
+import { colors, radius } from '../theme';
+import { RootStackParamList, useAppNavigation } from '../navigation/types';
+
+const toneStyles: Record<IngredientTone, { dot: string; text: string }> = {
+  supportive: { dot: colors.green, text: colors.green },
+  balanced: { dot: colors.greenMid, text: colors.greenText },
+  flagged: { dot: colors.amber, text: colors.amber },
+  limit: { dot: colors.amber, text: colors.amber },
+};
+
+/**
+ * Scan result — score first, then the reasoning, then the numbers (if the
+ * user wants them at all). Estimates are labelled as estimates every time
+ * they appear.
+ */
+export function ScanResultScreen() {
+  const navigation = useAppNavigation();
+  const route = useRoute<RouteProp<RootStackParamList, 'ScanResult'>>();
+  const result: MealAnalysisResult = route.params.result;
+  const { numbersOn, set } = useAppState();
+
+  return (
+    <Screen padding={24} paddingTop={24} paddingBottom={32}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Display size={22} style={{ flex: 1 }}>
+          {result.dish}
+        </Display>
+        <SmallButton label="Rescan" color={colors.muted} onPress={() => navigation.navigate('Scan')} />
+      </View>
+
+      <Card style={{ flexDirection: 'row', gap: 16, alignItems: 'center', padding: 18, borderRadius: radius.cardLg }}>
+        <ScoreDial score={result.celadonScore} caption="Celadon Score" />
+        <View style={{ flex: 1 }}>
+          <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
+            <Pill label={result.classification} />
+            <Pill
+              label={confidenceLabel(result.confidence)}
+              background={colors.sunken}
+              color={colors.muted}
+              weight="semibold"
+            />
+          </View>
+          <Text size={13.5} color={colors.muted} lineHeight={20} style={{ marginTop: 8 }}>
+            {result.summary}
+          </Text>
+        </View>
+      </Card>
+
+      {numbersOn ? (
+        <Card style={{ paddingVertical: 14, paddingHorizontal: 18 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+            <View style={{ flex: 1, flexDirection: 'row', gap: 16, flexWrap: 'wrap' }}>
+              <Macro value={`${result.nutrition.calories}`} label="calories" />
+              <Macro value={`${result.nutrition.protein}g`} label="protein" />
+              <Macro value={`${result.nutrition.carbs}g`} label="carbs" />
+              <Macro value={`${result.nutrition.fat}g`} label="fat" />
+              <Macro value={`${result.nutrition.fibre}g`} label="fibre" />
+            </View>
+            <TextButton label="Hide" size={12.5} color={colors.faint} onPress={() => set({ numbersOverride: false })} />
+          </View>
+          <Text
+            size={12}
+            color={colors.faint}
+            style={{ marginTop: 10, paddingTop: 9, borderTopWidth: 1, borderTopColor: colors.sunken }}
+          >
+            Photo-based calories and portions are estimates, not measurements.
+          </Text>
+        </Card>
+      ) : (
+        <NoteCard
+          style={{
+            paddingVertical: 13,
+            paddingHorizontal: 16,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Text size={13} color={colors.muted} lineHeight={20} style={{ flex: 1 }}>
+            Nutrition numbers are hidden in gentle mode.
+          </Text>
+          <TextButton
+            label="Show"
+            size={12.5}
+            color={colors.green}
+            weight="semibold"
+            onPress={() => set({ numbersOverride: true })}
+          />
+        </NoteCard>
+      )}
+
+      <View>
+        <Text weight="semibold" size={15} style={{ marginBottom: 10 }}>
+          Ingredient breakdown
+        </Text>
+        <View style={{ gap: 8 }}>
+          {result.ingredients.map((item) => {
+            const tone = toneStyles[item.tone];
+            return (
+              <Card
+                key={item.name}
+                style={{
+                  flexDirection: 'row',
+                  gap: 12,
+                  alignItems: 'flex-start',
+                  paddingVertical: 13,
+                  paddingHorizontal: 14,
+                  borderRadius: radius.tileSm,
+                }}
+              >
+                <Dot color={tone.dot} style={{ marginTop: 4 }} />
+                <View style={{ flex: 1 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
+                    <Text weight="semibold" size={14.5} style={{ flex: 1 }}>
+                      {item.name}
+                    </Text>
+                    <Text weight="bold" size={12} color={tone.text}>
+                      {item.label}
+                    </Text>
+                  </View>
+                  <Text size={13} color={colors.muted} lineHeight={19} style={{ marginTop: 2 }}>
+                    {item.reason}
+                  </Text>
+                </View>
+              </Card>
+            );
+          })}
+        </View>
+      </View>
+
+      {result.substitutions.length ? (
+        <TintCard style={{ padding: 16 }}>
+          <Text weight="semibold" size={14.5} color={colors.greenDeep} style={{ marginBottom: 8 }}>
+            Make it even more supportive
+          </Text>
+          <View style={{ gap: 8 }}>
+            {result.substitutions.map((sub) => (
+              <Text key={sub.from} size={13.5} color={colors.greenDeep} lineHeight={20}>
+                <Strong>{sub.from}</Strong> → {sub.to}
+              </Text>
+            ))}
+          </View>
+        </TintCard>
+      ) : null}
+
+      <PrimaryButton label="Add to my day" onPress={() => navigation.navigate('Diary')} />
+    </Screen>
+  );
+}
+
+function Macro({ value, label }: { value: string; label: string }) {
+  return (
+    <View>
+      <Text weight="bold" size={17}>
+        {value}
+      </Text>
+      <Text weight="medium" size={11.5} color={colors.faint}>
+        {label}
+      </Text>
+    </View>
+  );
+}
