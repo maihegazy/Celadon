@@ -1,0 +1,1849 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Lora:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#eceae3;font-family:'Albert Sans',sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#3c7a5a;text-decoration:none}a:hover{color:#2c5f45}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{display:none!important;width:0;height:0}
+*{scrollbar-width:none;-ms-overflow-style:none}
+textarea{outline:none}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 16px">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="430px,884px">
+<div style="height:100%;box-sizing:border-box;padding-top:56px;display:flex;flex-direction:column;background:#f7f5f0;color:#22302a;position:relative">
+
+<!-- ══ ONBOARDING ══ -->
+<sc-if value="{{ isOb }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Onboarding" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+  <div style="display:flex;gap:5px;padding:18px 24px 0">
+    <sc-for list="{{ obBars }}" as="b" hint-placeholder-count="9">
+      <div style="height:4px;flex:1;border-radius:2px;background:{{ b.bg }}"></div>
+    </sc-for>
+  </div>
+  <sc-if value="{{ ob0 }}" hint-placeholder-val="{{ true }}">
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 28px;gap:16px">
+    <div style="width:56px;height:56px;border-radius:50%;background:#e9f1ea;display:flex;align-items:center;justify-content:center">
+      <div style="width:22px;height:22px;border-radius:50% 50% 50% 0;background:#3c7a5a;transform:rotate(-45deg)"></div>
+    </div>
+    <div style="font-family:Lora,serif;font-size:34px;line-height:1.15;font-weight:500">A calmer way to eat well.</div>
+    <div style="font-size:16px;line-height:1.55;color:#6b7a70;text-wrap:pretty">Celadon helps you start an anti&#8209;inflammatory way of eating without the overwhelm — one gentle step at a time. No judgment, no pressure.</div>
+    <button onClick="{{ obNext }}" style="margin-top:12px;background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:16px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer">Let's begin</button>
+    <div style="text-align:center;font-size:13px;color:#9aa79e">Takes about two minutes · You can change everything later</div>
+    <button onClick="{{ goAuth }}" style="background:none;border:none;font-family:inherit;font-size:13.5px;font-weight:500;color:#6b7a70;cursor:pointer;padding:4px">Already have an account? <b style="color:#3c7a5a">Sign in</b></button>
+  </div>
+  </sc-if>
+  <sc-if value="{{ ob1 }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow-y:auto;padding:28px;display:flex;flex-direction:column;gap:8px">
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500;line-height:1.2">What brings you to Celadon?</div>
+    <div style="font-size:14.5px;color:#6b7a70;line-height:1.5;margin-bottom:12px">Your main goal shapes everything else.</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <sc-for list="{{ goals }}" as="c" hint-placeholder-count="5">
+        <button onClick="{{ c.tap }}" style="display:flex;align-items:center;gap:12px;text-align:left;padding:15px 16px;border-radius:14px;border:1.5px solid {{ c.bd }};background:{{ c.bg }};font-family:inherit;font-size:15.5px;font-weight:500;color:#22302a;cursor:pointer">
+          <div style="width:20px;height:20px;border-radius:50%;border:2px solid {{ c.dotBd }};background:{{ c.dot }};flex:none"></div>{{ c.name }}
+        </button>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ ob2 }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow-y:auto;padding:28px;display:flex;flex-direction:column;gap:8px">
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500;line-height:1.2">Living with a diagnosis?</div>
+    <div style="font-size:14.5px;color:#6b7a70;line-height:1.5;margin-bottom:12px">Pick anything that applies. This shapes your plan — Celadon never diagnoses or treats.</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <sc-for list="{{ conds }}" as="c" hint-placeholder-count="5">
+        <button onClick="{{ c.tap }}" style="display:flex;align-items:center;gap:12px;text-align:left;padding:15px 16px;border-radius:14px;border:1.5px solid {{ c.bd }};background:{{ c.bg }};font-family:inherit;font-size:15.5px;font-weight:500;color:#22302a;cursor:pointer">
+          <div style="width:20px;height:20px;border-radius:50%;border:2px solid {{ c.dotBd }};background:{{ c.dot }};flex:none"></div>{{ c.name }}
+        </button>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ ob3 }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow-y:auto;padding:28px;display:flex;flex-direction:column;gap:8px">
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500;line-height:1.2">Anything your body's been telling you?</div>
+    <div style="font-size:14.5px;color:#6b7a70;line-height:1.5;margin-bottom:12px">We'll pay gentle attention to these in your plan and check&#8209;ins.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">
+      <sc-for list="{{ concerns }}" as="t" hint-placeholder-count="7">
+        <button onClick="{{ t.tap }}" style="padding:11px 18px;border-radius:22px;border:1.5px solid {{ t.bd }};background:{{ t.bg }};color:{{ t.fg }};font-family:inherit;font-size:14.5px;font-weight:500;cursor:pointer">{{ t.name }}</button>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ ob4 }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow-y:auto;padding:28px;display:flex;flex-direction:column;gap:8px">
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500;line-height:1.2">Anything you'd like to avoid?</div>
+    <div style="font-size:14.5px;color:#6b7a70;line-height:1.5;margin-bottom:12px">Allergies, intolerances and foods you'd rather skip. Nothing is forbidden — we simply plan around them.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">
+      <sc-for list="{{ avoids }}" as="t" hint-placeholder-count="9">
+        <button onClick="{{ t.tap }}" style="padding:11px 18px;border-radius:22px;border:1.5px solid {{ t.bd }};background:{{ t.bg }};color:{{ t.fg }};font-family:inherit;font-size:14.5px;font-weight:500;cursor:pointer">{{ t.name }}</button>
+      </sc-for>
+    </div>
+    <div style="margin-top:8px;font-size:13px;color:#9aa79e;line-height:1.5">Not sure? Skip this — the reintroduction tracker helps you find your triggers over time.</div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ ob5 }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow-y:auto;padding:28px;display:flex;flex-direction:column;gap:8px">
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500;line-height:1.2">What does home taste like?</div>
+    <div style="font-size:14.5px;color:#6b7a70;line-height:1.5;margin-bottom:12px">Your plan should feel familiar, not foreign. Pick as many as you like.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">
+      <sc-for list="{{ cuisines }}" as="t" hint-placeholder-count="6">
+        <button onClick="{{ t.tap }}" style="padding:11px 18px;border-radius:22px;border:1.5px solid {{ t.bd }};background:{{ t.bg }};color:{{ t.fg }};font-family:inherit;font-size:14.5px;font-weight:500;cursor:pointer">{{ t.name }}</button>
+      </sc-for>
+    </div>
+    <div style="font-size:14px;font-weight:600;margin-top:16px;margin-bottom:2px">Where are you based?</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">
+      <sc-for list="{{ countries }}" as="t" hint-placeholder-count="6">
+        <button onClick="{{ t.tap }}" style="padding:11px 18px;border-radius:22px;border:1.5px solid {{ t.bd }};background:{{ t.bg }};color:{{ t.fg }};font-family:inherit;font-size:14.5px;font-weight:500;cursor:pointer">{{ t.name }}</button>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ ob6 }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow-y:auto;padding:28px;display:flex;flex-direction:column;gap:8px">
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500;line-height:1.2">A little about your days</div>
+    <div style="font-size:14.5px;color:#6b7a70;line-height:1.5;margin-bottom:12px">So portions and meal timing fit your life.</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <sc-for list="{{ activities }}" as="m" hint-placeholder-count="3">
+        <button onClick="{{ m.tap }}" style="text-align:left;padding:14px 16px;border-radius:14px;border:1.5px solid {{ m.bd }};background:{{ m.bg }};font-family:inherit;cursor:pointer">
+          <div style="font-size:15px;font-weight:600;color:#22302a">{{ m.name }}</div>
+          <div style="font-size:13px;color:#6b7a70;margin-top:2px">{{ m.desc }}</div>
+        </button>
+      </sc-for>
+    </div>
+    <div style="font-size:14px;font-weight:600;margin-top:14px;margin-bottom:2px">Meals a day</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">
+      <sc-for list="{{ mealsChips }}" as="t" hint-placeholder-count="4">
+        <button onClick="{{ t.tap }}" style="padding:11px 18px;border-radius:22px;border:1.5px solid {{ t.bd }};background:{{ t.bg }};color:{{ t.fg }};font-family:inherit;font-size:14.5px;font-weight:500;cursor:pointer">{{ t.name }}</button>
+      </sc-for>
+    </div>
+    <div style="font-size:14px;font-weight:600;margin-top:14px;margin-bottom:2px">Weight goal</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">
+      <sc-for list="{{ weightChips }}" as="t" hint-placeholder-count="3">
+        <button onClick="{{ t.tap }}" style="padding:11px 18px;border-radius:22px;border:1.5px solid {{ t.bd }};background:{{ t.bg }};color:{{ t.fg }};font-family:inherit;font-size:14.5px;font-weight:500;cursor:pointer">{{ t.name }}</button>
+      </sc-for>
+    </div>
+    <div style="margin-top:8px;font-size:13px;color:#9aa79e;line-height:1.5">Optional — Celadon never pushes numbers on you.</div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ ob7 }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow-y:auto;padding:28px;display:flex;flex-direction:column;gap:8px">
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500;line-height:1.2">How should we talk about food?</div>
+    <div style="font-size:14.5px;color:#6b7a70;line-height:1.5;margin-bottom:12px">If numbers around food feel stressful, we can leave them out. Your relationship with eating matters more than any metric.</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <sc-for list="{{ comforts }}" as="m" hint-placeholder-count="3">
+        <button onClick="{{ m.tap }}" style="text-align:left;padding:16px;border-radius:14px;border:1.5px solid {{ m.bd }};background:{{ m.bg }};font-family:inherit;cursor:pointer">
+          <div style="font-size:15.5px;font-weight:600;color:#22302a">{{ m.name }}</div>
+          <div style="font-size:13.5px;color:#6b7a70;margin-top:3px;line-height:1.45">{{ m.desc }}</div>
+        </button>
+      </sc-for>
+    </div>
+    <div style="margin-top:8px;padding:14px;border-radius:12px;background:#f0ede5;font-size:13px;color:#6b7a70;line-height:1.5">You can switch modes anytime in settings — quietly, no questions asked.</div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ ob8 }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow-y:auto;padding:28px;display:flex;flex-direction:column;gap:14px">
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500;line-height:1.2">Your plan, ready.</div>
+    <div style="font-size:14.5px;color:#6b7a70;line-height:1.5">Here's what Celadon will build around:</div>
+    <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:11px">
+      <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:10px;height:10px;border-radius:50%;background:#3c7a5a;flex:none;margin-top:4px"></div><div style="font-size:14px;color:#4a5a50;line-height:1.5">{{ sumCuisine }}</div></div>
+      <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:10px;height:10px;border-radius:50%;background:#b07c2f;flex:none;margin-top:4px"></div><div style="font-size:14px;color:#4a5a50;line-height:1.5">{{ sumAvoid }}</div></div>
+      <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:10px;height:10px;border-radius:50%;background:#7fa88f;flex:none;margin-top:4px"></div><div style="font-size:14px;color:#4a5a50;line-height:1.5">{{ sumLife }}</div></div>
+      <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:10px;height:10px;border-radius:50%;background:#9aa79e;flex:none;margin-top:4px"></div><div style="font-size:14px;color:#4a5a50;line-height:1.5">{{ sumNumbers }}</div></div>
+    </div>
+    <div>
+      <div style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#9aa79e;font-weight:700;margin-bottom:8px">A taste of day one</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <sc-for list="{{ previewMeals }}" as="m" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e8e4da;border-radius:13px;padding:11px 14px">
+            <div style="width:38px;height:38px;border-radius:10px;flex:none;background:repeating-linear-gradient(45deg,#e9f1ea,#e9f1ea 6px,#f0f5f0 6px,#f0f5f0 12px)"></div>
+            <div style="flex:1"><div style="font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:#9aa79e;font-weight:600">{{ m.slot }}</div><div style="font-size:14px;font-weight:600">{{ m.name }}</div></div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="font-size:13px;color:#9aa79e;line-height:1.5">You can swap any meal, regenerate the week, or change these answers anytime.</div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ obPastIntro }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;gap:10px;padding:16px 28px 24px">
+    <button onClick="{{ obBack }}" style="padding:15px 22px;border-radius:26px;border:1.5px solid #ddd8cc;background:transparent;font-family:inherit;font-size:15px;font-weight:600;color:#6b7a70;cursor:pointer">Back</button>
+    <button onClick="{{ obNext }}" style="flex:1;padding:15px;border-radius:26px;border:none;background:#3c7a5a;color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer">{{ obNextLabel }}</button>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- ══ AUTH ══ -->
+<sc-if value="{{ isAuth }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Sign in" style="flex:1;overflow-y:auto;padding:28px;display:flex;flex-direction:column;justify-content:center;gap:13px">
+  <div style="width:56px;height:56px;border-radius:50%;background:#e9f1ea;display:flex;align-items:center;justify-content:center;margin-bottom:2px">
+    <div style="width:22px;height:22px;border-radius:50% 50% 50% 0;background:#3c7a5a;transform:rotate(-45deg)"></div>
+  </div>
+  <sc-if value="{{ auth0 }}" hint-placeholder-val="{{ true }}">
+  <div style="font-family:Lora,serif;font-size:30px;font-weight:500;line-height:1.15">Welcome back.</div>
+  <div style="font-size:14.5px;color:#6b7a70;line-height:1.5">Your plan and progress are right where you left them.</div>
+  <input placeholder="Email" style="background:#fff;border:1px solid #e8e4da;border-radius:14px;padding:14px 16px;font-family:inherit;font-size:14.5px;color:#22302a;outline:none"></input>
+  <input placeholder="Password" type="password" style="background:#fff;border:1px solid #e8e4da;border-radius:14px;padding:14px 16px;font-family:inherit;font-size:14.5px;color:#22302a;outline:none"></input>
+  <button onClick="{{ authSignin }}" style="background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:15px;font-size:15.5px;font-weight:600;font-family:inherit;cursor:pointer">Sign in</button>
+  <div style="display:flex;align-items:center;gap:12px;color:#9aa79e;font-size:12.5px"><div style="flex:1;height:1px;background:#e8e4da"></div>or<div style="flex:1;height:1px;background:#e8e4da"></div></div>
+  <button style="background:#22302a;color:#fff;border:none;border-radius:26px;padding:14px;font-size:14.5px;font-weight:600;font-family:inherit;cursor:pointer">Continue with Apple</button>
+  <button style="background:#fff;color:#22302a;border:1.5px solid #ddd8cc;border-radius:26px;padding:14px;font-size:14.5px;font-weight:600;font-family:inherit;cursor:pointer">Continue with Google</button>
+  <div style="display:flex;justify-content:space-between;margin-top:2px">
+    <button onClick="{{ goForgot }}" style="background:none;border:none;font-family:inherit;font-size:13.5px;font-weight:600;color:#6b7a70;cursor:pointer;padding:4px 0">Forgot password?</button>
+    <button onClick="{{ goSignup }}" style="background:none;border:none;font-family:inherit;font-size:13.5px;font-weight:500;color:#6b7a70;cursor:pointer;padding:4px 0">New here? <b style="color:#3c7a5a">Create account</b></button>
+  </div>
+  </sc-if>
+  <sc-if value="{{ auth1 }}" hint-placeholder-val="{{ false }}">
+  <div style="font-family:Lora,serif;font-size:30px;font-weight:500;line-height:1.15">Let's get you set up.</div>
+  <div style="font-size:14.5px;color:#6b7a70;line-height:1.5">One account — both languages, all your devices.</div>
+  <input placeholder="Email" style="background:#fff;border:1px solid #e8e4da;border-radius:14px;padding:14px 16px;font-family:inherit;font-size:14.5px;color:#22302a;outline:none"></input>
+  <input placeholder="Choose a password" type="password" style="background:#fff;border:1px solid #e8e4da;border-radius:14px;padding:14px 16px;font-family:inherit;font-size:14.5px;color:#22302a;outline:none"></input>
+  <button onClick="{{ authSignup }}" style="background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:15px;font-size:15.5px;font-weight:600;font-family:inherit;cursor:pointer">Create account</button>
+  <div style="display:flex;align-items:center;gap:12px;color:#9aa79e;font-size:12.5px"><div style="flex:1;height:1px;background:#e8e4da"></div>or<div style="flex:1;height:1px;background:#e8e4da"></div></div>
+  <button style="background:#22302a;color:#fff;border:none;border-radius:26px;padding:14px;font-size:14.5px;font-weight:600;font-family:inherit;cursor:pointer">Continue with Apple</button>
+  <button style="background:#fff;color:#22302a;border:1.5px solid #ddd8cc;border-radius:26px;padding:14px;font-size:14.5px;font-weight:600;font-family:inherit;cursor:pointer">Continue with Google</button>
+  <div style="font-size:12.5px;color:#9aa79e;text-align:center;line-height:1.5">By continuing you agree to our <a onClick="{{ goLegal }}" style="cursor:pointer;font-weight:600">Terms &amp; privacy</a>.</div>
+  <button onClick="{{ goSignin }}" style="background:none;border:none;font-family:inherit;font-size:13.5px;font-weight:500;color:#6b7a70;cursor:pointer;padding:4px 0">Have an account? <b style="color:#3c7a5a">Sign in</b></button>
+  </sc-if>
+  <sc-if value="{{ auth2 }}" hint-placeholder-val="{{ false }}">
+  <div style="font-family:Lora,serif;font-size:30px;font-weight:500;line-height:1.15">Reset your password</div>
+  <div style="font-size:14.5px;color:#6b7a70;line-height:1.5">We'll email you a link — it expires in one hour.</div>
+  <sc-if value="{{ resetSent }}" hint-placeholder-val="{{ false }}">
+  <div style="background:#e9f1ea;border-radius:14px;padding:14px 16px;display:flex;gap:10px;align-items:center">
+    <div style="width:24px;height:24px;border-radius:50%;background:#3c7a5a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:none">✓</div>
+    <div style="font-size:13.5px;color:#2f4a3c;line-height:1.45"><b>Sent.</b> Check your inbox — and spam, just in case.</div>
+  </div>
+  </sc-if>
+  <input placeholder="Email" style="background:#fff;border:1px solid #e8e4da;border-radius:14px;padding:14px 16px;font-family:inherit;font-size:14.5px;color:#22302a;outline:none"></input>
+  <button onClick="{{ sendReset }}" style="background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:15px;font-size:15.5px;font-weight:600;font-family:inherit;cursor:pointer">Send reset link</button>
+  <button onClick="{{ goSignin }}" style="background:none;border:none;font-family:inherit;font-size:13.5px;font-weight:600;color:#6b7a70;cursor:pointer;padding:4px 0">‹ Back to sign in</button>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- ══ PERMISSIONS ══ -->
+<sc-if value="{{ isPerms }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Permissions" style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:28px;gap:15px">
+  <sc-if value="{{ perm0 }}" hint-placeholder-val="{{ true }}">
+  <div style="width:56px;height:56px;border-radius:50%;background:#e9f1ea;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><div style="width:16px;height:15px;border:2.5px solid #3c7a5a;border-bottom:none;border-radius:9px 9px 2px 2px"></div><div style="width:22px;height:2.5px;background:#3c7a5a;border-radius:2px"></div></div>
+  <div style="font-family:Lora,serif;font-size:27px;font-weight:500;line-height:1.2">Gentle reminders, if you want them</div>
+  <div style="font-size:14.5px;color:#6b7a70;line-height:1.55;text-wrap:pretty">A nudge before meals and a weekly reflection. Never streak pressure, never guilt — and you can quiet them anytime.</div>
+  <button onClick="{{ permNext }}" style="background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:16px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:6px">Enable notifications</button>
+  <button onClick="{{ permNext }}" style="background:none;border:1.5px solid #ddd8cc;border-radius:26px;padding:15px;font-family:inherit;font-size:15px;font-weight:600;color:#6b7a70;cursor:pointer">Not now</button>
+  </sc-if>
+  <sc-if value="{{ perm1 }}" hint-placeholder-val="{{ false }}">
+  <div style="width:56px;height:56px;border-radius:50%;background:#e9f1ea;display:flex;align-items:center;justify-content:center"><div style="width:22px;height:22px;border-radius:50% 50% 50% 0;background:#3c7a5a;transform:rotate(-45deg)"></div></div>
+  <div style="font-family:Lora,serif;font-size:27px;font-weight:500;line-height:1.2">Your health data, your call</div>
+  <div style="font-size:14.5px;color:#6b7a70;line-height:1.55">Celadon stores your answers only to personalize your meals and insights.</div>
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:10px;height:10px;border-radius:50%;background:#3c7a5a;flex:none;margin-top:4px"></div><div style="font-size:14px;color:#4a5a50;line-height:1.5">We never sell your data or show ads</div></div>
+    <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:10px;height:10px;border-radius:50%;background:#3c7a5a;flex:none;margin-top:4px"></div><div style="font-size:14px;color:#4a5a50;line-height:1.5">Export or delete everything, anytime</div></div>
+    <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:10px;height:10px;border-radius:50%;background:#3c7a5a;flex:none;margin-top:4px"></div><div style="font-size:14px;color:#4a5a50;line-height:1.5">Meal photos are analyzed, not kept</div></div>
+  </div>
+  <button onClick="{{ permDone }}" style="background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:16px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:6px">I understand — continue</button>
+  <button onClick="{{ goLegal }}" style="background:none;border:none;font-family:inherit;font-size:13.5px;font-weight:600;color:#3c7a5a;cursor:pointer;padding:4px">Read the privacy policy</button>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- ══ HOME ══ -->
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Home" style="flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:18px">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-top:6px">
+    <div>
+      <div style="font-size:13.5px;color:#9aa79e;font-weight:500">{{ dateLabel }}</div>
+      <div style="font-family:Lora,serif;font-size:27px;font-weight:500;margin-top:2px">Good morning, Maya</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button onClick="{{ goSearch }}" style="width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid #e8e4da;cursor:pointer;display:flex;align-items:center;justify-content:center">
+        <div style="position:relative;width:16px;height:16px"><div style="width:10px;height:10px;border:2px solid #3c7a5a;border-radius:50%"></div><div style="position:absolute;right:0;bottom:0;width:7px;height:2px;background:#3c7a5a;border-radius:1px;transform:rotate(45deg)"></div></div>
+      </button>
+      <button onClick="{{ goNotifs }}" style="width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid #e8e4da;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px">
+        <div style="width:11px;height:10px;border:2px solid #3c7a5a;border-bottom:none;border-radius:7px 7px 1px 1px"></div><div style="width:15px;height:2px;background:#3c7a5a;border-radius:1px"></div>
+      </button>
+      <div onClick="{{ goProfile }}" style="width:40px;height:40px;border-radius:50%;background:#e9f1ea;display:flex;align-items:center;justify-content:center;font-weight:600;color:#3c7a5a;font-size:15px;cursor:pointer">M</div>
+    </div>
+  </div>
+  <div style="background:#2f4a3c;border-radius:18px;padding:18px;color:#fff">
+    <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#a9c4b3;font-weight:600">Today's gentle focus</div>
+    <div style="font-family:Lora,serif;font-size:19px;margin-top:6px;line-height:1.35">Add one omega&#8209;3 source — your salmon bowl at lunch has it covered.</div>
+    <div style="font-size:13px;color:#a9c4b3;margin-top:8px">Small steps compound. That's the whole plan.</div>
+  </div>
+  <div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
+      <div style="font-size:16px;font-weight:600">Today's meals</div>
+      <a onClick="{{ goDiary }}" style="font-size:13.5px;font-weight:600;cursor:pointer">Food diary →</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <sc-for list="{{ todayMeals }}" as="m" hint-placeholder-count="3">
+        <div onClick="{{ m.open }}" style="display:flex;gap:12px;background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:12px;cursor:pointer;align-items:center">
+          <div style="width:56px;height:56px;border-radius:12px;flex:none;background:repeating-linear-gradient(45deg,#e9f1ea,#e9f1ea 6px,#f0f5f0 6px,#f0f5f0 12px);display:flex;align-items:center;justify-content:center"><div style="width:16px;height:16px;border-radius:50%;background:#c5d8cb"></div></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:#9aa79e;font-weight:600">{{ m.slot }}</div>
+            <div style="font-size:15px;font-weight:600;margin-top:1px">{{ m.name }}</div>
+            <div style="font-size:12.5px;color:#6b7a70;margin-top:2px">{{ m.meta }}</div>
+          </div>
+          <div style="padding:4px 10px;border-radius:12px;background:#e9f1ea;color:#3c7a5a;font-size:12px;font-weight:600;flex:none">{{ m.badge }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px">
+    <button onClick="{{ goTrack }}" style="flex:1;background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:16px;text-align:left;font-family:inherit;cursor:pointer">
+      <div style="width:10px;height:10px;border-radius:50%;background:#b07c2f;margin-bottom:8px"></div>
+      <div style="font-size:14.5px;font-weight:600;color:#22302a">How's your body today?</div>
+      <div style="font-size:12.5px;color:#6b7a70;margin-top:2px">30-second check-in</div>
+    </button>
+    <button onClick="{{ goProgress }}" style="flex:1;background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:16px;text-align:left;font-family:inherit;cursor:pointer">
+      <div style="display:flex;align-items:flex-end;gap:3px;height:10px;margin-bottom:8px"><div style="width:4px;height:5px;background:#c5d8cb;border-radius:2px"></div><div style="width:4px;height:8px;background:#7fa88f;border-radius:2px"></div><div style="width:4px;height:10px;background:#3c7a5a;border-radius:2px"></div></div>
+      <div style="font-size:14.5px;font-weight:600;color:#22302a">Your progress</div>
+      <div style="font-size:12.5px;color:#6b7a70;margin-top:2px">11 calm days this month</div>
+    </button>
+  </div>
+  <div onClick="{{ goReintro }}" style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:16px;display:flex;align-items:center;gap:12px;cursor:pointer">
+    <div style="width:38px;height:38px;border-radius:50%;background:#f7ecd9;display:flex;align-items:center;justify-content:center;flex:none"><div style="width:14px;height:14px;border-radius:4px;background:#b07c2f;transform:rotate(45deg)"></div></div>
+    <div style="flex:1">
+      <div style="font-size:14.5px;font-weight:600">Reintroducing: Ghee</div>
+      <div style="font-size:12.5px;color:#6b7a70;margin-top:2px">Day 2 of 5 · No symptoms so far — looking good</div>
+    </div>
+    <div style="color:#9aa79e;font-size:18px">›</div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ══ SCAN ══ -->
+<sc-if value="{{ isScan }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Scan" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+  <sc-if value="{{ sc0 }}" hint-placeholder-val="{{ true }}">
+  <div style="flex:1;display:flex;flex-direction:column;background:#1d2620;color:#fff">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px">
+      <button onClick="{{ goHome }}" style="background:rgba(255,255,255,.12);border:none;border-radius:18px;padding:8px 16px;color:#fff;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer">Close</button>
+      <div style="font-size:14px;font-weight:600">Scan a meal</div>
+      <button onClick="{{ openQuota }}" style="background:rgba(255,255,255,.12);border:none;border-radius:14px;padding:7px 12px;color:rgba(255,255,255,.75);font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer">1 free scan left</button>
+    </div>
+    <div style="flex:1;margin:8px 20px;border-radius:20px;background:repeating-linear-gradient(45deg,#2a362e,#2a362e 10px,#243029 10px,#243029 20px);position:relative;display:flex;align-items:center;justify-content:center">
+      <div style="position:absolute;inset:24px;border:2px solid rgba(255,255,255,.35);border-radius:16px"></div>
+      <div style="text-align:center;padding:0 40px">
+        <div style="font-family:'SF Mono',ui-monospace,monospace;font-size:12px;color:rgba(255,255,255,.55);line-height:1.6">camera viewfinder<br>point at your plate</div>
+      </div>
+    </div>
+    <div style="padding:20px;display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="font-size:13px;color:rgba(255,255,255,.6)">Center your plate in the frame</div>
+      <button onClick="{{ capture }}" style="width:72px;height:72px;border-radius:50%;border:4px solid #fff;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer"><div style="width:56px;height:56px;border-radius:50%;background:#3c7a5a"></div></button>
+      <button onClick="{{ fromGallery }}" style="background:none;border:none;color:rgba(255,255,255,.75);font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;padding:6px">Upload from gallery</button>
+    </div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ sc1 }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:40px">
+    <div style="width:54px;height:54px;border-radius:50%;border:4px solid #e8e4da;border-top-color:#3c7a5a;animation:spin 1s linear infinite"></div>
+    <div style="font-family:Lora,serif;font-size:21px">Looking at your plate…</div>
+    <div style="font-size:14px;color:#6b7a70;text-align:center;line-height:1.5">Identifying ingredients, estimating portions and checking against your profile</div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ scErr }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px;text-align:center">
+    <div style="width:56px;height:56px;border-radius:50%;background:#f7ecd9;display:flex;align-items:center;justify-content:center"><div style="font-size:22px;font-weight:700;color:#b07c2f;font-family:Lora,serif">!</div></div>
+    <div style="font-family:Lora,serif;font-size:22px">We couldn't read that photo</div>
+    <div style="font-size:14px;color:#6b7a70;line-height:1.55;max-width:280px">It looks too dark to identify confidently. Try more light, or shoot straight down at the plate. No result is better than a wrong one.</div>
+    <button onClick="{{ retake }}" style="background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:15px 32px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:6px">Try again</button>
+    <button onClick="{{ goHome }}" style="background:none;border:none;font-family:inherit;font-size:14px;font-weight:600;color:#6b7a70;cursor:pointer">Not now</button>
+  </div>
+  </sc-if>
+  <sc-if value="{{ sc2 }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:6px">
+    <div style="font-family:Lora,serif;font-size:24px;font-weight:500">Does this look right?</div>
+    <div style="display:flex;align-items:center;gap:8px;margin:6px 0 14px">
+      <div style="flex:none;height:8px;width:120px;border-radius:4px;background:#e8e4da;overflow:hidden"><div style="height:100%;width:87%;background:#3c7a5a;border-radius:4px"></div></div>
+      <div style="font-size:13px;color:#6b7a70;font-weight:500">87% confident it's a <b style="color:#22302a">salmon quinoa bowl</b></div>
+    </div>
+    <div style="background:#fff;border:1px solid #e8e4da;border-radius:14px;padding:13px 14px;margin-bottom:10px">
+      <div style="font-size:13.5px;font-weight:600;margin-bottom:8px">One dish, or separate items?</div>
+      <div style="display:flex;gap:8px">
+        <sc-for list="{{ disambigChips }}" as="d" hint-placeholder-count="2">
+          <button onClick="{{ d.tap }}" style="flex:1;padding:9px 0;border-radius:18px;border:1.5px solid {{ d.bd }};background:{{ d.bg }};color:{{ d.fg }};font-family:inherit;font-size:13px;font-weight:600;cursor:pointer">{{ d.name }}</button>
+        </sc-for>
+      </div>
+    </div>
+    <div style="font-size:13.5px;color:#6b7a70;margin-bottom:10px">Tap anything we got wrong — your correction makes the result better.</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ scanIngs }}" as="i" hint-placeholder-count="5">
+        <button onClick="{{ i.tap }}" style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:13px;border:1.5px solid {{ i.bd }};background:{{ i.bg }};font-family:inherit;cursor:pointer;text-align:left;opacity:{{ i.op }}">
+          <div style="width:18px;height:18px;border-radius:6px;border:2px solid {{ i.ckBd }};background:{{ i.ck }};flex:none"></div>
+          <div style="flex:1;font-size:15px;font-weight:500;color:#22302a">{{ i.name }}</div>
+          <div style="font-size:12.5px;color:#9aa79e">{{ i.conf }}</div>
+        </button>
+      </sc-for>
+    </div>
+    <button style="margin-top:6px;align-self:flex-start;background:none;border:none;font-family:inherit;font-size:14px;font-weight:600;color:#3c7a5a;cursor:pointer;padding:8px 0">+ Add something we missed</button>
+    <div style="font-size:14px;font-weight:600;margin-top:10px;margin-bottom:8px">Portion size</div>
+    <div style="display:flex;gap:10px">
+      <sc-for list="{{ portions }}" as="p" hint-placeholder-count="3">
+        <button onClick="{{ p.tap }}" style="flex:1;padding:11px 0;border-radius:22px;border:1.5px solid {{ p.bd }};background:{{ p.bg }};color:{{ p.fg }};font-family:inherit;font-size:14px;font-weight:600;cursor:pointer">{{ p.name }}</button>
+      </sc-for>
+    </div>
+    <div style="font-size:12.5px;color:#9aa79e;margin-top:6px">Rough is fine — portions from photos are estimates.</div>
+    <div style="flex:1"></div>
+    <button onClick="{{ confirmScan }}" style="background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:16px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:12px">Looks right — analyze</button>
+  </div>
+  </sc-if>
+  <sc-if value="{{ sc3 }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;overflow-y:auto;padding:24px 24px 32px;display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-family:Lora,serif;font-size:22px;font-weight:500">Salmon quinoa bowl</div>
+      <button onClick="{{ rescan }}" style="background:none;border:1.5px solid #ddd8cc;border-radius:18px;padding:7px 14px;font-family:inherit;font-size:13px;font-weight:600;color:#6b7a70;cursor:pointer">Rescan</button>
+    </div>
+    <div style="display:flex;gap:16px;align-items:center;background:#fff;border:1px solid #e8e4da;border-radius:18px;padding:18px">
+      <div style="width:92px;height:92px;border-radius:50%;background:conic-gradient(#3c7a5a 0 295deg,#e8e4da 295deg 360deg);display:flex;align-items:center;justify-content:center;flex:none">
+        <div style="width:72px;height:72px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <div style="font-size:24px;font-weight:700;color:#2f4a3c">82</div>
+          <div style="font-size:9.5px;color:#9aa79e;font-weight:600">Celadon Score</div>
+        </div>
+      </div>
+      <div style="flex:1">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <div style="display:inline-block;padding:4px 12px;border-radius:12px;background:#e9f1ea;color:#3c7a5a;font-size:12.5px;font-weight:700">Supportive</div>
+          <div style="display:inline-block;padding:4px 12px;border-radius:12px;background:#f0ede5;color:#6b7a70;font-size:12.5px;font-weight:600">High confidence</div>
+        </div>
+        <div style="font-size:13.5px;color:#6b7a70;line-height:1.5;margin-top:8px;text-wrap:pretty">A strong choice. Omega-3s and olive oil do the heavy lifting; two small flags below.</div>
+      </div>
+    </div>
+    <sc-if value="{{ numbersOn }}" hint-placeholder-val="{{ false }}">
+    <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:14px 18px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="flex:1;display:flex;gap:16px;flex-wrap:wrap">
+          <div><div style="font-size:17px;font-weight:700">540</div><div style="font-size:11.5px;color:#9aa79e;font-weight:500">calories</div></div>
+          <div><div style="font-size:17px;font-weight:700">34g</div><div style="font-size:11.5px;color:#9aa79e;font-weight:500">protein</div></div>
+          <div><div style="font-size:17px;font-weight:700">42g</div><div style="font-size:11.5px;color:#9aa79e;font-weight:500">carbs</div></div>
+          <div><div style="font-size:17px;font-weight:700">21g</div><div style="font-size:11.5px;color:#9aa79e;font-weight:500">fat</div></div>
+          <div><div style="font-size:17px;font-weight:700">6g</div><div style="font-size:11.5px;color:#9aa79e;font-weight:500">fibre</div></div>
+        </div>
+        <button onClick="{{ hideNumbers }}" style="background:none;border:none;font-family:inherit;font-size:12.5px;font-weight:600;color:#9aa79e;cursor:pointer">Hide</button>
+      </div>
+      <div style="font-size:12px;color:#9aa79e;margin-top:10px;border-top:1px solid #f0ede5;padding-top:9px">Photo-based calories and portions are estimates, not measurements.</div>
+    </div>
+    </sc-if>
+    <sc-if value="{{ numbersOff }}" hint-placeholder-val="{{ false }}">
+    <div style="background:#f0ede5;border-radius:14px;padding:13px 16px;font-size:13px;color:#6b7a70;line-height:1.5;display:flex;justify-content:space-between;align-items:center">Nutrition numbers are hidden in gentle mode.<button onClick="{{ showNumbersTap }}" style="background:none;border:none;font-family:inherit;font-size:12.5px;font-weight:700;color:#3c7a5a;cursor:pointer;flex:none">Show</button></div>
+    </sc-if>
+    <div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:10px">Ingredient breakdown</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <sc-for list="{{ resultIngs }}" as="r" hint-placeholder-count="5">
+          <div style="display:flex;gap:12px;background:#fff;border:1px solid #e8e4da;border-radius:13px;padding:13px 14px;align-items:flex-start">
+            <div style="width:10px;height:10px;border-radius:50%;background:{{ r.dot }};flex:none;margin-top:4px"></div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between"><div style="font-size:14.5px;font-weight:600">{{ r.name }}</div><div style="font-size:12px;font-weight:700;color:{{ r.fg }}">{{ r.tag }}</div></div>
+              <div style="font-size:13px;color:#6b7a70;line-height:1.45;margin-top:2px">{{ r.why }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="background:#e9f1ea;border-radius:16px;padding:16px">
+      <div style="font-size:14.5px;font-weight:600;color:#2f4a3c;margin-bottom:8px">Make it even more supportive</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <sc-for list="{{ scanSubs }}" as="s" hint-placeholder-count="2">
+          <div style="font-size:13.5px;color:#2f4a3c;line-height:1.5"><b>{{ s.from }}</b> → {{ s.to }}</div>
+        </sc-for>
+      </div>
+    </div>
+    <button onClick="{{ addToDay }}" style="background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:16px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer">Add to my day</button>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- ══ PLAN ══ -->
+<sc-if value="{{ isPlan }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Meal plan" style="flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding-top:6px">
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500">This week</div>
+    <div style="display:flex;gap:8px">
+      <button onClick="{{ goRecipes }}" style="background:#fff;border:1.5px solid #ddd8cc;border-radius:20px;padding:9px 14px;font-family:inherit;font-size:13px;font-weight:600;color:#3c7a5a;cursor:pointer">Recipes</button>
+      <button onClick="{{ goGrocery }}" style="background:#fff;border:1.5px solid #ddd8cc;border-radius:20px;padding:9px 14px;font-family:inherit;font-size:13px;font-weight:600;color:#3c7a5a;cursor:pointer">Grocery list</button>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <sc-for list="{{ weekDays }}" as="d" hint-placeholder-count="7">
+      <button onClick="{{ d.tap }}" style="flex:1;padding:10px 0;border-radius:13px;border:1.5px solid {{ d.bd }};background:{{ d.bg }};font-family:inherit;cursor:pointer;text-align:center">
+        <div style="font-size:11px;font-weight:600;color:{{ d.fgSub }}">{{ d.dow }}</div>
+        <div style="font-size:15px;font-weight:700;color:{{ d.fg }};margin-top:2px">{{ d.num }}</div>
+      </button>
+    </sc-for>
+  </div>
+  <sc-if value="{{ dayEmpty }}" hint-placeholder-val="{{ false }}">
+  <div style="background:#fff;border:1px dashed #ddd8cc;border-radius:18px;padding:32px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px">
+    <div style="font-size:15px;font-weight:600">Saturday isn't planned yet</div>
+    <div style="font-size:13px;color:#6b7a70;line-height:1.5">We plan a few days at a time so the week can adapt to how you're feeling.</div>
+    <button onClick="{{ genDay }}" style="background:#3c7a5a;color:#fff;border:none;border-radius:22px;padding:12px 24px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px">Plan this day</button>
+  </div>
+  </sc-if>
+  <sc-if value="{{ dayPlanned }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;gap:14px;align-items:center;background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:14px 16px">
+    <div style="width:58px;height:58px;border-radius:50%;background:conic-gradient(#3c7a5a 0 302deg,#e8e4da 302deg 360deg);display:flex;align-items:center;justify-content:center;flex:none">
+      <div style="width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#2f4a3c">84</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:14px;font-weight:600">Day score · Supportive</div>
+      <div style="font-size:12.5px;color:#6b7a70;margin-top:2px">{{ planCals }}</div>
+    </div>
+    <button style="background:none;border:none;font-family:inherit;font-size:12.5px;font-weight:600;color:#3c7a5a;cursor:pointer;flex:none">Add to calendar</button>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ planMeals }}" as="m" hint-placeholder-count="4">
+      <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:14px">
+        <div style="display:flex;gap:12px;align-items:center">
+          <button onClick="{{ m.toggleDone }}" style="width:24px;height:24px;border-radius:50%;border:2px solid {{ m.ckBd }};background:{{ m.ckBg }};flex:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;padding:0">{{ m.ckMark }}</button>
+          <div onClick="{{ m.open }}" style="width:52px;height:52px;border-radius:12px;flex:none;cursor:pointer;background:repeating-linear-gradient(45deg,#e9f1ea,#e9f1ea 6px,#f0f5f0 6px,#f0f5f0 12px)"></div>
+          <div onClick="{{ m.open }}" style="flex:1;min-width:0;cursor:pointer;opacity:{{ m.op }}">
+            <div style="font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:#9aa79e;font-weight:600">{{ m.slot }}</div>
+            <div style="font-size:15px;font-weight:600;margin-top:1px;text-decoration:{{ m.deco }}">{{ m.name }}</div>
+            <div style="font-size:12.5px;color:#6b7a70;margin-top:2px">{{ m.meta }}</div>
+          </div>
+          <button onClick="{{ m.swap }}" style="background:none;border:1.5px solid #ddd8cc;border-radius:16px;padding:6px 13px;font-family:inherit;font-size:12.5px;font-weight:600;color:#6b7a70;cursor:pointer;flex:none">Swap</button>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  </sc-if>
+  <button onClick="{{ regenPlan }}" style="background:#fff;border:1.5px solid #ddd8cc;border-radius:26px;padding:14px;font-family:inherit;font-size:14.5px;font-weight:600;color:#3c7a5a;cursor:pointer">{{ regenLabel }}</button>
+  <div style="background:#e9f1ea;border-radius:16px;padding:16px;font-size:13.5px;color:#2f4a3c;line-height:1.5"><b>Why this week works:</b> every day hits 2+ omega-3 sources, stays clear of your gluten and nightshade flags, and leans on the Egyptian and Mediterranean dishes you chose.</div>
+</div>
+</sc-if>
+
+<!-- ══ SWAP SHEET ══ -->
+<sc-if value="{{ swapOpen }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;z-index:40;display:flex;flex-direction:column;justify-content:flex-end">
+  <div onClick="{{ closeSwap }}" style="position:absolute;inset:0;background:rgba(29,38,32,.45)"></div>
+  <div style="position:relative;background:#f7f5f0;border-radius:24px 24px 0 0;padding:22px 20px 34px;display:flex;flex-direction:column;gap:12px">
+    <div style="width:36px;height:4px;border-radius:2px;background:#ddd8cc;align-self:center;margin-top:-6px"></div>
+    <div style="font-family:Lora,serif;font-size:20px;font-weight:500">Swap {{ swapName }}</div>
+    <div style="font-size:13px;color:#6b7a70">All alternatives fit your flags and today's balance.</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ swapAlts }}" as="a" hint-placeholder-count="3">
+        <button onClick="{{ a.tap }}" style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e8e4da;border-radius:14px;padding:12px 14px;font-family:inherit;cursor:pointer;text-align:left">
+          <div style="width:42px;height:42px;border-radius:10px;flex:none;background:repeating-linear-gradient(45deg,#e9f1ea,#e9f1ea 6px,#f0f5f0 6px,#f0f5f0 12px)"></div>
+          <div style="flex:1"><div style="font-size:14.5px;font-weight:600;color:#22302a">{{ a.name }}</div><div style="font-size:12.5px;color:#6b7a70;margin-top:1px">{{ a.meta }}</div></div>
+          <div style="padding:3px 9px;border-radius:10px;background:#e9f1ea;color:#3c7a5a;font-size:11px;font-weight:700;flex:none">{{ a.score }}</div>
+        </button>
+      </sc-for>
+    </div>
+    <button onClick="{{ closeSwap }}" style="background:none;border:none;font-family:inherit;font-size:14px;font-weight:600;color:#6b7a70;cursor:pointer;padding:6px">Keep it as is</button>
+  </div>
+</div>
+</sc-if>
+
+<!-- ══ MEAL DETAIL ══ -->
+<sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Recipe detail" style="flex:1;overflow-y:auto;padding-bottom:40px">
+  <div style="height:210px;background:repeating-linear-gradient(45deg,#e9f1ea,#e9f1ea 8px,#f0f5f0 8px,#f0f5f0 16px);position:relative;display:flex;align-items:center;justify-content:center">
+    <button onClick="{{ backFromDetail }}" style="position:absolute;top:16px;left:16px;background:rgba(255,255,255,.9);border:none;border-radius:18px;padding:8px 16px;font-family:inherit;font-size:13.5px;font-weight:600;color:#22302a;cursor:pointer">‹ Back</button>
+    <div style="font-family:'SF Mono',ui-monospace,monospace;font-size:12px;color:#9aa79e">meal photo</div>
+  </div>
+  <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
+    <div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+        <div style="padding:4px 11px;border-radius:12px;background:#e9f1ea;color:#3c7a5a;font-size:12px;font-weight:700">Score 86 · Supportive</div>
+        <div style="padding:4px 11px;border-radius:12px;background:#f0ede5;color:#6b7a70;font-size:12px;font-weight:600">25 min</div>
+        <sc-if value="{{ numbersOn }}" hint-placeholder-val="{{ false }}"><div style="padding:4px 11px;border-radius:12px;background:#f0ede5;color:#6b7a70;font-size:12px;font-weight:600">{{ detailCals }}</div></sc-if>
+      </div>
+      <div style="font-family:Lora,serif;font-size:26px;font-weight:500">{{ detailName }}</div>
+      <div style="font-size:14.5px;color:#6b7a70;line-height:1.55;margin-top:6px;text-wrap:pretty">Wild salmon over herbed quinoa with cucumber, avocado and a lemon–olive oil dressing.</div>
+    </div>
+    <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:16px">
+      <div style="font-size:14.5px;font-weight:600;margin-bottom:4px">Why it works for you</div>
+      <div style="font-size:13.5px;color:#6b7a70;line-height:1.55">Salmon and olive oil are among the best-studied foods for an anti-inflammatory pattern. This recipe avoids your flagged triggers: gluten and nightshades.</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:12px 16px">
+      <div style="font-size:14.5px;font-weight:600">Servings</div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <button onClick="{{ servMinus }}" style="width:32px;height:32px;border-radius:50%;border:1.5px solid #ddd8cc;background:#fff;font-family:inherit;font-size:17px;color:#3c7a5a;cursor:pointer;font-weight:600;padding:0">−</button>
+        <div style="font-size:16px;font-weight:700;width:16px;text-align:center">{{ servings }}</div>
+        <button onClick="{{ servPlus }}" style="width:32px;height:32px;border-radius:50%;border:1.5px solid #ddd8cc;background:#fff;font-family:inherit;font-size:17px;color:#3c7a5a;cursor:pointer;font-weight:600;padding:0">+</button>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:10px">Ingredients</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <sc-for list="{{ detailIngs }}" as="g" hint-placeholder-count="5">
+          <div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e8e4da;border-radius:12px;padding:12px 14px">
+            <div style="width:10px;height:10px;border-radius:50%;background:{{ g.dot }};flex:none"></div>
+            <div style="flex:1;font-size:14.5px;font-weight:500">{{ g.name }}</div>
+            <div style="font-size:12.5px;color:#9aa79e;flex:none">{{ g.qty }}</div>
+            <div style="font-size:12px;font-weight:600;color:{{ g.fg }};flex:none;width:82px;text-align:right">{{ g.tag }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:10px">Method</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:24px;height:24px;border-radius:50%;background:#e9f1ea;color:#3c7a5a;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">{{ s.n }}</div>
+            <div style="font-size:14px;color:#4a5a50;line-height:1.55;padding-top:2px">{{ s.text }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="background:#e9f1ea;border-radius:16px;padding:16px">
+      <div style="font-size:14.5px;font-weight:600;color:#2f4a3c;margin-bottom:8px">Easy substitutions</div>
+      <sc-for list="{{ detailSubs }}" as="s" hint-placeholder-count="2">
+        <div style="font-size:13.5px;color:#2f4a3c;line-height:1.6"><b>{{ s.from }}</b> → {{ s.to }}</div>
+      </sc-for>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button onClick="{{ toggleSave }}" style="flex:1;background:{{ saveBg }};border:1.5px solid {{ saveBd }};border-radius:26px;padding:15px;font-family:inherit;font-size:15px;font-weight:600;color:{{ saveFg }};cursor:pointer">{{ saveLabel }}</button>
+      <button onClick="{{ goPlan }}" style="flex:1.4;background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:15px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer">Add to plan</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ══ CHECK-IN ══ -->
+<sc-if value="{{ isTrack }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Check-in" style="flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;align-items:center;gap:12px;padding-top:6px">
+    <button onClick="{{ goHome }}" style="background:none;border:none;font-family:inherit;font-size:15px;font-weight:600;color:#6b7a70;cursor:pointer;padding:0">‹</button>
+    <div>
+      <div style="font-family:Lora,serif;font-size:26px;font-weight:500">How's your body today?</div>
+      <div style="font-size:14px;color:#6b7a70;margin-top:4px">There are no wrong answers. Just notice.</div>
+    </div>
+  </div>
+  <sc-if value="{{ checkinSaved }}" hint-placeholder-val="{{ false }}">
+  <div style="background:#e9f1ea;border-radius:16px;padding:16px;display:flex;gap:12px;align-items:center">
+    <div style="width:28px;height:28px;border-radius:50%;background:#3c7a5a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex:none">✓</div>
+    <div style="font-size:14px;color:#2f4a3c;line-height:1.45"><b>Logged.</b> Thanks for checking in — this is how patterns get found.</div>
+  </div>
+  </sc-if>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <sc-for list="{{ metrics }}" as="mt" hint-placeholder-count="6">
+      <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <div style="font-size:15px;font-weight:600">{{ mt.name }}</div>
+          <div style="font-size:12.5px;color:#9aa79e;font-weight:500">{{ mt.hint }}</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <sc-for list="{{ mt.dots }}" as="d" hint-placeholder-count="5">
+            <button onClick="{{ d.tap }}" style="flex:1;height:34px;border-radius:10px;border:1.5px solid {{ d.bd }};background:{{ d.bg }};cursor:pointer"></button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <button onClick="{{ toggleFlare }}" style="display:flex;align-items:center;gap:12px;background:{{ flareBg }};border:1.5px solid {{ flareBd }};border-radius:16px;padding:16px;font-family:inherit;cursor:pointer;text-align:left">
+    <div style="width:20px;height:20px;border-radius:50%;border:2px solid {{ flareDotBd }};background:{{ flareDot }};flex:none"></div>
+    <div>
+      <div style="font-size:15px;font-weight:600;color:#22302a">I'm having a flare today</div>
+      <div style="font-size:12.5px;color:#6b7a70;margin-top:2px">We'll soften this week's plan and note the date</div>
+    </div>
+  </button>
+  <sc-if value="{{ reassessOn }}" hint-placeholder-val="{{ false }}">
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:8px">
+    <div style="font-size:14.5px;font-weight:600">Rough stretch lately?</div>
+    <div style="font-size:13px;color:#6b7a70;line-height:1.5">If your body has changed, your plan can too. Revisit your triggers and preferences — it takes a minute.</div>
+    <button onClick="{{ editAvoids }}" style="align-self:flex-start;background:none;border:1.5px solid #ddd8cc;border-radius:18px;padding:8px 16px;font-family:inherit;font-size:13px;font-weight:600;color:#3c7a5a;cursor:pointer">Review my plan settings</button>
+  </div>
+  </sc-if>
+  <textarea placeholder="Anything else you noticed? (optional)" style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:14px 16px;font-family:inherit;font-size:14px;color:#22302a;resize:none;height:64px"></textarea>
+  <button onClick="{{ saveCheckin }}" style="background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:16px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer">Save check-in</button>
+  <div style="display:flex;gap:10px">
+    <button onClick="{{ goProgress }}" style="flex:1;background:#fff;border:1px solid #e8e4da;border-radius:14px;padding:14px;font-family:inherit;font-size:14px;font-weight:600;color:#3c7a5a;cursor:pointer">See trends →</button>
+    <button onClick="{{ goReintro }}" style="flex:1;background:#fff;border:1px solid #e8e4da;border-radius:14px;padding:14px;font-family:inherit;font-size:14px;font-weight:600;color:#3c7a5a;cursor:pointer">Reintroduction →</button>
+  </div>
+</div>
+</sc-if>
+
+<!-- ══ PROGRESS ══ -->
+<sc-if value="{{ isProgress }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Progress" style="flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:16px">
+  <div style="font-family:Lora,serif;font-size:26px;font-weight:500;padding-top:6px">Your progress</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <sc-for list="{{ statCards }}" as="s" hint-placeholder-count="4">
+      <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:14px 16px">
+        <div style="font-size:20px;font-weight:700;color:#2f4a3c">{{ s.val }}</div>
+        <div style="font-size:12.5px;color:#6b7a70;margin-top:2px">{{ s.name }}</div>
+        <div style="font-size:11.5px;font-weight:600;color:{{ s.deltaFg }};margin-top:4px">{{ s.delta }}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:18px;padding:18px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px">
+      <div style="font-size:15px;font-weight:600">Calm days</div>
+      <div style="font-size:12.5px;color:#9aa79e">last 14 days</div>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:5px;height:90px">
+      <sc-for list="{{ trendBars }}" as="b" hint-placeholder-count="14">
+        <div style="flex:1;border-radius:4px 4px 2px 2px;background:{{ b.bg }};height:{{ b.h }}"></div>
+      </sc-for>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:#9aa79e;margin-top:8px"><span>Jul 18</span><span>Jul 31</span></div>
+    <div style="font-size:13.5px;color:#6b7a70;line-height:1.5;margin-top:12px">11 of 14 days felt calm — your best two weeks since you started. Amber bars are flare days.</div>
+  </div>
+  <div style="background:#2f4a3c;border-radius:18px;padding:18px;color:#fff">
+    <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#a9c4b3;font-weight:600">This week's insight</div>
+    <div style="font-family:Lora,serif;font-size:18px;margin-top:6px;line-height:1.4">Your most supportive choices were fish dinners — weeks with 3+ average 1.8 more calm days.</div>
+    <div style="font-size:13px;color:#a9c4b3;margin-top:8px">An observation, not a conclusion — worth watching together.</div>
+  </div>
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:18px;padding:18px">
+    <div style="font-size:15px;font-weight:600;margin-bottom:10px">Patterns we're noticing</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;gap:12px"><div style="width:10px;height:10px;border-radius:50%;background:#b07c2f;flex:none;margin-top:4px"></div><div style="font-size:13.5px;color:#4a5a50;line-height:1.5">Joint discomfort shows up <b>2× more often</b> within a day of eating nightshades.</div></div>
+      <div style="display:flex;gap:12px"><div style="width:10px;height:10px;border-radius:50%;background:#3c7a5a;flex:none;margin-top:4px"></div><div style="font-size:13.5px;color:#4a5a50;line-height:1.5">Days above 80 on the Celadon Score tend to be followed by <b>better sleep check-ins</b>.</div></div>
+      <div style="display:flex;gap:12px"><div style="width:10px;height:10px;border-radius:50%;background:#7fa88f;flex:none;margin-top:4px"></div><div style="font-size:13.5px;color:#4a5a50;line-height:1.5">Ghee reintroduction: <b>no symptom change</b> so far.</div></div>
+    </div>
+    <div style="margin-top:12px;padding:12px;border-radius:12px;background:#f0ede5;font-size:12.5px;color:#6b7a70;line-height:1.5">Patterns are hints, not verdicts. Share this view with your nutritionist or doctor from the export button.</div>
+  </div>
+  <sc-if value="{{ weightOn }}" hint-placeholder-val="{{ false }}">
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:18px;padding:18px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:15px;font-weight:600">Weight</div><button onClick="{{ weightToggle }}" style="background:none;border:none;font-family:inherit;font-size:12.5px;font-weight:600;color:#9aa79e;cursor:pointer">Hide</button></div>
+    <div style="font-size:22px;font-weight:700;color:#2f4a3c;margin-top:6px">72.4 kg <span style="font-size:12.5px;color:#3c7a5a;font-weight:600">−0.6 this month</span></div>
+    <div style="font-size:12.5px;color:#9aa79e;margin-top:4px">Slow and steady — exactly right.</div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ weightOff }}" hint-placeholder-val="{{ false }}">
+  <button onClick="{{ weightToggle }}" style="background:#fff;border:1px dashed #ddd8cc;border-radius:16px;padding:14px;font-family:inherit;font-size:13.5px;font-weight:600;color:#9aa79e;cursor:pointer">Weight tracking is off — tap to show it</button>
+  </sc-if>
+  <div style="display:flex;gap:10px">
+    <button onClick="{{ goTrack }}" style="flex:1;background:#fff;border:1px solid #e8e4da;border-radius:14px;padding:14px;font-family:inherit;font-size:14px;font-weight:600;color:#3c7a5a;cursor:pointer">Daily check-in →</button>
+    <button onClick="{{ goReport }}" style="flex:1;background:#fff;border:1.5px solid #ddd8cc;border-radius:14px;padding:14px;font-family:inherit;font-size:14px;font-weight:600;color:#3c7a5a;cursor:pointer">Export for your doctor</button>
+  </div>
+</div>
+</sc-if>
+
+<!-- ══ GROCERY ══ -->
+<sc-if value="{{ isGrocery }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Shopping list" style="flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;align-items:center;gap:12px;padding-top:6px">
+    <button onClick="{{ goPlan }}" style="background:none;border:none;font-family:inherit;font-size:15px;font-weight:600;color:#6b7a70;cursor:pointer;padding:0">‹</button>
+    <div style="flex:1">
+      <div style="font-family:Lora,serif;font-size:26px;font-weight:500">Shopping list</div>
+      <div style="font-size:13px;color:#9aa79e;margin-top:2px">Built from this week's plan · {{ groceryLeft }} items left</div>
+    </div>
+    <button style="background:#fff;border:1.5px solid #ddd8cc;border-radius:20px;padding:8px 14px;font-family:inherit;font-size:13px;font-weight:600;color:#3c7a5a;cursor:pointer">Share</button>
+  </div>
+  <sc-for list="{{ groceryCats }}" as="cat" hint-placeholder-count="4">
+    <div>
+      <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#9aa79e;font-weight:700;margin-bottom:8px">{{ cat.name }}</div>
+      <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;overflow:hidden">
+        <sc-for list="{{ cat.items }}" as="it" hint-placeholder-count="4">
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #f0ede5">
+            <button onClick="{{ it.tap }}" style="width:20px;height:20px;border-radius:7px;border:2px solid {{ it.bd }};background:{{ it.bg }};flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;cursor:pointer;padding:0">{{ it.mark }}</button>
+            <div onClick="{{ it.tap }}" style="flex:1;font-size:14.5px;font-weight:500;color:#22302a;text-decoration:{{ it.deco }};opacity:{{ it.op }};cursor:pointer">{{ it.name }}</div>
+            <div style="font-size:12.5px;color:#9aa79e">{{ it.qty }}</div>
+            <button onClick="{{ it.remove }}" style="background:none;border:none;color:#c9c3b6;font-size:15px;cursor:pointer;padding:2px 4px;font-family:inherit" title="Already have it">×</button>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-for>
+  <div style="display:flex;gap:8px">
+    <input value="{{ customVal }}" onChange="{{ onCustom }}" placeholder="Add your own item…" style="flex:1;background:#fff;border:1px solid #e8e4da;border-radius:22px;padding:12px 18px;font-family:inherit;font-size:14px;color:#22302a;outline:none"></input>
+    <button onClick="{{ addCustom }}" style="background:#3c7a5a;color:#fff;border:none;border-radius:22px;padding:12px 20px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer">Add</button>
+  </div>
+  <div style="font-size:12.5px;color:#9aa79e;text-align:center">Tap × on anything you already have at home.</div>
+</div>
+</sc-if>
+
+<!-- ══ DIARY ══ -->
+<sc-if value="{{ isDiary }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Food diary" style="flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;align-items:center;gap:12px;padding-top:6px">
+    <button onClick="{{ goHome }}" style="background:none;border:none;font-family:inherit;font-size:15px;font-weight:600;color:#6b7a70;cursor:pointer;padding:0">‹</button>
+    <div style="flex:1">
+      <div style="font-family:Lora,serif;font-size:26px;font-weight:500">Food diary</div>
+      <div style="font-size:13px;color:#9aa79e;margin-top:2px">{{ dateLabel }}</div>
+    </div>
+    <div style="padding:5px 12px;border-radius:14px;background:#e9f1ea;color:#3c7a5a;font-size:12.5px;font-weight:700">Day score 84</div>
+  </div>
+  <sc-if value="{{ numbersOn }}" hint-placeholder-val="{{ false }}">
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:18px;padding:16px 18px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:15px;font-weight:600">{{ diaryCal }} so far</div><div style="font-size:12.5px;color:#9aa79e">estimates</div></div>
+    <div style="display:flex;flex-direction:column;gap:9px;margin-top:12px">
+      <sc-for list="{{ macroBars }}" as="b" hint-placeholder-count="3">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:52px;font-size:12px;color:#6b7a70;font-weight:600">{{ b.name }}</div>
+          <div style="flex:1;height:7px;border-radius:4px;background:#f0ede5;overflow:hidden"><div style="height:100%;width:{{ b.w }};background:{{ b.c }};border-radius:4px"></div></div>
+          <div style="width:64px;font-size:12px;color:#9aa79e;text-align:right">{{ b.val }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ numbersOff }}" hint-placeholder-val="{{ false }}">
+  <div style="background:#f0ede5;border-radius:14px;padding:13px 16px;font-size:13px;color:#6b7a70;line-height:1.5">Numbers are hidden in gentle mode. Today reads as <b style="color:#3c7a5a">supportive</b> overall.</div>
+  </sc-if>
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:18px;padding:16px 18px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:15px;font-weight:600">Water</div><div style="font-size:12.5px;color:#9aa79e">{{ waterLabel }}</div></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <sc-for list="{{ waterDots }}" as="w" hint-placeholder-count="8">
+        <button onClick="{{ w.tap }}" style="flex:1;height:34px;border-radius:12px;border:1.5px solid {{ w.bd }};background:{{ w.bg }};cursor:pointer"></button>
+      </sc-for>
+    </div>
+  </div>
+  <div>
+    <div style="font-size:16px;font-weight:600;margin-bottom:10px">Logged today</div>
+    <sc-if value="{{ diaryEmpty }}" hint-placeholder-val="{{ false }}">
+    <div style="background:#fff;border:1px dashed #ddd8cc;border-radius:16px;padding:28px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px">
+      <div style="width:44px;height:44px;border-radius:50%;background:#e9f1ea;display:flex;align-items:center;justify-content:center"><div style="width:16px;height:16px;border-radius:50% 50% 50% 0;background:#3c7a5a;transform:rotate(-45deg)"></div></div>
+      <div style="font-size:15px;font-weight:600">Nothing logged yet</div>
+      <div style="font-size:13px;color:#6b7a70;line-height:1.5">Scan your first meal or add one below — no pressure to log everything.</div>
+    </div>
+    </sc-if>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <sc-for list="{{ diaryEntries }}" as="e" hint-placeholder-count="3">
+        <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:13px 14px">
+          <div style="display:flex;gap:12px;align-items:center">
+            <div style="width:46px;height:46px;border-radius:11px;flex:none;background:repeating-linear-gradient(45deg,#e9f1ea,#e9f1ea 6px,#f0f5f0 6px,#f0f5f0 12px)"></div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:#9aa79e;font-weight:600">{{ e.slot }} · {{ e.time }}</div>
+              <div style="font-size:14.5px;font-weight:600;margin-top:1px">{{ e.name }}</div>
+              <div style="font-size:12.5px;color:#6b7a70;margin-top:2px">{{ e.meta }}</div>
+            </div>
+            <div style="padding:3px 9px;border-radius:10px;background:{{ e.chipBg }};color:{{ e.chipFg }};font-size:11px;font-weight:700;flex:none">{{ e.score }}</div>
+            <button onClick="{{ e.menu }}" style="background:none;border:none;color:#9aa79e;font-size:17px;cursor:pointer;padding:2px 4px;font-family:inherit;letter-spacing:1px">···</button>
+          </div>
+          <sc-if value="{{ e.menuOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #f0ede5">
+            <button style="flex:1;background:#f7f5f0;border:none;border-radius:12px;padding:9px;font-family:inherit;font-size:13px;font-weight:600;color:#3c7a5a;cursor:pointer">Edit portion</button>
+            <button onClick="{{ e.removeTap }}" style="flex:1;background:#f6e5e0;border:none;border-radius:12px;padding:9px;font-family:inherit;font-size:13px;font-weight:600;color:#b0503c;cursor:pointer">Remove</button>
+          </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px">
+    <button onClick="{{ startScan }}" style="flex:1;background:#3c7a5a;color:#fff;border:none;border-radius:22px;padding:13px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer">Scan a meal</button>
+    <button onClick="{{ goManual }}" style="flex:1;background:#fff;border:1.5px solid #ddd8cc;border-radius:22px;padding:13px;font-family:inherit;font-size:14px;font-weight:600;color:#3c7a5a;cursor:pointer">Add snack</button>
+    <button onClick="{{ goManual }}" style="flex:1;background:#fff;border:1.5px solid #ddd8cc;border-radius:22px;padding:13px;font-family:inherit;font-size:14px;font-weight:600;color:#3c7a5a;cursor:pointer">Add drink</button>
+  </div>
+</div>
+</sc-if>
+
+<!-- ══ REINTRO ══ -->
+<sc-if value="{{ isReintro }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Reintroduction" style="flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;align-items:center;gap:12px;padding-top:6px">
+    <button onClick="{{ goTrack }}" style="background:none;border:none;font-family:inherit;font-size:15px;font-weight:600;color:#6b7a70;cursor:pointer;padding:0">‹</button>
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500">Reintroduction</div>
+  </div>
+  <div style="font-size:14px;color:#6b7a70;line-height:1.55;text-wrap:pretty">One food at a time, five days each. If your body stays calm, it goes back on the menu. Go at your own pace — pausing is always fine.</div>
+  <div style="background:#fff;border:1.5px solid #b07c2f;border-radius:18px;padding:18px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:#b07c2f;font-weight:700">Testing now</div>
+      <div style="font-size:12.5px;color:#9aa79e;font-weight:600">Day 2 of 5</div>
+    </div>
+    <div style="font-family:Lora,serif;font-size:22px;margin-top:6px">Ghee</div>
+    <div style="display:flex;gap:5px;margin-top:12px">
+      <div style="flex:1;height:6px;border-radius:3px;background:#3c7a5a"></div>
+      <div style="flex:1;height:6px;border-radius:3px;background:#3c7a5a"></div>
+      <div style="flex:1;height:6px;border-radius:3px;background:#e8e4da"></div>
+      <div style="flex:1;height:6px;border-radius:3px;background:#e8e4da"></div>
+      <div style="flex:1;height:6px;border-radius:3px;background:#e8e4da"></div>
+    </div>
+    <div style="font-size:13.5px;color:#6b7a70;line-height:1.5;margin-top:10px">No symptoms logged so far. Keep portions steady and check in daily.</div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button style="flex:1;background:#3c7a5a;color:#fff;border:none;border-radius:20px;padding:11px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer">Feeling fine today</button>
+      <button style="flex:1;background:#f6e5e0;color:#b0503c;border:none;border-radius:20px;padding:11px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer">I had symptoms</button>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <sc-for list="{{ reintroItems }}" as="ri" hint-placeholder-count="5">
+      <div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e8e4da;border-radius:14px;padding:14px 16px;opacity:{{ ri.op }}">
+        <div style="width:10px;height:10px;border-radius:50%;background:{{ ri.dot }};flex:none"></div>
+        <div style="flex:1">
+          <div style="font-size:14.5px;font-weight:600">{{ ri.name }}</div>
+          <div style="font-size:12.5px;color:#6b7a70;margin-top:1px">{{ ri.status }}</div>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:{{ ri.fg }}">{{ ri.tag }}</div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- ══ RECIPES ══ -->
+<sc-if value="{{ isRecipes }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Recipes" style="flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding-top:6px">
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500">Recipes</div>
+    <button onClick="{{ goSearch }}" style="background:#fff;border:1.5px solid #ddd8cc;border-radius:20px;padding:9px 14px;font-family:inherit;font-size:13px;font-weight:600;color:#3c7a5a;cursor:pointer">Search</button>
+  </div>
+  <div style="display:flex;gap:8px;overflow-x:auto;margin:0 -20px;padding:0 20px">
+    <sc-for list="{{ recipeFilters }}" as="f" hint-placeholder-count="5">
+      <button onClick="{{ f.tap }}" style="flex:none;padding:9px 16px;border-radius:20px;border:1.5px solid {{ f.bd }};background:{{ f.bg }};color:{{ f.fg }};font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer">{{ f.name }}</button>
+    </sc-for>
+  </div>
+  <sc-if value="{{ recipesEmpty }}" hint-placeholder-val="{{ false }}">
+  <div style="background:#fff;border:1px dashed #ddd8cc;border-radius:16px;padding:32px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px">
+    <div style="font-size:15px;font-weight:600">No saved recipes yet</div>
+    <div style="font-size:13px;color:#6b7a70;line-height:1.5">Tap "Save recipe" on anything you'd like to keep — it'll live here.</div>
+  </div>
+  </sc-if>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <sc-for list="{{ recipes }}" as="rc" hint-placeholder-count="6">
+      <div onClick="{{ rc.open }}" style="background:#fff;border:1px solid #e8e4da;border-radius:16px;overflow:hidden;cursor:pointer">
+        <div style="height:100px;background:repeating-linear-gradient(45deg,#e9f1ea,#e9f1ea 7px,#f0f5f0 7px,#f0f5f0 14px);display:flex;align-items:center;justify-content:center"><div style="font-family:'SF Mono',ui-monospace,monospace;font-size:10px;color:#9aa79e">photo</div></div>
+        <div style="padding:12px">
+          <div style="font-size:14px;font-weight:600;line-height:1.3">{{ rc.name }}</div>
+          <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+            <div style="padding:3px 9px;border-radius:10px;background:#e9f1ea;color:#3c7a5a;font-size:11px;font-weight:700">{{ rc.tag }}</div>
+            <div style="padding:3px 9px;border-radius:10px;background:#f0ede5;color:#6b7a70;font-size:11px;font-weight:600">{{ rc.time }}</div>
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- ══ SEARCH ══ -->
+<sc-if value="{{ isSearch }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Search" style="flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;align-items:center;gap:12px;padding-top:6px">
+    <button onClick="{{ goHome }}" style="background:none;border:none;font-family:inherit;font-size:15px;font-weight:600;color:#6b7a70;cursor:pointer;padding:0">‹</button>
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500">Explore</div>
+  </div>
+  <input placeholder="Search meals, ingredients, recipes…" style="background:#fff;border:1px solid #e8e4da;border-radius:22px;padding:13px 18px;font-family:inherit;font-size:14.5px;color:#22302a;outline:none"></input>
+  <sc-if value="{{ compareOff }}" hint-placeholder-val="{{ true }}">
+  <div>
+    <div style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#9aa79e;font-weight:700;margin-bottom:8px">Browse by kind</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <sc-for list="{{ searchCats }}" as="c" hint-placeholder-count="6">
+        <div style="background:#fff;border:1px solid #e8e4da;border-radius:14px;padding:14px;display:flex;align-items:center;gap:10px;cursor:pointer">
+          <div style="width:10px;height:10px;border-radius:50%;background:{{ c.dot }};flex:none"></div>
+          <div style="font-size:13.5px;font-weight:600">{{ c.name }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <div>
+    <div style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#9aa79e;font-weight:700;margin-bottom:8px">Popular near you</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ popularRows }}" as="p" hint-placeholder-count="3">
+        <div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e8e4da;border-radius:13px;padding:12px 14px">
+          <div style="flex:1"><div style="font-size:14.5px;font-weight:600">{{ p.name }}</div><div style="font-size:12.5px;color:#6b7a70;margin-top:1px">{{ p.note }}</div></div>
+          <div style="padding:3px 9px;border-radius:10px;background:{{ p.bg }};color:{{ p.fg }};font-size:11px;font-weight:700;flex:none">{{ p.tag }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <button onClick="{{ openCompare }}" style="background:#fff;border:1.5px solid #ddd8cc;border-radius:16px;padding:15px;font-family:inherit;font-size:14px;font-weight:600;color:#3c7a5a;cursor:pointer;text-align:left">Compare two foods → <span style="font-weight:500;color:#9aa79e">e.g. feta vs labneh</span></button>
+  </sc-if>
+  <sc-if value="{{ compareOn }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div style="font-size:16px;font-weight:600">Feta vs Labneh</div>
+    <button onClick="{{ closeCompare }}" style="background:none;border:none;font-family:inherit;font-size:13.5px;font-weight:600;color:#6b7a70;cursor:pointer">‹ Back to search</button>
+  </div>
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:18px;overflow:hidden">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;background:#f0ede5;padding:12px 16px;font-size:12.5px;font-weight:700;color:#6b7a70"><div></div><div>Feta</div><div>Labneh</div></div>
+    <sc-for list="{{ compareRows }}" as="r" hint-placeholder-count="4">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;padding:13px 16px;border-bottom:1px solid #f0ede5;font-size:13px;line-height:1.45">
+        <div style="color:#9aa79e;font-weight:600">{{ r.k }}</div><div style="color:#4a5a50">{{ r.a }}</div><div style="color:#4a5a50">{{ r.b }}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="background:#e9f1ea;border-radius:14px;padding:14px 16px;font-size:13.5px;color:#2f4a3c;line-height:1.5">For daily use, labneh is the easier choice — strained, probiotic and less salty. Feta still has a place as an occasional accent.</div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- ══ NOTIFICATIONS ══ -->
+<sc-if value="{{ isNotifs }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Notifications" style="flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;align-items:center;gap:12px;padding-top:6px">
+    <button onClick="{{ goHome }}" style="background:none;border:none;font-family:inherit;font-size:15px;font-weight:600;color:#6b7a70;cursor:pointer;padding:0">‹</button>
+    <div style="flex:1;font-family:Lora,serif;font-size:26px;font-weight:500">Notifications</div>
+    <button onClick="{{ clearNotifs }}" style="background:none;border:none;font-family:inherit;font-size:13px;font-weight:600;color:#6b7a70;cursor:pointer">Clear all</button>
+  </div>
+  <sc-if value="{{ notifsEmpty }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:40px;text-align:center">
+    <div style="width:44px;height:44px;border-radius:50%;background:#f0ede5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px"><div style="width:11px;height:10px;border:2px solid #9aa79e;border-bottom:none;border-radius:7px 7px 1px 1px"></div><div style="width:15px;height:2px;background:#9aa79e;border-radius:1px"></div></div>
+    <div style="font-size:15px;font-weight:600">All caught up</div>
+    <div style="font-size:13px;color:#6b7a70">We only reach out when it's genuinely useful.</div>
+  </div>
+  </sc-if>
+  <sc-for list="{{ notifGroups }}" as="g" hint-placeholder-count="2">
+    <div>
+      <div style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#9aa79e;font-weight:700;margin-bottom:8px">{{ g.name }}</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <sc-for list="{{ g.items }}" as="n" hint-placeholder-count="3">
+          <div style="display:flex;gap:12px;background:#fff;border:1px solid #e8e4da;border-radius:14px;padding:14px;align-items:flex-start">
+            <div style="width:10px;height:10px;border-radius:50%;background:{{ n.dot }};flex:none;margin-top:5px"></div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;gap:8px"><div style="font-size:14px;font-weight:600">{{ n.title }}</div><div style="font-size:11.5px;color:#9aa79e;flex:none">{{ n.time }}</div></div>
+              <div style="font-size:13px;color:#6b7a70;line-height:1.5;margin-top:3px">{{ n.body }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-for>
+  <div style="font-size:12.5px;color:#9aa79e;text-align:center">Tune what you hear about in Profile → Notifications.</div>
+</div>
+</sc-if>
+
+<!-- ══ PROFILE ══ -->
+<sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Profile" style="flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;align-items:center;gap:14px;padding-top:6px">
+    <div style="width:56px;height:56px;border-radius:50%;background:#e9f1ea;display:flex;align-items:center;justify-content:center;font-weight:600;color:#3c7a5a;font-size:20px">M</div>
+    <div style="flex:1">
+      <div style="font-family:Lora,serif;font-size:24px;font-weight:500">Maya</div>
+      <div style="font-size:13px;color:#9aa79e;margin-top:1px">Cairo · joined July 2026</div>
+    </div>
+  </div>
+  <button onClick="{{ openPaywall }}" style="background:#2f4a3c;border:none;border-radius:16px;padding:16px;color:#fff;font-family:inherit;cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px">
+    <div style="flex:1">
+      <div style="font-size:14.5px;font-weight:600">Celadon Premium trial</div>
+      <div style="font-size:12.5px;color:#a9c4b3;margin-top:2px">5 days left · see plans</div>
+    </div>
+    <div style="color:#a9c4b3;font-size:18px">›</div>
+  </button>
+  <sc-for list="{{ profileSecs }}" as="sec" hint-placeholder-count="4">
+    <div>
+      <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#9aa79e;font-weight:700;margin-bottom:8px">{{ sec.name }}</div>
+      <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;overflow:hidden">
+        <sc-for list="{{ sec.rows }}" as="r" hint-placeholder-count="3">
+          <button onClick="{{ r.tap }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;background:none;border:none;border-bottom:1px solid #f0ede5;font-family:inherit;cursor:pointer;text-align:left">
+            <div style="flex:1;font-size:14.5px;font-weight:500;color:#22302a">{{ r.name }}</div>
+            <div style="font-size:13px;color:#9aa79e">{{ r.val }}</div>
+            <div style="color:#c9c3b6;font-size:16px">›</div>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </sc-for>
+  <div style="background:#f0ede5;border-radius:14px;padding:14px 16px;font-size:12.5px;color:#6b7a70;line-height:1.55"><b>A note on care:</b> Celadon offers nutrition guidance and pattern observations. It doesn't diagnose, treat or cure any condition — please keep working with your doctor or nutritionist.</div>
+  <button onClick="{{ goDelete }}" style="background:none;border:none;font-family:inherit;font-size:14px;font-weight:600;color:#b0503c;cursor:pointer;padding:8px">Delete my account</button>
+</div>
+</sc-if>
+
+<!-- ══ PAYWALL ══ -->
+<sc-if value="{{ isPaywall }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Premium" style="flex:1;overflow-y:auto;padding:20px 20px 40px;display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;align-items:center;gap:12px;padding-top:6px">
+    <button onClick="{{ goProfile }}" style="background:none;border:none;font-family:inherit;font-size:15px;font-weight:600;color:#6b7a70;cursor:pointer;padding:0">‹</button>
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500">Celadon Premium</div>
+  </div>
+  <div style="font-size:14.5px;color:#6b7a70;line-height:1.55">The full experience — unlimited scanning, adaptive plans and the insights that make patterns visible.</div>
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:18px;overflow:hidden">
+    <div style="display:grid;grid-template-columns:1.6fr 1fr 1fr;background:#f0ede5;padding:12px 16px;font-size:12px;font-weight:700;color:#6b7a70"><div></div><div>Free</div><div style="color:#2f4a3c">Premium</div></div>
+    <sc-for list="{{ pwFeatures }}" as="f" hint-placeholder-count="6">
+      <div style="display:grid;grid-template-columns:1.6fr 1fr 1fr;padding:12px 16px;border-bottom:1px solid #f0ede5;font-size:13px;align-items:center">
+        <div style="color:#22302a;font-weight:500;line-height:1.4">{{ f.name }}</div><div style="color:#9aa79e">{{ f.free }}</div><div style="color:#2f4a3c;font-weight:600">{{ f.prem }}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="display:flex;gap:10px">
+    <sc-for list="{{ pwPlans }}" as="p" hint-placeholder-count="2">
+      <button onClick="{{ p.tap }}" style="flex:1;text-align:left;padding:16px;border-radius:16px;border:1.5px solid {{ p.bd }};background:{{ p.bg }};font-family:inherit;cursor:pointer;position:relative">
+        <sc-if value="{{ p.save }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;top:-9px;right:12px;background:#b07c2f;color:#fff;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:9px">SAVE 33%</div></sc-if>
+        <div style="font-size:13px;font-weight:600;color:#6b7a70">{{ p.name }}</div>
+        <div style="font-size:19px;font-weight:700;color:#22302a;margin-top:3px">{{ p.price }}</div>
+        <div style="font-size:12px;color:#9aa79e;margin-top:2px">{{ p.note }}</div>
+      </button>
+    </sc-for>
+  </div>
+  <button style="background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:16px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer">Start 7-day free trial</button>
+  <div style="font-size:12.5px;color:#9aa79e;text-align:center;line-height:1.6">Free for 7 days, then {{ pwSelected }}. Cancel anytime in one tap — we'll remind you two days before the trial ends. Your data stays yours either way.</div>
+  <button style="background:none;border:none;font-family:inherit;font-size:13.5px;font-weight:600;color:#3c7a5a;cursor:pointer">Restore purchases</button>
+</div>
+</sc-if>
+
+<!-- ══ ARABIC PREVIEW ══ -->
+<sc-if value="{{ isArabic }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Arabic preview" dir="rtl" style="flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:18px">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding-top:6px">
+    <div>
+      <div style="font-size:13.5px;color:#9aa79e;font-weight:500">السبت ١ أغسطس</div>
+      <div style="font-family:Lora,serif;font-size:27px;font-weight:500;margin-top:2px">صباح الخير يا مايا</div>
+    </div>
+    <button onClick="{{ goProfile }}" dir="ltr" style="background:#fff;border:1.5px solid #ddd8cc;border-radius:20px;padding:8px 14px;font-family:inherit;font-size:13px;font-weight:600;color:#3c7a5a;cursor:pointer">English ‹</button>
+  </div>
+  <div style="display:flex;gap:8px">
+    <sc-for list="{{ arTabs }}" as="t" hint-placeholder-count="4">
+      <button onClick="{{ t.tap }}" style="flex:1;padding:9px 0;border-radius:18px;border:1.5px solid {{ t.bd }};background:{{ t.bg }};color:{{ t.fg }};font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer">{{ t.name }}</button>
+    </sc-for>
+  </div>
+  <sc-if value="{{ ar0 }}" hint-placeholder-val="{{ true }}">
+  <div style="background:#2f4a3c;border-radius:18px;padding:18px;color:#fff">
+    <div style="font-size:12px;letter-spacing:.04em;color:#a9c4b3;font-weight:600">تركيز اليوم اللطيف</div>
+    <div style="font-family:Lora,serif;font-size:19px;margin-top:6px;line-height:1.5">أضيفي مصدرًا واحدًا للأوميغا ٣ — طبق السلمون على الغداء يكفي تمامًا.</div>
+    <div style="font-size:13px;color:#a9c4b3;margin-top:8px">الخطوات الصغيرة تتراكم. هذه هي الخطة كلها.</div>
+  </div>
+  <div>
+    <div style="font-size:16px;font-weight:600;margin-bottom:10px">وجبات اليوم</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;gap:12px;background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:12px;align-items:center">
+        <div style="width:56px;height:56px;border-radius:12px;flex:none;background:repeating-linear-gradient(45deg,#e9f1ea,#e9f1ea 6px,#f0f5f0 6px,#f0f5f0 12px)"></div>
+        <div style="flex:1"><div style="font-size:11.5px;color:#9aa79e;font-weight:600">الفطور</div><div style="font-size:15px;font-weight:600;margin-top:1px">بصارة بالخضار وزيت الزيتون</div><div style="font-size:12.5px;color:#6b7a70;margin-top:2px">١٠ دقائق</div></div>
+        <div style="padding:4px 10px;border-radius:12px;background:#e9f1ea;color:#3c7a5a;font-size:12px;font-weight:600;flex:none">داعم</div>
+      </div>
+      <div style="display:flex;gap:12px;background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:12px;align-items:center">
+        <div style="width:56px;height:56px;border-radius:12px;flex:none;background:repeating-linear-gradient(45deg,#e9f1ea,#e9f1ea 6px,#f0f5f0 6px,#f0f5f0 12px)"></div>
+        <div style="flex:1"><div style="font-size:11.5px;color:#9aa79e;font-weight:600">الغداء</div><div style="font-size:15px;font-weight:600;margin-top:1px">سلطة السلمون بالكينوا</div><div style="font-size:12.5px;color:#6b7a70;margin-top:2px">٢٥ دقيقة</div></div>
+        <div style="padding:4px 10px;border-radius:12px;background:#e9f1ea;color:#3c7a5a;font-size:12px;font-weight:600;flex:none">أوميغا ٣</div>
+      </div>
+      <div style="display:flex;gap:12px;background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:12px;align-items:center">
+        <div style="width:56px;height:56px;border-radius:12px;flex:none;background:repeating-linear-gradient(45deg,#e9f1ea,#e9f1ea 6px,#f0f5f0 6px,#f0f5f0 12px)"></div>
+        <div style="flex:1"><div style="font-size:11.5px;color:#9aa79e;font-weight:600">العشاء</div><div style="font-size:15px;font-weight:600;margin-top:1px">ملوخية بالدجاج المشوي</div><div style="font-size:12.5px;color:#6b7a70;margin-top:2px">٣٥ دقيقة</div></div>
+        <div style="padding:4px 10px;border-radius:12px;background:#e9f1ea;color:#3c7a5a;font-size:12px;font-weight:600;flex:none">داعم</div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ ar1 }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;gap:16px;align-items:center;background:#fff;border:1px solid #e8e4da;border-radius:18px;padding:18px">
+    <div style="width:92px;height:92px;border-radius:50%;background:conic-gradient(#3c7a5a 0 295deg,#e8e4da 295deg 360deg);display:flex;align-items:center;justify-content:center;flex:none">
+      <div style="width:72px;height:72px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center">
+        <div style="font-size:24px;font-weight:700;color:#2f4a3c">٨٢</div>
+        <div style="font-size:9.5px;color:#9aa79e;font-weight:600">درجة سيلادون</div>
+      </div>
+    </div>
+    <div style="flex:1">
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <div style="padding:4px 12px;border-radius:12px;background:#e9f1ea;color:#3c7a5a;font-size:12.5px;font-weight:700">داعم</div>
+        <div style="padding:4px 12px;border-radius:12px;background:#f0ede5;color:#6b7a70;font-size:12.5px;font-weight:600">ثقة عالية</div>
+      </div>
+      <div style="font-size:13.5px;color:#6b7a70;line-height:1.7;margin-top:8px">اختيار قوي — الأوميغا ٣ وزيت الزيتون يقومان بالعمل الأساسي.</div>
+    </div>
+  </div>
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:14px 18px">
+    <div style="display:flex;gap:18px;flex-wrap:wrap">
+      <div><div style="font-size:17px;font-weight:700">٥٤٠</div><div style="font-size:11.5px;color:#9aa79e;font-weight:500">سعرة</div></div>
+      <div><div style="font-size:17px;font-weight:700">٣٤غ</div><div style="font-size:11.5px;color:#9aa79e;font-weight:500">بروتين</div></div>
+      <div><div style="font-size:17px;font-weight:700">٤٢غ</div><div style="font-size:11.5px;color:#9aa79e;font-weight:500">كربوهيدرات</div></div>
+      <div><div style="font-size:17px;font-weight:700">٢١غ</div><div style="font-size:11.5px;color:#9aa79e;font-weight:500">دهون</div></div>
+    </div>
+    <div style="font-size:12px;color:#9aa79e;margin-top:10px;border-top:1px solid #f0ede5;padding-top:9px">السعرات المقدّرة من الصور تقديرية وليست قياسًا دقيقًا.</div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ ar2 }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;gap:14px;align-items:center;background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:14px 16px">
+    <div style="width:58px;height:58px;border-radius:50%;background:conic-gradient(#3c7a5a 0 302deg,#e8e4da 302deg 360deg);display:flex;align-items:center;justify-content:center;flex:none">
+      <div style="width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#2f4a3c">٨٤</div>
+    </div>
+    <div style="flex:1">
+      <div style="font-size:14px;font-weight:600">درجة اليوم · داعم</div>
+      <div style="font-size:12.5px;color:#6b7a70;margin-top:2px">١٬٥٦٠ سعرة · بروتين ٩٦غ · دهون ٦٢غ</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:12px;align-items:center">
+    <div style="width:52px;height:52px;border-radius:12px;flex:none;background:repeating-linear-gradient(45deg,#e9f1ea,#e9f1ea 6px,#f0f5f0 6px,#f0f5f0 12px)"></div>
+    <div style="flex:1"><div style="font-size:11.5px;color:#9aa79e;font-weight:600">الغداء</div><div style="font-size:15px;font-weight:600;margin-top:1px">سلطة السلمون بالكينوا</div></div>
+    <button style="background:none;border:1.5px solid #ddd8cc;border-radius:16px;padding:6px 13px;font-family:inherit;font-size:12.5px;font-weight:600;color:#6b7a70;cursor:pointer;flex:none">بدّلي</button>
+  </div>
+  <div style="display:flex;gap:12px;background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:12px;align-items:center">
+    <div style="width:52px;height:52px;border-radius:12px;flex:none;background:repeating-linear-gradient(45deg,#e9f1ea,#e9f1ea 6px,#f0f5f0 6px,#f0f5f0 12px)"></div>
+    <div style="flex:1"><div style="font-size:11.5px;color:#9aa79e;font-weight:600">العشاء</div><div style="font-size:15px;font-weight:600;margin-top:1px">ملوخية بالدجاج المشوي</div></div>
+    <button style="background:none;border:1.5px solid #ddd8cc;border-radius:16px;padding:6px 13px;font-family:inherit;font-size:12.5px;font-weight:600;color:#6b7a70;cursor:pointer;flex:none">بدّلي</button>
+  </div>
+  </sc-if>
+  <sc-if value="{{ ar3 }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;gap:10px">
+    <div style="flex:1;text-align:right;padding:16px;border-radius:16px;border:1.5px solid #ddd8cc;background:#fff">
+      <div style="font-size:13px;font-weight:600;color:#6b7a70">شهري</div>
+      <div style="font-size:19px;font-weight:700;color:#22302a;margin-top:3px">٢٤٩ ج.م</div>
+      <div style="font-size:12px;color:#9aa79e;margin-top:2px">شهريًا</div>
+    </div>
+    <div style="flex:1;text-align:right;padding:16px;border-radius:16px;border:1.5px solid #3c7a5a;background:#e9f1ea;position:relative">
+      <div style="position:absolute;top:-9px;left:12px;background:#b07c2f;color:#fff;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:9px">وفّري ٣٣٪</div>
+      <div style="font-size:13px;font-weight:600;color:#6b7a70">سنوي</div>
+      <div style="font-size:19px;font-weight:700;color:#22302a;margin-top:3px">١٦٦ ج.م</div>
+      <div style="font-size:12px;color:#9aa79e;margin-top:2px">شهريًا · ١٬٩٩٠ ج.م سنويًا</div>
+    </div>
+  </div>
+  <button style="background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:16px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer">ابدئي ٧ أيام مجانًا</button>
+  <div style="font-size:12.5px;color:#9aa79e;text-align:center;line-height:1.7">الإلغاء بلمسة واحدة في أي وقت — نذكّرك قبل انتهاء التجربة بيومين.</div>
+  </sc-if>
+  <div style="background:#f0ede5;border-radius:14px;padding:14px 16px;font-size:12.5px;color:#6b7a70;line-height:1.7">معاينة الواجهة العربية — التخطيط كامل من اليمين إلى اليسار، مع الحفاظ على نفس الهوية البصرية.</div>
+</div>
+</sc-if>
+
+<!-- ══ MANUAL ADD ══ -->
+<sc-if value="{{ isManual }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Add food" style="flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;align-items:center;gap:12px;padding-top:6px">
+    <button onClick="{{ goDiary }}" style="background:none;border:none;font-family:inherit;font-size:15px;font-weight:600;color:#6b7a70;cursor:pointer;padding:0">‹</button>
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500">Add food</div>
+  </div>
+  <input placeholder="Search foods…" style="background:#fff;border:1px solid #e8e4da;border-radius:22px;padding:13px 18px;font-family:inherit;font-size:14.5px;color:#22302a;outline:none"></input>
+  <div>
+    <div style="font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#9aa79e;font-weight:700;margin-bottom:8px">Recent &amp; common</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ manualFoods }}" as="f" hint-placeholder-count="4">
+        <div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e8e4da;border-radius:13px;padding:12px 14px">
+          <div style="flex:1;min-width:0"><div style="font-size:14.5px;font-weight:600">{{ f.name }}</div><div style="font-size:12.5px;color:#6b7a70;margin-top:1px">{{ f.note }}</div></div>
+          <div style="padding:3px 9px;border-radius:10px;background:{{ f.bg }};color:{{ f.fg }};font-size:11px;font-weight:700;flex:none">{{ f.tag }}</div>
+          <button onClick="{{ f.add }}" style="background:#e9f1ea;border:none;border-radius:14px;padding:7px 13px;font-family:inherit;font-size:12.5px;font-weight:700;color:#3c7a5a;cursor:pointer;flex:none">+ Add</button>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:16px;display:flex;align-items:center;gap:12px">
+    <div style="flex:1"><div style="font-size:14px;font-weight:600">Faster with the camera</div><div style="font-size:12.5px;color:#6b7a70;margin-top:2px">Scanning fills in portions and the score for you</div></div>
+    <button onClick="{{ startScan }}" style="background:none;border:1.5px solid #ddd8cc;border-radius:18px;padding:8px 16px;font-family:inherit;font-size:13px;font-weight:600;color:#3c7a5a;cursor:pointer;flex:none">Scan</button>
+  </div>
+</div>
+</sc-if>
+
+<!-- ══ SCAN QUOTA ══ -->
+<sc-if value="{{ isQuota }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Scan limit" style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:28px;gap:14px">
+  <div style="align-self:flex-start;padding:4px 12px;border-radius:12px;background:#f0ede5;color:#6b7a70;font-size:12px;font-weight:700">Free plan</div>
+  <div style="font-family:Lora,serif;font-size:27px;font-weight:500;line-height:1.2">That's this week's free scans</div>
+  <div style="font-size:14.5px;color:#6b7a70;line-height:1.55">Free includes 3 photo scans a week — they reset Monday. Premium removes the limit.</div>
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:10px;height:10px;border-radius:50%;background:#3c7a5a;flex:none;margin-top:4px"></div><div style="font-size:14px;color:#4a5a50;line-height:1.5">Unlimited meal scanning</div></div>
+    <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:10px;height:10px;border-radius:50%;background:#3c7a5a;flex:none;margin-top:4px"></div><div style="font-size:14px;color:#4a5a50;line-height:1.5">Adaptive weekly plans</div></div>
+    <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:10px;height:10px;border-radius:50%;background:#3c7a5a;flex:none;margin-top:4px"></div><div style="font-size:14px;color:#4a5a50;line-height:1.5">Pattern detection &amp; doctor reports</div></div>
+  </div>
+  <button onClick="{{ quotaPlans }}" style="background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:16px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:4px">See Premium plans</button>
+  <button onClick="{{ goManual }}" style="background:none;border:1.5px solid #ddd8cc;border-radius:26px;padding:14px;font-family:inherit;font-size:14.5px;font-weight:600;color:#3c7a5a;cursor:pointer">Log this meal manually</button>
+  <button onClick="{{ goHome }}" style="background:none;border:none;font-family:inherit;font-size:14px;font-weight:600;color:#6b7a70;cursor:pointer;padding:4px">Not now</button>
+</div>
+</sc-if>
+
+<!-- ══ OFFLINE ══ -->
+<sc-if value="{{ isOffline }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Offline" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:40px;text-align:center">
+  <div style="width:56px;height:56px;border-radius:50%;background:#f0ede5;display:flex;align-items:center;justify-content:center"><div style="width:22px;height:2.5px;background:#9aa79e;border-radius:2px;transform:rotate(-45deg)"></div></div>
+  <div style="font-family:Lora,serif;font-size:24px">You're offline</div>
+  <div style="font-size:14px;color:#6b7a70;line-height:1.55;max-width:280px">Your plan and diary live on this phone, so nothing is lost. Scanning and sync will resume on their own.</div>
+  <button onClick="{{ retryOffline }}" style="background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:15px 36px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:6px">Try again</button>
+  <div style="font-size:12.5px;color:#9aa79e">Last synced today, 9:41</div>
+</div>
+</sc-if>
+
+<!-- ══ DOCTOR REPORT ══ -->
+<sc-if value="{{ isReport }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Doctor report" style="flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;align-items:center;gap:12px;padding-top:6px">
+    <button onClick="{{ goProgress }}" style="background:none;border:none;font-family:inherit;font-size:15px;font-weight:600;color:#6b7a70;cursor:pointer;padding:0">‹</button>
+    <div>
+      <div style="font-family:Lora,serif;font-size:26px;font-weight:500">Doctor report</div>
+      <div style="font-size:13px;color:#9aa79e;margin-top:2px">July 1 – 31 · prepared for your care team</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <sc-for list="{{ statCards }}" as="s" hint-placeholder-count="4">
+      <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:14px 16px">
+        <div style="font-size:20px;font-weight:700;color:#2f4a3c">{{ s.val }}</div>
+        <div style="font-size:12.5px;color:#6b7a70;margin-top:2px">{{ s.name }}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:18px;padding:18px">
+    <div style="font-size:15px;font-weight:600;margin-bottom:10px">Patterns observed</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;gap:12px"><div style="width:10px;height:10px;border-radius:50%;background:#b07c2f;flex:none;margin-top:4px"></div><div style="font-size:13.5px;color:#4a5a50;line-height:1.5">Joint discomfort reported 2× more often within a day of nightshade meals.</div></div>
+      <div style="display:flex;gap:12px"><div style="width:10px;height:10px;border-radius:50%;background:#3c7a5a;flex:none;margin-top:4px"></div><div style="font-size:13.5px;color:#4a5a50;line-height:1.5">Weeks with 3+ fish meals averaged 1.8 more calm days.</div></div>
+      <div style="display:flex;gap:12px"><div style="width:10px;height:10px;border-radius:50%;background:#7fa88f;flex:none;margin-top:4px"></div><div style="font-size:13.5px;color:#4a5a50;line-height:1.5">Ghee reintroduction (in progress): no symptom change through day 2.</div></div>
+    </div>
+  </div>
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:18px;padding:18px">
+    <div style="font-size:15px;font-weight:600;margin-bottom:6px">Food pattern</div>
+    <div style="font-size:13.5px;color:#6b7a70;line-height:1.55">24 of 31 days followed an anti-inflammatory pattern. Most frequent supportive foods: salmon, olive oil, molokhia, walnuts. Flagged foods appeared in 9 meals, mostly tomatoes.</div>
+  </div>
+  <div style="background:#f0ede5;border-radius:14px;padding:14px 16px;font-size:12.5px;color:#6b7a70;line-height:1.55">Self-reported data and photo-based estimates, shared as observations for clinical context — not a diagnosis.</div>
+  <button style="background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:16px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer">Share as PDF</button>
+  <button style="background:none;border:1.5px solid #ddd8cc;border-radius:26px;padding:14px;font-family:inherit;font-size:14.5px;font-weight:600;color:#3c7a5a;cursor:pointer">Email to my nutritionist</button>
+</div>
+</sc-if>
+
+<!-- ══ CELEBRATE ══ -->
+<sc-if value="{{ isCelebrate }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Check-in saved" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px;text-align:center">
+  <div style="width:80px;height:80px;border-radius:50%;background:#e9f1ea;display:flex;align-items:center;justify-content:center"><div style="width:30px;height:30px;border-radius:50% 50% 50% 0;background:#3c7a5a;transform:rotate(-45deg)"></div></div>
+  <div style="font-family:Lora,serif;font-size:27px;line-height:1.2">{{ celebrateTitle }}</div>
+  <div style="font-size:14.5px;color:#6b7a70;line-height:1.6;max-width:290px;text-wrap:pretty">{{ celebrateBody }}</div>
+  <button onClick="{{ celebrateDone }}" style="background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:15px 40px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:8px">Continue</button>
+</div>
+</sc-if>
+
+<!-- ══ LEGAL ══ -->
+<sc-if value="{{ isLegal }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Privacy and terms" style="flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:14px">
+  <div style="display:flex;align-items:center;gap:12px;padding-top:6px">
+    <button onClick="{{ goProfile }}" style="background:none;border:none;font-family:inherit;font-size:15px;font-weight:600;color:#6b7a70;cursor:pointer;padding:0">‹</button>
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500">Privacy &amp; terms</div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <sc-for list="{{ legalTabs }}" as="t" hint-placeholder-count="3">
+      <button onClick="{{ t.tap }}" style="flex:1;padding:9px 0;border-radius:18px;border:1.5px solid {{ t.bd }};background:{{ t.bg }};color:{{ t.fg }};font-family:inherit;font-size:13px;font-weight:600;cursor:pointer">{{ t.name }}</button>
+    </sc-for>
+  </div>
+  <sc-if value="{{ legal0 }}" hint-placeholder-val="{{ true }}">
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px">
+    <div><div style="font-size:14.5px;font-weight:600;margin-bottom:4px">What we store</div><div style="font-size:13.5px;color:#6b7a70;line-height:1.6">Your assessment answers, logged meals, check-ins and preferences — the minimum needed to personalize your plan. Meal photos are analyzed on the fly and not retained.</div></div>
+    <div><div style="font-size:14.5px;font-weight:600;margin-bottom:4px">What we never do</div><div style="font-size:13.5px;color:#6b7a70;line-height:1.6">Sell your data, show ads, or share health information with anyone without your explicit action (like exporting a doctor report).</div></div>
+    <div><div style="font-size:14.5px;font-weight:600;margin-bottom:4px">Your controls</div><div style="font-size:13.5px;color:#6b7a70;line-height:1.6">Export everything as a file, correct any record, or delete your account and all data — each takes one tap in Profile.</div></div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ legal1 }}" hint-placeholder-val="{{ false }}">
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px">
+    <div><div style="font-size:14.5px;font-weight:600;margin-bottom:4px">Subscription</div><div style="font-size:13.5px;color:#6b7a70;line-height:1.6">Billed through the App Store or Google Play. Cancel anytime from your store account — access continues to the end of the paid period.</div></div>
+    <div><div style="font-size:14.5px;font-weight:600;margin-bottom:4px">Free trial</div><div style="font-size:13.5px;color:#6b7a70;line-height:1.6">7 days, full access. We remind you two days before it converts. No charge if you cancel before it ends.</div></div>
+    <div><div style="font-size:14.5px;font-weight:600;margin-bottom:4px">Refunds</div><div style="font-size:13.5px;color:#6b7a70;line-height:1.6">Handled by the store per their policies; we'll always help you file the request.</div></div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ legal2 }}" hint-placeholder-val="{{ false }}">
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px">
+    <div><div style="font-size:14.5px;font-weight:600;margin-bottom:4px">What Celadon is</div><div style="font-size:13.5px;color:#6b7a70;line-height:1.6">A nutrition companion. It offers meal guidance and pattern observations based on the information you share.</div></div>
+    <div><div style="font-size:14.5px;font-weight:600;margin-bottom:4px">What it isn't</div><div style="font-size:13.5px;color:#6b7a70;line-height:1.6">Celadon does not diagnose, treat, cure or prevent any disease, and is not a substitute for care from your doctor or a registered dietitian. Never change medication based on the app.</div></div>
+    <div><div style="font-size:14.5px;font-weight:600;margin-bottom:4px">If something feels wrong</div><div style="font-size:13.5px;color:#6b7a70;line-height:1.6">For severe or sudden symptoms, contact your doctor or local emergency services — not the app.</div></div>
+  </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- ══ GENTLE MODE ══ -->
+<sc-if value="{{ isGentle }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Gentle mode" style="flex:1;overflow-y:auto;padding:20px 20px 100px;display:flex;flex-direction:column;gap:14px">
+  <div style="display:flex;align-items:center;gap:12px;padding-top:6px">
+    <button onClick="{{ goProfile }}" style="background:none;border:none;font-family:inherit;font-size:15px;font-weight:600;color:#6b7a70;cursor:pointer;padding:0">‹</button>
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500">Gentle mode</div>
+  </div>
+  <div style="font-size:14px;color:#6b7a70;line-height:1.55;text-wrap:pretty">Built with eating-disorder recovery in mind. If numbers around food feel heavy, Celadon works just as well without them.</div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <sc-for list="{{ comforts }}" as="m" hint-placeholder-count="3">
+      <button onClick="{{ m.tap }}" style="text-align:left;padding:16px;border-radius:14px;border:1.5px solid {{ m.bd }};background:{{ m.bg }};font-family:inherit;cursor:pointer">
+        <div style="font-size:15.5px;font-weight:600;color:#22302a">{{ m.name }}</div>
+        <div style="font-size:13.5px;color:#6b7a70;margin-top:3px;line-height:1.45">{{ m.desc }}</div>
+      </button>
+    </sc-for>
+  </div>
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:16px">
+    <div style="font-size:14.5px;font-weight:600;margin-bottom:8px">What changes in gentle mode</div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;gap:12px"><div style="width:10px;height:10px;border-radius:50%;background:#3c7a5a;flex:none;margin-top:4px"></div><div style="font-size:13.5px;color:#4a5a50;line-height:1.5">Calories and macros hidden everywhere</div></div>
+      <div style="display:flex;gap:12px"><div style="width:10px;height:10px;border-radius:50%;background:#3c7a5a;flex:none;margin-top:4px"></div><div style="font-size:13.5px;color:#4a5a50;line-height:1.5">No weight goals, prompts or tracking</div></div>
+      <div style="display:flex;gap:12px"><div style="width:10px;height:10px;border-radius:50%;background:#3c7a5a;flex:none;margin-top:4px"></div><div style="font-size:13.5px;color:#4a5a50;line-height:1.5">Check-ins focus on how you feel, not what you ate</div></div>
+      <div style="display:flex;gap:12px"><div style="width:10px;height:10px;border-radius:50%;background:#3c7a5a;flex:none;margin-top:4px"></div><div style="font-size:13.5px;color:#4a5a50;line-height:1.5">Same plans, same recipes, same care</div></div>
+    </div>
+  </div>
+  <div style="background:#f0ede5;border-radius:14px;padding:14px 16px;font-size:12.5px;color:#6b7a70;line-height:1.55">Switch anytime — quietly, no questions asked. If you're in treatment, your care team's guidance comes first.</div>
+</div>
+</sc-if>
+
+<!-- ══ DELETE ACCOUNT ══ -->
+<sc-if value="{{ isDelete }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Delete account" style="flex:1;overflow-y:auto;padding:20px 20px 40px;display:flex;flex-direction:column;gap:14px">
+  <div style="display:flex;align-items:center;gap:12px;padding-top:6px">
+    <button onClick="{{ goProfile }}" style="background:none;border:none;font-family:inherit;font-size:15px;font-weight:600;color:#6b7a70;cursor:pointer;padding:0">‹</button>
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500">Delete your account?</div>
+  </div>
+  <div style="font-size:14px;color:#6b7a70;line-height:1.55">We're sorry to see you go. Here's exactly what deletion means:</div>
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;gap:12px"><div style="width:10px;height:10px;border-radius:50%;background:#b0503c;flex:none;margin-top:4px"></div><div style="font-size:13.5px;color:#4a5a50;line-height:1.5">Profile and health answers — erased</div></div>
+    <div style="display:flex;gap:12px"><div style="width:10px;height:10px;border-radius:50%;background:#b0503c;flex:none;margin-top:4px"></div><div style="font-size:13.5px;color:#4a5a50;line-height:1.5">Diary, scans and check-ins — erased</div></div>
+    <div style="display:flex;gap:12px"><div style="width:10px;height:10px;border-radius:50%;background:#9aa79e;flex:none;margin-top:4px"></div><div style="font-size:13.5px;color:#4a5a50;line-height:1.5">Subscription — cancel separately in your app store</div></div>
+  </div>
+  <div style="background:#f7ecd9;border-radius:14px;padding:14px 16px;font-size:13px;color:#7a5620;line-height:1.55"><b>This is immediate and permanent.</b> If you might want your history later, export it first.</div>
+  <button style="background:none;border:1.5px solid #ddd8cc;border-radius:26px;padding:14px;font-family:inherit;font-size:14.5px;font-weight:600;color:#3c7a5a;cursor:pointer">Export my data first</button>
+  <button onClick="{{ confirmDelete }}" style="background:#b0503c;color:#fff;border:none;border-radius:26px;padding:15px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer">Delete permanently</button>
+  <button onClick="{{ goProfile }}" style="background:none;border:none;font-family:inherit;font-size:14px;font-weight:600;color:#6b7a70;cursor:pointer;padding:4px">Cancel</button>
+</div>
+</sc-if>
+
+<!-- ══ TRIAL ENDING ══ -->
+<sc-if value="{{ isTrialend }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Trial ending" style="flex:1;overflow-y:auto;padding:20px 20px 40px;display:flex;flex-direction:column;gap:14px">
+  <div style="display:flex;align-items:center;gap:12px;padding-top:6px">
+    <button onClick="{{ goProfile }}" style="background:none;border:none;font-family:inherit;font-size:15px;font-weight:600;color:#6b7a70;cursor:pointer;padding:0">‹</button>
+    <div style="font-family:Lora,serif;font-size:26px;font-weight:500">Your trial ends in 5 days</div>
+  </div>
+  <div style="font-size:14px;color:#6b7a70;line-height:1.55">No surprises — here's what happens either way. We'll remind you two days before.</div>
+  <div style="background:#fff;border:1px solid #e8e4da;border-radius:16px;padding:16px">
+    <div style="font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:#9aa79e;font-weight:700;margin-bottom:8px">If you do nothing — Free</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:13.5px;color:#4a5a50;line-height:1.5">· 3 photo scans a week</div>
+      <div style="font-size:13.5px;color:#4a5a50;line-height:1.5">· One-week meal plan, refreshed weekly</div>
+      <div style="font-size:13.5px;color:#4a5a50;line-height:1.5">· Basic Celadon Score</div>
+    </div>
+  </div>
+  <div style="background:#e9f1ea;border:1.5px solid #3c7a5a;border-radius:16px;padding:16px">
+    <div style="font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:#3c7a5a;font-weight:700;margin-bottom:8px">Keep Premium</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:13.5px;color:#2f4a3c;line-height:1.5">· Unlimited scanning with full breakdowns</div>
+      <div style="font-size:13.5px;color:#2f4a3c;line-height:1.5">· Plans that adapt to flares and check-ins</div>
+      <div style="font-size:13.5px;color:#2f4a3c;line-height:1.5">· Pattern detection and doctor reports</div>
+    </div>
+  </div>
+  <button onClick="{{ openPaywall }}" style="background:#3c7a5a;color:#fff;border:none;border-radius:26px;padding:16px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer">See plans</button>
+  <button onClick="{{ goProfile }}" style="background:none;border:1.5px solid #ddd8cc;border-radius:26px;padding:14px;font-family:inherit;font-size:14.5px;font-weight:600;color:#6b7a70;cursor:pointer">Switch to free when it ends</button>
+</div>
+</sc-if>
+
+<!-- ══ CAMERA PERMISSION ══ -->
+<sc-if value="{{ camAskOn }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;z-index:50;background:rgba(29,38,32,.5);display:flex;align-items:center;justify-content:center;padding:40px">
+  <div style="background:#f7f5f0;border-radius:18px;padding:22px 20px;text-align:center;max-width:280px">
+    <div style="font-size:15.5px;font-weight:600;line-height:1.4">Allow Celadon to use the camera?</div>
+    <div style="font-size:13px;color:#6b7a70;line-height:1.5;margin-top:8px">Photos are analyzed to estimate ingredients. They aren't stored unless you choose to save them.</div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button onClick="{{ denyCam }}" style="flex:1;background:none;border:1.5px solid #ddd8cc;border-radius:20px;padding:11px;font-family:inherit;font-size:13.5px;font-weight:600;color:#6b7a70;cursor:pointer">Don't allow</button>
+      <button onClick="{{ allowCam }}" style="flex:1;background:#3c7a5a;color:#fff;border:none;border-radius:20px;padding:11px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer">Allow</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ══ TAB BAR ══ -->
+<sc-if value="{{ showTabs }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:0;right:0;bottom:0;background:rgba(247,245,240,.92);backdrop-filter:blur(12px);border-top:1px solid #e8e4da;display:flex;align-items:center;padding:10px 12px 22px;gap:4px">
+  <button onClick="{{ goHome }}" style="flex:1;background:none;border:none;font-family:inherit;font-size:12px;font-weight:600;color:{{ tHome }};cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 0"><div style="width:6px;height:6px;border-radius:50%;background:{{ tHomeDot }}"></div>Home</button>
+  <button onClick="{{ goPlan }}" style="flex:1;background:none;border:none;font-family:inherit;font-size:12px;font-weight:600;color:{{ tPlan }};cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 0"><div style="width:6px;height:6px;border-radius:50%;background:{{ tPlanDot }}"></div>Meal Plan</button>
+  <button onClick="{{ startScan }}" style="flex:none;width:58px;height:58px;border-radius:50%;background:#3c7a5a;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:-24px;box-shadow:0 6px 16px rgba(47,74,60,.35)"><div style="width:24px;height:24px;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center"><div style="width:8px;height:8px;border-radius:50%;background:#fff"></div></div></button>
+  <button onClick="{{ goProgress }}" style="flex:1;background:none;border:none;font-family:inherit;font-size:12px;font-weight:600;color:{{ tProg }};cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 0"><div style="width:6px;height:6px;border-radius:50%;background:{{ tProgDot }}"></div>Progress</button>
+  <button onClick="{{ goProfile }}" style="flex:1;background:none;border:none;font-family:inherit;font-size:12px;font-weight:600;color:{{ tProf }};cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 0"><div style="width:6px;height:6px;border-radius:50%;background:{{ tProfDot }}"></div>Profile</button>
+</div>
+</sc-if>
+
+</div>
+</x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:470,&quot;height&quot;:950},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;onboarding&quot;,&quot;auth&quot;,&quot;home&quot;,&quot;scan&quot;,&quot;plan&quot;,&quot;diary&quot;,&quot;progress&quot;,&quot;profile&quot;,&quot;paywall&quot;,&quot;trialend&quot;,&quot;quota&quot;,&quot;offline&quot;,&quot;report&quot;,&quot;arabic&quot;],&quot;default&quot;:&quot;onboarding&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Prototype&quot;},&quot;comfortMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;full&quot;,&quot;gentle&quot;],&quot;default&quot;:&quot;full&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Sensitivity&quot;}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'ob', obStep: 0,
+    goal: 0, conds: {5: true}, concerns: {0: true, 1: true}, avoidsSel: {0: true, 2: true},
+    cuisineSel: {0: true, 4: true}, country: 0, activity: 1, mealsIdx: 2, weightIdx: 0, comfort: 0,
+    scanStep: 0, scanErr: false, scanOff: {}, portion: 1,
+    day: 5, done: {0: true}, swapFor: null, regenerated: false,
+    servings: 2, savedRecipe: false,
+    grocery: {}, removed: {}, customText: '', customItems: [],
+    metricVals: {0: 3, 1: 2, 2: 3, 3: 1, 4: 1, 5: 3}, flare: false, saved: false,
+    water: 5, menuFor: null, diaryRemoved: {},
+    filter: 0, numbersOverride: null, detail: 'Salmon quinoa bowl',
+    weightVisible: false, compare: false, planSel: 1,
+    authMode: 'signin', resetSent: false, permStep: 0, camPerm: false, camAsk: false,
+    manualList: [], legalTab: 0, arTab: 0, notifsCleared: false, obReturn: null, dayGen: false, disambig: 0
+  };
+  componentDidMount() {
+    const s = this.props.startScreen ?? 'onboarding';
+    if (s !== 'onboarding') this.setState({screen: s === 'paywall' ? 'paywall' : s});
+  }
+  nav(s, extra) { this.setState({screen: s, ...(extra || {})}); }
+  renderVals() {
+    const S = this.state, P = this.props;
+    const g = '#3c7a5a', gl = '#e9f1ea', amber = '#b07c2f', al = '#f7ecd9', red = '#b0503c', rl = '#f6e5e0', bd0 = '#ddd8cc';
+    const numbersOn = S.numbersOverride ?? (((P.comfortMode ?? 'full') !== 'gentle') && S.comfort === 0);
+    const scr = S.screen;
+    const flags = {};
+    ['ob','home','scan','plan','detail','track','progress','grocery','reintro','recipes','diary','search','notifs','profile','paywall','arabic','auth','perms','manual','quota','offline','report','celebrate','legal','gentle','delete','trialend'].forEach(k => {
+      flags['is' + k[0].toUpperCase() + k.slice(1)] = scr === k;
+    });
+    const sel = (on) => on ? {bg: gl, bd: g} : {bg: '#fff', bd: bd0};
+    const chip = (on) => on ? {bg: '#2f4a3c', bd: '#2f4a3c', fg: '#fff'} : {bg: '#fff', bd: bd0, fg: '#22302a'};
+    const radioList = (names, cur, set) => names.map((name, i) => {
+      const on = cur === i, s = sel(on);
+      return {name, bg: s.bg, bd: s.bd, dot: on ? g : 'transparent', dotBd: on ? g : bd0, tap: () => set(i)};
+    });
+    const multiList = (names, map, key) => names.map((name, i) => {
+      const on = !!map[i];
+      return {name, ...chip(on), tap: () => this.setState(st => ({[key]: {...st[key], [i]: !st[key][i]}}))};
+    });
+    const chipsSingle = (names, cur, key) => names.map((name, i) => ({name, ...chip(cur === i), tap: () => this.setState({[key]: i})}));
+    // onboarding
+    const obBars = [0,1,2,3,4,5,6,7,8].map(i => ({bg: S.obStep >= i ? g : '#e0dcd0'}));
+    const goalNames = ['Calm inflammation', 'Support an autoimmune condition', 'More energy, less fatigue', 'A gentle weight goal', 'Simply eat better'];
+    const goals = radioList(goalNames, S.goal, i => this.setState({goal: i}));
+    const condNames = ["Hashimoto's / thyroid", 'Rheumatoid arthritis', "IBD / Crohn's / colitis", 'Psoriasis or eczema', 'Lupus', 'No diagnosis — just want less inflammation', 'Something else'];
+    const conds = condNames.map((name, i) => {
+      const on = !!S.conds[i], s = sel(on);
+      return {name, bg: s.bg, bd: s.bd, dot: on ? g : 'transparent', dotBd: on ? g : bd0,
+        tap: () => this.setState(st => ({conds: {...st.conds, [i]: !st.conds[i]}}))};
+    });
+    const concerns = multiList(['Digestive discomfort', 'Fatigue', 'Joint discomfort', 'Skin flare-ups', 'Brain fog', 'Poor sleep', 'None of these'], S.concerns, 'concerns');
+    const avoidNames = ['Gluten', 'Dairy', 'Nightshades', 'Eggs', 'Refined sugar', 'Seed oils', 'Legumes', 'Caffeine', 'Alcohol', 'Shellfish', 'Tree nuts'];
+    const avoids = multiList(avoidNames, S.avoidsSel, 'avoidsSel');
+    const cuisineNames = ['Egyptian', 'Levantine', 'Saudi', 'Gulf', 'Mediterranean', 'International'];
+    const cuisines = multiList(cuisineNames, S.cuisineSel, 'cuisineSel');
+    const countries = chipsSingle(['Egypt', 'Saudi Arabia', 'UAE', 'Kuwait', 'Qatar', 'Elsewhere'], S.country, 'country');
+    const activityDefs = [
+      {name: 'Mostly seated', desc: 'Desk work, light walking'},
+      {name: 'Lightly active', desc: 'On your feet part of the day'},
+      {name: 'Very active', desc: 'Regular training or an active job'}
+    ];
+    const activities = activityDefs.map((a, i) => { const s = sel(S.activity === i); return {...a, bg: s.bg, bd: s.bd, tap: () => this.setState({activity: i})}; });
+    const mealsNames = ['2 meals', '3 meals', '3 + snacks', '4–5 small'];
+    const mealsChips = chipsSingle(mealsNames, S.mealsIdx, 'mealsIdx');
+    const weightNames = ['Maintain', 'Gentle loss', 'Prefer not to set'];
+    const weightChips = chipsSingle(weightNames, S.weightIdx, 'weightIdx');
+    const comfortDefs = [
+      {name: 'Show everything', desc: 'Calories, macros and portions alongside the Celadon Score.'},
+      {name: 'Gentle mode', desc: 'No calories, weights or numbers. Focus on how foods make you feel.'},
+      {name: 'Minimal', desc: 'Just meal ideas and a simple supportive / limit signal.'}
+    ];
+    const comforts = comfortDefs.map((c, i) => {
+      const s = sel(S.comfort === i);
+      return {...c, bg: s.bg, bd: s.bd, tap: () => this.setState({comfort: i, numbersOverride: null})};
+    });
+    const pick = (names, map) => names.filter((_, i) => map[i]);
+    const cuisinePicked = pick(cuisineNames, S.cuisineSel);
+    const avoidPicked = pick(avoidNames, S.avoidsSel);
+    const sumCuisine = (cuisinePicked.length ? cuisinePicked.join(' & ') : 'A broad, familiar') + ' table — dishes you already know.';
+    const sumAvoid = avoidPicked.length ? 'Plans quietly avoid ' + avoidPicked.join(', ').toLowerCase() + '.' : 'No avoid-list yet — the reintroduction tracker can help you find one.';
+    const sumLife = mealsNames[S.mealsIdx] + ' a day, sized for a ' + activityDefs[S.activity].name.toLowerCase() + ' rhythm.';
+    const sumNumbers = S.comfort === 0 ? 'Numbers visible — calories and macros shown as estimates.' : S.comfort === 1 ? 'Gentle mode — no numbers, just how food supports you.' : 'Minimal mode — meal ideas and a simple signal.';
+    // meals
+    const openMeal = (name) => () => this.nav('detail', {detail: name, servings: 2, savedRecipe: false});
+    const mealDefs = [
+      {slot: 'Breakfast', name: 'Bessara with greens & olive oil', meta: numbersOn ? '10 min · 320 cal' : '10 min', badge: 'Supportive'},
+      {slot: 'Lunch', name: 'Salmon quinoa bowl', meta: numbersOn ? '25 min · 540 cal' : '25 min', badge: 'Omega-3'},
+      {slot: 'Snack', name: 'Walnuts & dates', meta: numbersOn ? '2 min · 180 cal' : '2 min', badge: 'Supportive'},
+      {slot: 'Dinner', name: 'Molokhia with grilled chicken', meta: numbersOn ? '35 min · 520 cal' : '35 min', badge: 'Supportive'}
+    ];
+    const todayMeals = [mealDefs[0], mealDefs[1], mealDefs[3]].map(m => ({...m, open: openMeal(m.name)}));
+    const previewMeals = [mealDefs[0], mealDefs[1], mealDefs[3]];
+    const planMeals = mealDefs.map((m, i) => {
+      const dn = !!S.done[i];
+      return {...m, open: openMeal(m.name),
+        toggleDone: () => this.setState(st => ({done: {...st.done, [i]: !st.done[i]}})),
+        ckBd: dn ? g : bd0, ckBg: dn ? g : 'transparent', ckMark: dn ? '✓' : '', op: dn ? .55 : 1, deco: dn ? 'line-through' : 'none',
+        swap: () => this.setState({swapFor: m.name})};
+    });
+    const weekDays = ['S','M','T','W','T','F','S'].map((dow, i) => {
+      const on = S.day === i;
+      return {dow, num: String(26 + i > 31 ? 26 + i - 31 : 26 + i), bg: on ? '#2f4a3c' : '#fff', bd: on ? '#2f4a3c' : '#e8e4da',
+        fg: on ? '#fff' : '#22302a', fgSub: on ? '#a9c4b3' : '#9aa79e', tap: () => this.setState({day: i})};
+    });
+    const swapAlts = [
+      {name: "Za'atar baked cod & sautéed greens", meta: numbersOn ? '20 min · 480 cal' : '20 min', score: '88'},
+      {name: 'Shorbet ads with brown rice', meta: numbersOn ? '30 min · 460 cal' : '30 min', score: '85'},
+      {name: 'Ginger-turmeric chicken & rice', meta: numbersOn ? '30 min · 510 cal' : '30 min', score: '83'}
+    ].map(a => ({...a, tap: () => this.setState({swapFor: null})}));
+    // scan
+    const scanIngDefs = [
+      {name: 'Wild salmon fillet', conf: '96%'}, {name: 'Quinoa', conf: '91%'},
+      {name: 'Cherry tomatoes', conf: '84%'}, {name: 'Olive oil dressing', conf: '78%'}, {name: 'Feta cheese', conf: '72%'}
+    ];
+    const scanIngs = scanIngDefs.map((x, i) => {
+      const off = !!S.scanOff[i];
+      return {...x, bg: off ? '#f7f5f0' : '#fff', bd: off ? '#e8e4da' : bd0, op: off ? .45 : 1,
+        ck: off ? 'transparent' : g, ckBd: off ? bd0 : g,
+        tap: () => this.setState(st => ({scanOff: {...st.scanOff, [i]: !st.scanOff[i]}}))};
+    });
+    const portions = ['Small', 'Medium', 'Large'].map((name, i) => ({name, ...chip(S.portion === i), tap: () => this.setState({portion: i})}));
+    const resultIngs = [
+      {name: 'Wild salmon', tag: 'Supportive', dot: g, fg: g, why: 'Rich in omega-3 EPA/DHA — one of the strongest anti-inflammatory foods.'},
+      {name: 'Olive oil', tag: 'Supportive', dot: g, fg: g, why: 'Oleocanthal has well-studied anti-inflammatory activity.'},
+      {name: 'Quinoa', tag: 'Balanced', dot: '#7fa88f', fg: '#5d8a70', why: 'Gluten-free whole grain, gentle on most protocols.'},
+      {name: 'Cherry tomatoes', tag: 'Your flag', dot: amber, fg: amber, why: 'Nightshade — on your avoid list. A small amount; swap for cucumber next time.'},
+      {name: 'Feta cheese', tag: 'Limit', dot: amber, fg: amber, why: 'Salty aged dairy can be less supportive for some. You haven\u2019t tested dairy yet.'}
+    ];
+    const scanSubs = [
+      {from: 'Feta', to: 'labneh (if dairy is fine) or extra avocado'},
+      {from: 'Cherry tomatoes', to: 'cucumber, radish or pickled beets'}
+    ];
+    // detail
+    const s2 = S.servings;
+    const half = ['½', '1', '1½', '2'];
+    const detailIngs = [
+      {name: 'Wild salmon', qty: (150 * s2) + 'g', tag: 'Supportive', dot: g, fg: g},
+      {name: 'Quinoa, cooked', qty: (80 * s2) + 'g', tag: 'Balanced', dot: '#7fa88f', fg: '#5d8a70'},
+      {name: 'Avocado', qty: half[Math.min(s2, 4) - 1], tag: 'Supportive', dot: g, fg: g},
+      {name: 'Cucumber & herbs', qty: s2 + ' cup', tag: 'Balanced', dot: '#7fa88f', fg: '#5d8a70'},
+      {name: 'Lemon–olive oil dressing', qty: s2 + ' tbsp', tag: 'Supportive', dot: g, fg: g}
+    ];
+    const steps = [
+      'Rinse the quinoa and simmer 15 minutes with a pinch of salt.',
+      'Season the salmon with lemon, cumin and olive oil; grill 4 minutes per side.',
+      'Toss cucumber and herbs with the lemon–olive oil dressing.',
+      'Assemble over the quinoa, top with avocado and finish with sumac.'
+    ].map((text, i) => ({n: String(i + 1), text}));
+    const detailSubs = [
+      {from: 'Quinoa', to: 'brown rice, if quinoa is hard to find'},
+      {from: 'Avocado', to: 'extra olive oil and toasted walnuts'}
+    ];
+    // check-in
+    const metricDefs = [
+      {name: 'Energy', hint: 'drained → energized'},
+      {name: 'Digestion', hint: 'rough → settled'},
+      {name: 'Sleep', hint: 'restless → rested'},
+      {name: 'Stress', hint: 'calm → high'},
+      {name: 'Joint comfort', hint: 'achy → easy'},
+      {name: 'Overall', hint: 'low → good'}
+    ];
+    const metrics = metricDefs.map((m, mi) => ({...m,
+      dots: [0,1,2,3,4].map(di => {
+        const on = S.metricVals[mi] >= di;
+        const strong = mi === 3; // stress: amber scale
+        return {bg: on ? (strong ? al : gl) : '#fff', bd: on ? (strong ? amber : g) : '#e8e4da',
+          tap: () => this.setState(st => ({metricVals: {...st.metricVals, [mi]: di}, saved: false}))};
+      })
+    }));
+    // grocery
+    const groceryDefs = [
+      {name: 'Produce', items: [['Molokhia leaves (frozen ok)', '1 pack'], ['Baby spinach', '1 bag'], ['Avocados', '3'], ['Cucumber', '4'], ['Lemons', '6']]},
+      {name: 'Protein', items: [['Wild salmon', '2 fillets'], ['Chicken thighs', '500g'], ['Walnuts', '1 bag']]},
+      {name: 'Pantry', items: [['Quinoa', '1 box'], ['Extra-virgin olive oil', '1 bottle'], ['Split fava beans (bessara)', '500g'], ['Brown rice', '1 kg']]},
+      {name: 'Herbs & spices', items: [['Turmeric', '1 jar'], ['Cumin', '1 jar'], ['Sumac', '1 jar'], ['Fresh coriander', '1 bunch']]}
+    ];
+    let left = 0;
+    const groceryCats = groceryDefs.map((cat, ci) => {
+      const items = cat.items.concat(ci === 2 ? S.customItems.map(n => [n, '']) : [])
+        .map(([name, qty], ii) => {
+          const key = ci + '-' + ii;
+          if (S.removed[key]) return null;
+          const on = !!S.grocery[key];
+          if (!on) left++;
+          return {name, qty, mark: on ? '✓' : '', bg: on ? g : 'transparent', bd: on ? g : bd0,
+            deco: on ? 'line-through' : 'none', op: on ? .5 : 1,
+            tap: () => this.setState(st => ({grocery: {...st.grocery, [key]: !st.grocery[key]}})),
+            remove: () => this.setState(st => ({removed: {...st.removed, [key]: true}}))};
+        }).filter(Boolean);
+      return {name: cat.name, items};
+    }).filter(c => c.items.length);
+    // diary
+    const diaryDefs = [
+      {time: '8:20', slot: 'Breakfast', name: 'Bessara with greens', cal: 320, score: 88},
+      {time: '1:05', slot: 'Lunch · scanned', name: 'Salmon quinoa bowl', cal: 540, score: 82},
+      {time: '4:30', slot: 'Snack', name: 'Walnuts & dates', cal: 180, score: 90}
+    ].concat(S.manualList.map(n => ({time: 'now', slot: 'Snack', name: n, cal: 120, score: 86})));
+    let diaryCalN = 0;
+    const diaryEntries = diaryDefs.map((e, i) => {
+      if (S.diaryRemoved[i]) return null;
+      diaryCalN += e.cal;
+      return {...e, meta: numbersOn ? e.cal + ' cal · estimate' : 'logged',
+        score: String(e.score), chipBg: e.score >= 80 ? gl : al, chipFg: e.score >= 80 ? g : amber,
+        menuOpen: S.menuFor === i,
+        menu: () => this.setState(st => ({menuFor: st.menuFor === i ? null : i})),
+        removeTap: () => this.setState(st => ({diaryRemoved: {...st.diaryRemoved, [i]: true}, menuFor: null}))};
+    }).filter(Boolean);
+    const macroBars = [
+      {name: 'Protein', val: '64 / 96g', w: '67%', c: g},
+      {name: 'Carbs', val: '110 / 152g', w: '72%', c: '#7fa88f'},
+      {name: 'Fat', val: '42 / 62g', w: '68%', c: '#a9c4b3'}
+    ];
+    const waterDots = [0,1,2,3,4,5,6,7].map(i => ({
+      bg: i < S.water ? '#dcebf3' : '#fff', bd: i < S.water ? '#7fa3b8' : '#e8e4da',
+      tap: () => this.setState({water: i + 1})
+    }));
+    // other lists
+    const reintroItems = [
+      {name: 'Egg yolks', status: 'Reintroduced 3 weeks ago', tag: 'Passed', dot: g, fg: g, op: 1},
+      {name: 'Ghee', status: 'Testing — day 2 of 5', tag: 'Testing', dot: amber, fg: amber, op: 1},
+      {name: 'White rice', status: 'Up next when you\u2019re ready', tag: 'Queued', dot: bd0, fg: '#9aa79e', op: 1},
+      {name: 'Nightshades', status: 'Stage 2 — after current stage', tag: 'Later', dot: bd0, fg: '#9aa79e', op: .55},
+      {name: 'Coffee', status: 'Stage 2 — after current stage', tag: 'Later', dot: bd0, fg: '#9aa79e', op: .55}
+    ];
+    const recipeFilters = ['All', 'Under 20 min', 'Omega-3 rich', 'Egyptian', 'Batch cook', 'Saved'].map((name, i) => {
+      const on = S.filter === i;
+      return {name, bg: on ? '#2f4a3c' : '#fff', bd: on ? '#2f4a3c' : bd0, fg: on ? '#fff' : '#6b7a70', tap: () => this.setState({filter: i})};
+    });
+    const recipes = [
+      {name: 'Molokhia with grilled chicken', tag: 'Supportive', time: '35 min'},
+      {name: 'Salmon quinoa bowl', tag: 'Omega-3', time: '25 min'},
+      {name: "Za'atar baked cod", tag: 'Omega-3', time: '20 min'},
+      {name: 'Shorbet ads (red lentil soup)', tag: 'Gut-gentle', time: '30 min'},
+      {name: 'Bessara with greens', tag: 'Supportive', time: '10 min'},
+      {name: 'Ginger carrot soup', tag: 'Gut-gentle', time: '35 min'}
+    ].map(r => ({...r, open: openMeal(r.name)}));
+    const trendData = [65,40,80,75,25,85,90,70,88,92,30,85,95,90];
+    const trendBars = trendData.map(v => ({h: v + '%', bg: v < 45 ? '#e3c48f' : v < 75 ? '#a8c7b3' : g}));
+    const statCards = [
+      {val: '84', name: 'Avg Celadon Score', delta: '↑ 6 vs last month', deltaFg: g},
+      {val: '78%', name: 'Plan adherence', delta: 'steady', deltaFg: '#9aa79e'},
+      {val: '11 / 14', name: 'Calm days', delta: 'best stretch yet', deltaFg: g},
+      {val: '12', name: 'Check-ins', delta: '↑ 3 this week', deltaFg: g}
+    ];
+    const searchCats = [
+      {name: 'Leafy greens', dot: g}, {name: 'Omega-3 fish', dot: '#7fa3b8'},
+      {name: 'Spices & herbs', dot: amber}, {name: 'Fermented', dot: '#8a7cb0'},
+      {name: 'Whole grains', dot: '#a58a5a'}, {name: 'Berries & fruit', dot: '#b0637c'}
+    ];
+    const popularRows = [
+      {name: 'Turmeric', note: 'Curcumin — best absorbed with black pepper and fat', tag: 'Supportive · 92', bg: gl, fg: g},
+      {name: 'Sumac', note: 'Antioxidant-rich souring spice, easy daily habit', tag: 'Supportive · 88', bg: gl, fg: g},
+      {name: 'White pita', note: 'Refined flour — contains gluten, on your avoid list', tag: 'Limit · 38', bg: rl, fg: red}
+    ];
+    const compareRows = [
+      {k: 'Celadon Score', a: '46 — Limit', b: '76 — Balanced'},
+      {k: 'Sodium', a: 'High', b: 'Moderate'},
+      {k: 'Calories / 100g', a: '265', b: '160'},
+      {k: 'Character', a: 'Aged, salty — occasional accent', b: 'Strained, probiotic — daily-friendly'}
+    ];
+    const notifGroups = [
+      {name: 'Today', items: [
+        {title: 'Lunch is coming up', body: 'Salmon quinoa bowl — 25 min. Start the quinoa now and the rest is quick.', time: '12:30', dot: g},
+        {title: 'Shopping reminder', body: '12 items left before Sunday\u2019s plan starts. The list is ready when you are.', time: '9:00', dot: amber}
+      ]},
+      {name: 'This week', items: [
+        {title: 'Your week in review', body: 'Average Celadon Score 84 — up 6 points. Fish dinners did the heavy lifting.', time: 'Mon', dot: g},
+        {title: 'New for you', body: "Za'atar baked cod — 20 minutes, omega-3 rich, fits every one of your flags.", time: 'Sun', dot: '#7fa88f'},
+        {title: 'A gentle tweak', body: 'We lightened Thursday\u2019s dinner — your evening check-ins have felt heavy lately.', time: 'Sun', dot: '#7fa88f'}
+      ]}
+    ];
+    const noop = () => {};
+    const editOb = (step) => () => this.nav('ob', {obStep: step, obReturn: 'profile'});
+    const profileSecs = [
+      {name: 'Health', rows: [
+        {name: 'Health profile & goals', val: 'Hashimoto\u2019s', tap: editOb(1)},
+        {name: 'Conditions', val: '', tap: editOb(2)},
+        {name: 'Restrictions & avoids', val: 'Gluten, nightshades', tap: editOb(4)}
+      ]},
+      {name: 'Food', rows: [
+        {name: 'Saved recipes', val: '8', tap: () => this.nav('recipes', {filter: 5})},
+        {name: 'Favourite meals', val: '5', tap: () => this.nav('recipes', {filter: 0})}
+      ]},
+      {name: 'App', rows: [
+        {name: 'Language', val: 'English · العربية', tap: () => this.nav('arabic')},
+        {name: 'Gentle mode', val: S.comfort === 1 ? 'On' : 'Off', tap: () => this.nav('gentle')},
+        {name: 'Notifications', val: 'Gentle', tap: () => this.nav('notifs')},
+        {name: 'Connected devices', val: 'Apple Health', tap: noop},
+        {name: 'Subscription', val: 'Trial · 5 days', tap: () => this.nav('trialend')}
+      ]},
+      {name: 'Privacy & support', rows: [
+        {name: 'Privacy & data', val: '', tap: () => this.nav('legal', {legalTab: 0})},
+        {name: 'Medical disclaimer', val: '', tap: () => this.nav('legal', {legalTab: 2})},
+        {name: 'Help & support', val: '', tap: noop}
+      ]}
+    ];
+    const pwFeatures = [
+      {name: 'AI meal scans', free: '3 / week', prem: 'Unlimited'},
+      {name: 'Personal meal plans', free: '1 week', prem: 'Adaptive weekly'},
+      {name: 'Celadon Score', free: 'Basic', prem: 'Full breakdown'},
+      {name: 'Pattern detection', free: '—', prem: '✓'},
+      {name: 'Doctor-ready reports', free: '—', prem: '✓'},
+      {name: 'Arabic & English', free: '✓', prem: '✓'}
+    ];
+    const pwPlanDefs = [
+      {name: 'Monthly', price: 'EGP 249', note: 'per month', save: false, per: 'EGP 249 / month'},
+      {name: 'Annual', price: 'EGP 166', note: 'per month · EGP 1,990 / yr', save: true, per: 'EGP 1,990 / year'}
+    ];
+    const pwPlans = pwPlanDefs.map((p, i) => {
+      const on = S.planSel === i, s = sel(on);
+      return {...p, bg: s.bg, bd: on ? g : bd0, tap: () => this.setState({planSel: i})};
+    });
+    const disambigChips = ['One mixed bowl', 'Separate items'].map((name, i) => ({name, ...chip(S.disambig === i), tap: () => this.setState({disambig: i})}));
+    const manualFoods = [
+      {name: 'Green tea', note: 'Anti-inflammatory catechins', tag: 'Supportive · 90', bg: gl, fg: g},
+      {name: 'Labneh & cucumber', note: 'Strained, probiotic', tag: 'Balanced · 76', bg: al, fg: amber},
+      {name: 'Dates (2)', note: 'Natural sweetness, some fibre', tag: 'Balanced · 72', bg: al, fg: amber},
+      {name: 'Roasted chickpeas', note: 'Legume — on your avoid list', tag: 'Your flag', bg: rl, fg: red}
+    ].map(f => ({...f, add: () => this.setState(st => ({manualList: [...st.manualList, f.name], screen: 'diary'}))}));
+    const arTabs = ['الرئيسية', 'نتيجة الفحص', 'الخطة', 'الاشتراك'].map((name, i) => ({name, ...chip(S.arTab === i), tap: () => this.setState({arTab: i})}));
+    const recipesShown = S.filter === 5 ? [] : recipes;
+    const notifShown = S.notifsCleared ? [] : notifGroups;
+    const dayEmpty = S.day === 6 && !S.dayGen;
+    const tabColor = (k) => scr === k ? '#2f4a3c' : '#9aa79e';
+    const tabDot = (k) => scr === k ? g : 'transparent';
+    const obNextLabels = ['', 'Continue', 'Continue', 'Continue', 'Continue', 'Continue', 'Continue', 'Continue', 'Create my plan'];
+    return {
+      ...flags, numbersOn, numbersOff: !numbersOn,
+      ob0: S.obStep === 0, ob1: S.obStep === 1, ob2: S.obStep === 2, ob3: S.obStep === 3, ob4: S.obStep === 4,
+      ob5: S.obStep === 5, ob6: S.obStep === 6, ob7: S.obStep === 7, ob8: S.obStep === 8,
+      obPastIntro: S.obStep > 0, obNextLabel: obNextLabels[S.obStep], obBars,
+      obNext: () => S.obStep < 8 ? this.setState(st => ({obStep: st.obStep + 1})) : (S.obReturn ? this.nav(S.obReturn, {obReturn: null}) : this.nav('perms', {permStep: 0})),
+      obBack: () => this.setState(st => ({obStep: Math.max(0, st.obStep - 1)})),
+      goals, conds, concerns, avoids, cuisines, countries, activities, mealsChips, weightChips, comforts,
+      sumCuisine, sumAvoid, sumLife, sumNumbers, previewMeals,
+      todayMeals, planMeals, weekDays, scanIngs, portions, resultIngs, scanSubs, detailIngs, steps, detailSubs,
+      metrics, groceryCats, groceryLeft: left, reintroItems, recipeFilters, recipes: recipesShown, recipesEmpty: recipesShown.length === 0, trendBars, statCards,
+      searchCats, popularRows, compareRows, profileSecs, pwFeatures, pwPlans,
+      notifGroups: notifShown, notifsEmpty: S.notifsCleared, clearNotifs: () => this.setState({notifsCleared: true}),
+      pwSelected: pwPlanDefs[S.planSel].per,
+      dateLabel: 'Saturday, August 1', detailName: S.detail,
+      detailCals: (270 * s2) + ' cal total', servings: String(s2),
+      servMinus: () => this.setState(st => ({servings: Math.max(1, st.servings - 1)})),
+      servPlus: () => this.setState(st => ({servings: Math.min(4, st.servings + 1)})),
+      saveLabel: S.savedRecipe ? '♥ Saved' : 'Save recipe',
+      saveBg: S.savedRecipe ? gl : '#fff', saveBd: S.savedRecipe ? g : bd0, saveFg: S.savedRecipe ? g : '#6b7a70',
+      toggleSave: () => this.setState(st => ({savedRecipe: !st.savedRecipe})),
+      planCals: numbersOn ? '1,560 cal · P 96g · C 152g · F 62g · Fibre 31g' : 'Balanced across the day — no numbers in gentle mode',
+      regenLabel: S.regenerated ? '✓ Fresh plan generated' : 'Regenerate this week',
+      regenPlan: () => { this.setState({regenerated: true}); setTimeout(() => this.setState({regenerated: false}), 1800); },
+      swapOpen: !!S.swapFor, swapName: S.swapFor || '', swapAlts,
+      closeSwap: () => this.setState({swapFor: null}),
+      goHome: () => this.nav('home'), goPlan: () => this.nav('plan'), goTrack: () => this.nav('track'),
+      goRecipes: () => this.nav('recipes'), goGrocery: () => this.nav('grocery'),
+      goProgress: () => this.nav('progress'), goReintro: () => this.nav('reintro'),
+      goDiary: () => this.nav('diary'), goSearch: () => this.nav('search'), goNotifs: () => this.nav('notifs'),
+      goProfile: () => this.nav('profile'), openPaywall: () => this.nav('paywall'),
+      startScan: () => this.nav('scan', {scanStep: 0, scanErr: false, camAsk: !S.camPerm}),
+      capture: () => { this.setState({scanStep: 1, scanErr: false}); setTimeout(() => this.setState({scanStep: 2}), 1600); },
+      fromGallery: () => { this.setState({scanStep: 1}); setTimeout(() => this.setState({scanStep: -1, scanErr: true}), 1400); },
+      retake: () => this.setState({scanStep: 0, scanErr: false}),
+      confirmScan: () => this.setState({scanStep: 3}),
+      rescan: () => this.setState({scanStep: 0, scanOff: {}, scanErr: false}),
+      addToDay: () => this.nav('diary'),
+      sc0: S.scanStep === 0 && !S.scanErr, sc1: S.scanStep === 1, sc2: S.scanStep === 2, sc3: S.scanStep === 3, scErr: S.scanErr,
+      hideNumbers: () => this.setState({numbersOverride: false}),
+      showNumbersTap: () => this.setState({numbersOverride: true}),
+      backFromDetail: () => this.nav('plan'),
+      toggleFlare: () => this.setState(st => ({flare: !st.flare, saved: false})),
+      flareBg: S.flare ? '#f6e5e0' : '#fff', flareBd: S.flare ? red : '#e8e4da',
+      flareDot: S.flare ? red : 'transparent', flareDotBd: S.flare ? red : bd0,
+      saveCheckin: () => this.nav('celebrate', {saved: true}),
+      checkinSaved: S.saved,
+      diaryEntries, macroBars, waterDots, waterLabel: S.water + ' of 8 glasses',
+      diaryCal: (numbersOn ? diaryCalN.toLocaleString() : '') + ' cal',
+      weightOn: S.weightVisible, weightOff: !S.weightVisible,
+      weightToggle: () => this.setState(st => ({weightVisible: !st.weightVisible})),
+      compareOn: S.compare, compareOff: !S.compare,
+      openCompare: () => this.setState({compare: true}),
+      closeCompare: () => this.setState({compare: false}),
+      customVal: S.customText,
+      onCustom: (e) => this.setState({customText: e.target.value}),
+      addCustom: () => { if (S.customText.trim()) this.setState(st => ({customItems: [...st.customItems, st.customText.trim()], customText: ''})); },
+      tHome: tabColor('home'), tPlan: tabColor('plan'), tProg: tabColor('progress'), tProf: tabColor('profile'),
+      tHomeDot: tabDot('home'), tPlanDot: tabDot('plan'), tProgDot: tabDot('progress'), tProfDot: tabDot('profile'),
+      goAuth: () => this.nav('auth', {authMode: 'signin', resetSent: false}),
+      auth0: S.authMode === 'signin', auth1: S.authMode === 'signup', auth2: S.authMode === 'forgot',
+      goSignup: () => this.setState({authMode: 'signup'}),
+      goSignin: () => this.setState({authMode: 'signin', resetSent: false}),
+      goForgot: () => this.setState({authMode: 'forgot', resetSent: false}),
+      sendReset: () => this.setState({resetSent: true}), resetSent: S.resetSent,
+      authSignin: () => this.nav('home'),
+      authSignup: () => this.nav('ob', {obStep: 1}),
+      perm0: S.permStep === 0, perm1: S.permStep === 1,
+      permNext: () => this.setState({permStep: 1}),
+      permDone: () => this.nav('home'),
+      camAskOn: S.camAsk && scr === 'scan',
+      allowCam: () => this.setState({camAsk: false, camPerm: true}),
+      denyCam: () => this.nav('home', {camAsk: false}),
+      openQuota: () => this.nav('quota'),
+      quotaPlans: () => this.nav('paywall'),
+      goManual: () => this.nav('manual'), manualFoods,
+      goReport: () => this.nav('report'),
+      retryOffline: () => this.nav('home'),
+      celebrateTitle: S.flare ? 'Thanks for telling us.' : 'Logged — gently done.',
+      celebrateBody: S.flare ? 'We\u2019ve softened the rest of this week and noted the date. Rest is productive too.' : 'That\u2019s 12 check-ins this month. Small notices add up to real patterns.',
+      celebrateDone: () => this.nav('home'),
+      legal0: S.legalTab === 0, legal1: S.legalTab === 1, legal2: S.legalTab === 2,
+      legalTabs: ['Privacy', 'Terms', 'Medical care'].map((name, i) => ({name, ...chip(S.legalTab === i), tap: () => this.setState({legalTab: i})})),
+      goLegal: () => this.nav('legal', {legalTab: 0}),
+      goGentle: () => this.nav('gentle'),
+      goDelete: () => this.nav('delete'),
+      confirmDelete: () => this.nav('auth', {authMode: 'signin'}),
+      goTrialend: () => this.nav('trialend'),
+      dayEmpty, dayPlanned: !dayEmpty,
+      genDay: () => this.setState({dayGen: true}),
+      disambigChips, diaryEmpty: diaryEntries.length === 0,
+      reassessOn: S.flare,
+      editAvoids: () => this.nav('ob', {obStep: 4, obReturn: 'track'}),
+      arTabs, ar0: S.arTab === 0, ar1: S.arTab === 1, ar2: S.arTab === 2, ar3: S.arTab === 3,
+      showTabs: ['home','plan','progress','profile','recipes','diary','track','grocery','reintro','search','notifs','manual','report','legal','gentle'].includes(scr)
+    };
+  }
+}
+</script>
+</body>
+</html>
