@@ -13,7 +13,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { I18nProvider } from './src/i18n';
 import { RootNavigator } from './src/navigation/RootNavigator';
+import { AuthProvider } from './src/services/auth';
 import { MealAnalysisProvider } from './src/services/mealAnalysis';
+import { ProfileProvider } from './src/services/profile';
 import { AppStateProvider } from './src/state/AppState';
 import { colors } from './src/theme';
 
@@ -41,14 +43,18 @@ export default function App() {
     <GestureHandlerRootView style={styles.root} onLayout={onReady}>
       <SafeAreaProvider>
         <I18nProvider>
-          <AppStateProvider>
-            <MealAnalysisProvider>
-              <StatusBar style="dark" />
-              <SafeTop>
-                <RootNavigator />
-              </SafeTop>
-            </MealAnalysisProvider>
-          </AppStateProvider>
+          <AuthProvider>
+            <ProfileProvider>
+              <AppStateProvider>
+                <MealAnalysisProvider>
+                  <StatusBar style="dark" />
+                  <SafeTop>
+                    <RootNavigator />
+                  </SafeTop>
+                </MealAnalysisProvider>
+              </AppStateProvider>
+            </ProfileProvider>
+          </AuthProvider>
         </I18nProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

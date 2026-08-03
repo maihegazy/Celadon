@@ -36,7 +36,9 @@ import {
 import { TODAY_MEALS } from '../data/content';
 import { useI18n } from '../i18n';
 import type { TranslationKey } from '../i18n';
+import { useAuth } from '../services/auth';
 import { useAppState, ComfortMode } from '../state/AppState';
+import { useProfileSync } from '../state/useProfileSync';
 import { colors, radius, tracking } from '../theme';
 import { RootStackParamList, useAppNavigation } from '../navigation/types';
 
@@ -52,16 +54,35 @@ export function OnboardingScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'Onboarding'>>();
   const { state, set, dispatch } = useAppState();
   const { t, row } = useI18n();
+  const { status } = useAuth();
+  const { saveProfile } = useProfileSync();
   const [step, setStep] = useState(route.params?.step ?? 0);
   const returnTo = route.params?.returnTo;
 
-  const next = () => {
+  const next = async () => {
     if (step < ONBOARDING_STEPS - 1) {
       setStep(step + 1);
       return;
     }
-    if (returnTo) navigation.navigate(returnTo as never);
-    else navigation.navigate('Permissions');
+
+    set({ onboardingComplete: true });
+
+    // Re-entered from Profile to edit one answer — go back where we came from.
+    if (returnTo) {
+      await saveProfile();
+      navigation.navigate(returnTo as never);
+      return;
+    }
+
+    // The assessment is deliberately answerable before signing up: the value
+    // is shown first, and the account is what makes it portable.
+    if (status !== 'signedIn') {
+      navigation.navigate('Auth', { mode: 'signup' });
+      return;
+    }
+
+    await saveProfile();
+    navigation.navigate('Permissions');
   };
 
   const back = () => {
@@ -315,13 +336,15 @@ function PlanPreview() {
     {
       color: colors.green,
       text: t('onboarding.summary.cuisine', {
-        cuisines: cuisines.length ? cuisines.join(' & ') : t('onboarding.summary.cuisineFallback'),
+        cuisines: cuisines.length
+          ? cuisines.join(t('common.cuisineJoin'))
+          : t('onboarding.summary.cuisineFallback'),
       }),
     },
     {
       color: colors.amber,
       text: avoids.length
-        ? t('onboarding.summary.avoids', { avoids: avoids.join('، ') })
+        ? t('onboarding.summary.avoids', { avoids: avoids.join(t('common.listSeparator')).toLowerCase() })
         : t('onboarding.summary.avoidsNone'),
     },
     {

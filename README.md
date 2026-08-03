@@ -22,6 +22,51 @@ npm run typecheck  # tsc --noEmit
 `npm run web` also works and is handy for reviewing layout in a browser,
 though the camera path is device-only.
 
+## Accounts and data
+
+Auth and storage run on **Supabase** — Postgres plus an auth service, on a free
+tier that covers 50k monthly active users and 500MB of database. Why it fits
+this app in particular:
+
+- **Row-level security.** Health data needs per-user isolation enforced by the
+  database, not by application code that might forget. Every policy in
+  `supabase/migrations/` is `auth.uid() = id`; there is no policy under which
+  one account can read another's rows.
+- **Postgres, not documents.** Meal plans, diary entries and check-ins are
+  relational and will want joins and date-range queries as the app grows.
+- **Auth included.** Email/password, Apple and Google, password reset and
+  refresh-token handling, without a second vendor or a server to run.
+- **An exit.** It's open source and self-hostable, which matters if data
+  residency in Egypt or the Gulf becomes a requirement for health data.
+
+Firebase was the alternative; Firestore's data model is the weaker fit here and
+per-user isolation ends up spread across security rules that are harder to
+audit than four SQL policies.
+
+### Setting it up
+
+1. Create a project at [supabase.com](https://supabase.com) (free tier).
+2. Run `supabase/migrations/0001_profiles.sql` in the SQL editor — it creates
+   the `profiles` table, its RLS policies, and a trigger that gives every new
+   account an empty profile.
+3. Copy `.env.example` to `.env` and fill in the project URL and **anon** key
+   from Project Settings → API. The anon key is meant to ship in the app; the
+   service-role key must never appear in this repo.
+4. Optional — deploy the account-deletion function:
+   `supabase functions deploy delete-account`. Deleting an auth user needs the
+   service-role key, so it can't happen from the client.
+5. Optional — enable Apple and Google in Authentication → Providers, and add
+   `celadon://auth/callback` to the allowed redirect URLs.
+
+Email confirmation is on by default in Supabase. The app handles both settings:
+with it on, sign-up shows a "check your inbox" state; with it off, sign-up
+signs you straight in.
+
+**Without credentials the app still runs.** `LocalAuthService` and
+`LocalProfileRepository` keep accounts and answers on the device so the flows
+stay walkable, and the sign-in screen says so. That fallback stores passwords
+as given and is a development convenience only — never point it at real users.
+
 ## Meal analysis
 
 The scan flow talks to a `MealAnalysisService` (`src/services/mealAnalysis/`)
@@ -103,10 +148,14 @@ src/
   screens/                   one file per screen
   navigation/                stack, route types, deep links
   state/AppState.tsx         single store: assessment answers, plan, diary, settings
+  services/auth/             auth contract + Supabase and local implementations
+  services/profile/          per-user health profile storage
   services/mealAnalysis/     analysis contract + stub and remote implementations
   i18n/                      en/ar catalogues, provider, direction tokens
   data/                      content fixtures (meals, recipes, insights) as keys
 design/                      the Claude Design handoff this was built from
+supabase/migrations/         SQL schema and row-level security policies
+supabase/functions/          edge functions (account deletion)
 ```
 
 Deep links follow the route table in `src/navigation/RootNavigator.tsx` —
@@ -135,6 +184,14 @@ sizes and radii already match the design.
 **Content is fixtures.** `src/data/` holds the meals, recipes, shopping list
 and insights from the design, as translation keys. They're plain objects, ready
 to be replaced by API responses.
+
+**Auth errors are translated, not passed through.** `AuthService` returns a
+translation key rather than a provider message, so a failed sign-in reads the
+same way in Arabic as in English and doesn't leak vendor wording.
+
+**Sign-out keeps device state.** `dispatch({ type: 'signOut' })` clears the
+account's answers but leaves `permissionsSeen` alone — the OS prompts were
+answered by the device, not the account.
 
 **No hardcoded copy.** Every user-visible string — including accessibility
 labels — goes through `t()`. Adding a literal to a screen breaks the Arabic

@@ -15,6 +15,7 @@ import {
 import { BellBadgeIcon } from '../components/Icons';
 import { useI18n } from '../i18n';
 import { colors } from '../theme';
+import { useAppState } from '../state/AppState';
 import { useAppNavigation } from '../navigation/types';
 
 /**
@@ -25,6 +26,13 @@ export function PermissionsScreen() {
   const navigation = useAppNavigation();
   const [step, setStep] = useState<0 | 1>(0);
   const { t } = useI18n();
+  const { set } = useAppState();
+
+  const finish = () => {
+    // Device-scoped: the OS prompts only need asking once per install.
+    set({ permissionsSeen: true });
+    navigation.navigate('Home');
+  };
 
   const requestNotifications = async () => {
     try {
@@ -73,7 +81,7 @@ export function PermissionsScreen() {
           </Card>
           <PrimaryButton
             label={t('perms.data.cta')}
-            onPress={() => navigation.navigate('Home')}
+            onPress={finish}
             style={{ marginTop: 6 }}
           />
           <TextButton

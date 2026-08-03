@@ -18,6 +18,8 @@ export const en = {
   'common.show': 'Show',
   'common.search': 'Search',
   'common.dismiss': 'Dismiss',
+  'common.listSeparator': ', ',
+  'common.cuisineJoin': ' & ',
   'common.estimates': 'estimates',
   'common.minutes': '{{count}} min',
   'common.minutesAndCalories': '{{count}} min · {{calories}} cal',
@@ -169,6 +171,31 @@ export const en = {
   'auth.terms': 'By continuing you agree to our',
   'auth.termsLink': 'Terms & privacy',
   'auth.backToSignIn': '‹ Back to sign in',
+
+  /* ── auth status & errors ───────────────────────────────────────────── */
+  'auth.working': 'One moment…',
+  'auth.signingIn': 'Signing in…',
+  'auth.creating': 'Creating your account…',
+  'auth.sending': 'Sending…',
+  'auth.confirm.title': 'Check your inbox',
+  'auth.confirm.body':
+    "We've sent a confirmation link to {{email}}. Tap it and you'll be signed in — the link expires in an hour.",
+  'auth.confirm.back': 'Back to sign in',
+  'auth.localOnly':
+    'No backend is configured, so accounts are stored on this device only. Add your Supabase keys to sign in for real.',
+  'auth.signOut': 'Sign out',
+  'auth.error.emailRequired': 'Please enter your email address.',
+  'auth.error.invalidEmail': "That email doesn't look right — mind checking it?",
+  'auth.error.weakPassword': 'Passwords need at least 8 characters.',
+  'auth.error.invalidCredentials': "That email and password don't match. Try again, or reset it.",
+  'auth.error.emailNotConfirmed': 'Please confirm your email first — check your inbox for the link.',
+  'auth.error.emailTaken': 'There\'s already an account with that email. Sign in instead?',
+  'auth.error.rateLimited': 'Too many attempts. Give it a minute and try again.',
+  'auth.error.network': "We couldn't reach the server. Check your connection and try again.",
+  'auth.error.notConfigured': 'That sign-in method isn\'t set up in this build yet.',
+  'auth.error.deleteFailed': "We couldn't delete the account just now. Please try again.",
+  'auth.error.generic': 'Something went wrong on our side. Please try again.',
+  'loading.title': 'Celadon',
 
   /* ── permissions ────────────────────────────────────────────────────── */
   'perms.notifications.title': 'Gentle reminders, if you want them',

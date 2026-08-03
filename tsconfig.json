@@ -2,5 +2,10 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true
-  }
+  },
+  "exclude": [
+    "node_modules",
+    // Supabase edge functions are Deno, with their own globals and URL imports.
+    "supabase/functions"
+  ]
 }

@@ -24,6 +24,8 @@ export const ar: Catalogue = {
   'common.show': 'إظهار',
   'common.search': 'بحث',
   'common.dismiss': 'إغلاق',
+  'common.listSeparator': '، ',
+  'common.cuisineJoin': ' و',
   'common.estimates': 'تقديرات',
   'common.minutes': '{{count}} دقيقة',
   'common.minutesAndCalories': '{{count}} دقيقة · {{calories}} سعرة',
@@ -175,6 +177,31 @@ export const ar: Catalogue = {
   'auth.terms': 'بالمتابعة فإنك توافق على',
   'auth.termsLink': 'الشروط والخصوصية',
   'auth.backToSignIn': '› العودة لتسجيل الدخول',
+
+  /* ── auth status & errors ───────────────────────────────────────────── */
+  'auth.working': 'لحظة من فضلك…',
+  'auth.signingIn': 'جارٍ تسجيل الدخول…',
+  'auth.creating': 'جارٍ إنشاء حسابك…',
+  'auth.sending': 'جارٍ الإرسال…',
+  'auth.confirm.title': 'تحقّق من بريدك',
+  'auth.confirm.body':
+    'أرسلنا رابط تأكيد إلى {{email}}. افتحه وسيتم تسجيل دخولك — الرابط صالح لمدة ساعة.',
+  'auth.confirm.back': 'العودة لتسجيل الدخول',
+  'auth.localOnly':
+    'لا توجد خدمة خلفية مهيّأة، لذا تُحفظ الحسابات على هذا الجهاز فقط. أضف مفاتيح Supabase لتسجيل دخول حقيقي.',
+  'auth.signOut': 'تسجيل الخروج',
+  'auth.error.emailRequired': 'من فضلك أدخل بريدك الإلكتروني.',
+  'auth.error.invalidEmail': 'هذا البريد لا يبدو صحيحًا — هل تتحقق منه؟',
+  'auth.error.weakPassword': 'كلمة المرور تحتاج ٨ أحرف على الأقل.',
+  'auth.error.invalidCredentials': 'البريد وكلمة المرور غير متطابقين. حاول مجددًا أو أعد تعيين كلمة المرور.',
+  'auth.error.emailNotConfirmed': 'من فضلك أكّد بريدك أولًا — ستجد الرابط في صندوق الوارد.',
+  'auth.error.emailTaken': 'يوجد حساب بهذا البريد بالفعل. هل تريد تسجيل الدخول؟',
+  'auth.error.rateLimited': 'محاولات كثيرة. انتظر دقيقة ثم حاول مجددًا.',
+  'auth.error.network': 'تعذّر الوصول إلى الخادم. تحقّق من اتصالك وحاول مجددًا.',
+  'auth.error.notConfigured': 'طريقة تسجيل الدخول هذه غير مهيّأة في هذه النسخة بعد.',
+  'auth.error.deleteFailed': 'تعذّر حذف الحساب الآن. من فضلك حاول مجددًا.',
+  'auth.error.generic': 'حدث خطأ من جهتنا. من فضلك حاول مجددًا.',
+  'loading.title': 'سيلادون',
 
   /* ── permissions ────────────────────────────────────────────────────── */
   'perms.notifications.title': 'تذكيرات لطيفة، إن أردتها',

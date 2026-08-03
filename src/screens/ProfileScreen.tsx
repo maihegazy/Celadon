@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { Card, Display, NoteCard, Screen, SectionLabel, Text, TextButton } from '../components';
+import { useAuth } from '../services/auth';
 import { useAppState } from '../state/AppState';
 import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
@@ -12,7 +13,15 @@ import { RootStackParamList, useAppNavigation } from '../navigation/types';
  */
 export function ProfileScreen() {
   const navigation = useAppNavigation();
-  const { state } = useAppState();
+  const { state, dispatch } = useAppState();
+  const { service } = useAuth();
+
+  const signOut = async () => {
+    await service.signOut();
+    // Clear this session's answers; they're restored from the account on the
+    // next sign-in.
+    dispatch({ type: 'signOut' });
+  };
   const { t, n, row, chevronForward } = useI18n();
 
   const goStep = (step: number) => () =>
@@ -57,6 +66,8 @@ export function ProfileScreen() {
       ],
     },
   ];
+
+  sections[2].rows.push({ name: t('auth.signOut'), onPress: signOut });
 
   return (
     <Screen tabs>

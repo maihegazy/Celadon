@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View } from 'react-native';
 import {
   BulletRow,
@@ -12,8 +12,10 @@ import {
   TextButton,
 } from '../components';
 import { BackChevron } from '../components/Buttons';
+import { useAuth, useAuthAction } from '../services/auth';
 import { useAppState } from '../state/AppState';
 import { useI18n } from '../i18n';
+import type { TranslationKey } from '../i18n';
 import { colors, radius } from '../theme';
 import { useAppNavigation } from '../navigation/types';
 
@@ -25,6 +27,21 @@ export function DeleteAccountScreen() {
   const navigation = useAppNavigation();
   const { dispatch } = useAppState();
   const { t, row } = useI18n();
+  const { service } = useAuth();
+  const { busy, run } = useAuthAction();
+  const [error, setError] = useState<TranslationKey | null>(null);
+
+  const confirmDelete = () =>
+    run(async () => {
+      setError(null);
+      const result = await service.deleteAccount();
+      if (!result.ok) {
+        setError(result.messageKey);
+        return;
+      }
+      // Signing out swaps the navigator back to the signed-out stack.
+      dispatch({ type: 'reset' });
+    });
 
   return (
     <Screen gap={14} paddingBottom={40}>
@@ -59,14 +76,20 @@ export function DeleteAccountScreen() {
 
       <OutlineButton label={t('delete.export')} size={14.5} />
 
+      {error ? (
+        <View style={{ backgroundColor: colors.redLight, borderRadius: radius.tile, paddingVertical: 12, paddingHorizontal: 14 }}>
+          <Text size={13.5} color={colors.red} lineHeight={20}>
+            {t(error)}
+          </Text>
+        </View>
+      ) : null}
+
       <PrimaryButton
-        label={t('delete.confirm')}
+        label={busy ? t('auth.working') : t('delete.confirm')}
         size={15}
+        disabled={busy}
         style={{ backgroundColor: colors.red, paddingVertical: 15 }}
-        onPress={() => {
-          dispatch({ type: 'reset' });
-          navigation.reset({ index: 0, routes: [{ name: 'Auth', params: { mode: 'signin' } }] });
-        }}
+        onPress={confirmDelete}
       />
 
       <TextButton
