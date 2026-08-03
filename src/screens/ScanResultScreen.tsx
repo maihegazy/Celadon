@@ -16,8 +16,10 @@ import {
   TextButton,
   TintCard,
 } from '../components';
-import { confidenceLabel, IngredientTone, MealAnalysisResult } from '../services/mealAnalysis';
+import { IngredientTone, MealAnalysisResult } from '../services/mealAnalysis';
+import type { TranslationKey } from '../i18n';
 import { useAppState } from '../state/AppState';
+import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
 import { RootStackParamList, useAppNavigation } from '../navigation/types';
 
@@ -38,23 +40,24 @@ export function ScanResultScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'ScanResult'>>();
   const result: MealAnalysisResult = route.params.result;
   const { numbersOn, set } = useAppState();
+  const { t, n, row } = useI18n();
 
   return (
     <Screen padding={24} paddingTop={24} paddingBottom={32}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+      <View style={{ flexDirection: row, justifyContent: 'space-between', alignItems: 'center' }}>
         <Display size={22} style={{ flex: 1 }}>
           {result.dish}
         </Display>
-        <SmallButton label="Rescan" color={colors.muted} onPress={() => navigation.navigate('Scan')} />
+        <SmallButton label={t('scanResult.rescan')} color={colors.muted} onPress={() => navigation.navigate('Scan')} />
       </View>
 
-      <Card style={{ flexDirection: 'row', gap: 16, alignItems: 'center', padding: 18, borderRadius: radius.cardLg }}>
-        <ScoreDial score={result.celadonScore} caption="Celadon Score" />
+      <Card style={{ flexDirection: row, gap: 16, alignItems: 'center', padding: 18, borderRadius: radius.cardLg }}>
+        <ScoreDial score={result.celadonScore} caption={t('compare.score')} />
         <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
-            <Pill label={result.classification} />
+          <View style={{ flexDirection: row, gap: 6, flexWrap: 'wrap' }}>
+            <Pill label={t(`classification.${result.classification}` as TranslationKey)} />
             <Pill
-              label={confidenceLabel(result.confidence)}
+              label={t(`confidence.${result.confidence}` as TranslationKey)}
               background={colors.sunken}
               color={colors.muted}
               weight="semibold"
@@ -68,22 +71,22 @@ export function ScanResultScreen() {
 
       {numbersOn ? (
         <Card style={{ paddingVertical: 14, paddingHorizontal: 18 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-            <View style={{ flex: 1, flexDirection: 'row', gap: 16, flexWrap: 'wrap' }}>
-              <Macro value={`${result.nutrition.calories}`} label="calories" />
-              <Macro value={`${result.nutrition.protein}g`} label="protein" />
-              <Macro value={`${result.nutrition.carbs}g`} label="carbs" />
-              <Macro value={`${result.nutrition.fat}g`} label="fat" />
-              <Macro value={`${result.nutrition.fibre}g`} label="fibre" />
+          <View style={{ flexDirection: row, alignItems: 'center', gap: 14 }}>
+            <View style={{ flex: 1, flexDirection: row, gap: 16, flexWrap: 'wrap' }}>
+              <Macro value={n(result.nutrition.calories)} label={t('nutrition.calories')} />
+              <Macro value={t('unit.grams', { value: n(result.nutrition.protein) })} label={t('nutrition.protein')} />
+              <Macro value={t('unit.grams', { value: n(result.nutrition.carbs) })} label={t('nutrition.carbs')} />
+              <Macro value={t('unit.grams', { value: n(result.nutrition.fat) })} label={t('nutrition.fat')} />
+              <Macro value={t('unit.grams', { value: n(result.nutrition.fibre) })} label={t('nutrition.fibre')} />
             </View>
-            <TextButton label="Hide" size={12.5} color={colors.faint} onPress={() => set({ numbersOverride: false })} />
+            <TextButton label={t('common.hide')} size={12.5} color={colors.faint} onPress={() => set({ numbersOverride: false })} />
           </View>
           <Text
             size={12}
             color={colors.faint}
             style={{ marginTop: 10, paddingTop: 9, borderTopWidth: 1, borderTopColor: colors.sunken }}
           >
-            Photo-based calories and portions are estimates, not measurements.
+            {t('scanResult.estimateNote')}
           </Text>
         </Card>
       ) : (
@@ -91,16 +94,16 @@ export function ScanResultScreen() {
           style={{
             paddingVertical: 13,
             paddingHorizontal: 16,
-            flexDirection: 'row',
+            flexDirection: row,
             alignItems: 'center',
             justifyContent: 'space-between',
           }}
         >
           <Text size={13} color={colors.muted} lineHeight={20} style={{ flex: 1 }}>
-            Nutrition numbers are hidden in gentle mode.
+            {t('scanResult.gentleHidden')}
           </Text>
           <TextButton
-            label="Show"
+            label={t('common.show')}
             size={12.5}
             color={colors.green}
             weight="semibold"
@@ -111,7 +114,7 @@ export function ScanResultScreen() {
 
       <View>
         <Text weight="semibold" size={15} style={{ marginBottom: 10 }}>
-          Ingredient breakdown
+          {t('scanResult.breakdown')}
         </Text>
         <View style={{ gap: 8 }}>
           {result.ingredients.map((item) => {
@@ -120,7 +123,7 @@ export function ScanResultScreen() {
               <Card
                 key={item.name}
                 style={{
-                  flexDirection: 'row',
+                  flexDirection: row,
                   gap: 12,
                   alignItems: 'flex-start',
                   paddingVertical: 13,
@@ -130,7 +133,7 @@ export function ScanResultScreen() {
               >
                 <Dot color={tone.dot} style={{ marginTop: 4 }} />
                 <View style={{ flex: 1 }}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
+                  <View style={{ flexDirection: row, justifyContent: 'space-between', gap: 8 }}>
                     <Text weight="semibold" size={14.5} style={{ flex: 1 }}>
                       {item.name}
                     </Text>
@@ -151,7 +154,7 @@ export function ScanResultScreen() {
       {result.substitutions.length ? (
         <TintCard style={{ padding: 16 }}>
           <Text weight="semibold" size={14.5} color={colors.greenDeep} style={{ marginBottom: 8 }}>
-            Make it even more supportive
+            {t('scanResult.substitutions')}
           </Text>
           <View style={{ gap: 8 }}>
             {result.substitutions.map((sub) => (
@@ -163,7 +166,7 @@ export function ScanResultScreen() {
         </TintCard>
       ) : null}
 
-      <PrimaryButton label="Add to my day" onPress={() => navigation.navigate('Diary')} />
+      <PrimaryButton label={t('scanResult.cta')} onPress={() => navigation.navigate('Diary')} />
     </Screen>
   );
 }

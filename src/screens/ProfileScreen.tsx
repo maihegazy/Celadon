@@ -1,8 +1,8 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { Card, Display, NoteCard, Screen, SectionLabel, Text, TextButton } from '../components';
-import { MEDICAL_NOTE } from '../data/content';
 import { useAppState } from '../state/AppState';
+import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
 import { RootStackParamList, useAppNavigation } from '../navigation/types';
 
@@ -13,49 +13,54 @@ import { RootStackParamList, useAppNavigation } from '../navigation/types';
 export function ProfileScreen() {
   const navigation = useAppNavigation();
   const { state } = useAppState();
+  const { t, n, row, chevronForward } = useI18n();
 
   const goStep = (step: number) => () =>
     navigation.navigate('Onboarding', { step, returnTo: 'Profile' as keyof RootStackParamList });
 
   const sections: { name: string; rows: { name: string; value?: string; onPress?: () => void }[] }[] = [
     {
-      name: 'Health',
+      name: t('profile.section.health'),
       rows: [
-        { name: 'Health profile & goals', value: "Hashimoto's", onPress: goStep(1) },
-        { name: 'Conditions', onPress: goStep(2) },
-        { name: 'Restrictions & avoids', value: 'Gluten, nightshades', onPress: goStep(4) },
+        { name: t('profile.healthProfile'), value: t('profile.healthProfile.value'), onPress: goStep(1) },
+        { name: t('profile.conditions'), onPress: goStep(2) },
+        { name: t('profile.restrictions'), value: t('profile.restrictions.value'), onPress: goStep(4) },
       ],
     },
     {
-      name: 'Food',
+      name: t('profile.section.food'),
       rows: [
-        { name: 'Saved recipes', value: '8', onPress: () => navigation.navigate('Recipes', { filter: 5 }) },
-        { name: 'Favourite meals', value: '5', onPress: () => navigation.navigate('Recipes', { filter: 0 }) },
+        { name: t('profile.savedRecipes'), value: n(8), onPress: () => navigation.navigate('Recipes', { filter: 5 }) },
+        { name: t('profile.favouriteMeals'), value: n(5), onPress: () => navigation.navigate('Recipes', { filter: 0 }) },
       ],
     },
     {
-      name: 'App',
+      name: t('profile.section.app'),
       rows: [
-        { name: 'Language', value: 'English · العربية', onPress: () => navigation.navigate('ArabicPreview') },
-        { name: 'Gentle mode', value: state.comfort === 1 ? 'On' : 'Off', onPress: () => navigation.navigate('GentleMode') },
-        { name: 'Notifications', value: 'Gentle', onPress: () => navigation.navigate('Notifications') },
-        { name: 'Connected devices', value: 'Apple Health' },
-        { name: 'Subscription', value: 'Trial · 5 days', onPress: () => navigation.navigate('TrialEnding') },
+        { name: t('profile.language'), value: t('profile.language.value'), onPress: () => navigation.navigate('Language') },
+        {
+          name: t('profile.gentleMode'),
+          value: state.comfort === 1 ? t('profile.on') : t('profile.off'),
+          onPress: () => navigation.navigate('GentleMode'),
+        },
+        { name: t('profile.notifications'), value: t('profile.notifications.value'), onPress: () => navigation.navigate('Notifications') },
+        { name: t('profile.devices'), value: t('profile.devices.value') },
+        { name: t('profile.subscription'), value: t('profile.subscription.value'), onPress: () => navigation.navigate('TrialEnding') },
       ],
     },
     {
-      name: 'Privacy & support',
+      name: t('profile.section.privacy'),
       rows: [
-        { name: 'Privacy & data', onPress: () => navigation.navigate('Legal', { tab: 0 }) },
-        { name: 'Medical disclaimer', onPress: () => navigation.navigate('Legal', { tab: 2 }) },
-        { name: 'Help & support' },
+        { name: t('profile.privacy'), onPress: () => navigation.navigate('Legal', { tab: 0 }) },
+        { name: t('profile.disclaimer'), onPress: () => navigation.navigate('Legal', { tab: 2 }) },
+        { name: t('profile.help') },
       ],
     },
   ];
 
   return (
     <Screen tabs>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingTop: 6 }}>
+      <View style={{ flexDirection: row, alignItems: 'center', gap: 14, paddingTop: 6 }}>
         <View
           style={{
             width: 56,
@@ -71,9 +76,9 @@ export function ProfileScreen() {
           </Text>
         </View>
         <View style={{ flex: 1 }}>
-          <Display size={24}>Maya</Display>
+          <Display size={24}>{t('profile.name')}</Display>
           <Text size={13} color={colors.faint} style={{ marginTop: 1 }}>
-            Cairo · joined July 2026
+            {t('profile.meta')}
           </Text>
         </View>
       </View>
@@ -83,7 +88,7 @@ export function ProfileScreen() {
         onPress={() => navigation.navigate('Paywall')}
         style={({ pressed }) => [
           {
-            flexDirection: 'row',
+            flexDirection: row,
             alignItems: 'center',
             gap: 12,
             backgroundColor: colors.greenDeep,
@@ -95,14 +100,14 @@ export function ProfileScreen() {
       >
         <View style={{ flex: 1 }}>
           <Text weight="semibold" size={14.5} color={colors.white}>
-            Celadon Premium trial
+            {t('profile.trial.title')}
           </Text>
           <Text size={12.5} color={colors.greenPale} style={{ marginTop: 2 }}>
-            5 days left · see plans
+            {t('profile.trial.note')}
           </Text>
         </View>
         <Text size={18} color={colors.greenPale}>
-          ›
+          {chevronForward}
         </Text>
       </Pressable>
 
@@ -112,14 +117,14 @@ export function ProfileScreen() {
             {section.name}
           </SectionLabel>
           <Card style={{ overflow: 'hidden' }}>
-            {section.rows.map((row, index) => (
+            {section.rows.map((entry, index) => (
               <Pressable
-                key={row.name}
+                key={entry.name}
                 accessibilityRole="button"
-                onPress={row.onPress}
+                onPress={entry.onPress}
                 style={({ pressed }) => [
                   {
-                    flexDirection: 'row',
+                    flexDirection: row,
                     alignItems: 'center',
                     gap: 12,
                     paddingVertical: 14,
@@ -131,15 +136,15 @@ export function ProfileScreen() {
                 ]}
               >
                 <Text weight="medium" size={14.5} style={{ flex: 1 }}>
-                  {row.name}
+                  {entry.name}
                 </Text>
-                {row.value ? (
+                {entry.value ? (
                   <Text size={13} color={colors.faint}>
-                    {row.value}
+                    {entry.value}
                   </Text>
                 ) : null}
                 <Text size={16} color={colors.chevron}>
-                  ›
+                  {chevronForward}
                 </Text>
               </Pressable>
             ))}
@@ -150,14 +155,14 @@ export function ProfileScreen() {
       <NoteCard style={{ paddingVertical: 14, paddingHorizontal: 16 }}>
         <Text size={12.5} color={colors.muted} lineHeight={20}>
           <Text weight="bold" size={12.5} color={colors.muted}>
-            A note on care:
+            {t('profile.careNote.label')}
           </Text>{' '}
-          {MEDICAL_NOTE}
+          {t('profile.careNote.body')}
         </Text>
       </NoteCard>
 
       <TextButton
-        label="Delete my account"
+        label={t('profile.delete')}
         color={colors.red}
         style={{ alignSelf: 'center', padding: 8 }}
         onPress={() => navigation.navigate('DeleteAccount')}

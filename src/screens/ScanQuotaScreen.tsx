@@ -11,6 +11,7 @@ import {
   TextButton,
 } from '../components';
 import { FREE_SCANS_PER_WEEK } from '../data/content';
+import { useI18n } from '../i18n';
 import { colors } from '../theme';
 import { useAppNavigation } from '../navigation/types';
 
@@ -20,39 +21,40 @@ import { useAppNavigation } from '../navigation/types';
  */
 export function ScanQuotaScreen() {
   const navigation = useAppNavigation();
+  const { t } = useI18n();
 
   return (
     <Screen scroll={false} center padding={28} gap={14}>
       <Pill
-        label="Free plan"
+        label={t('quota.badge')}
         background={colors.sunken}
         color={colors.muted}
         size={12}
         style={{ alignSelf: 'flex-start' }}
       />
-      <Display size={27}>That's this week's free scans</Display>
+      <Display size={27}>{t('quota.title')}</Display>
       <Text size={14.5} color={colors.muted} lineHeight={22}>
-        Free includes {FREE_SCANS_PER_WEEK} photo scans a week — they reset Monday. Premium removes the limit.
+        {t('quota.body', { count: FREE_SCANS_PER_WEEK })}
       </Text>
 
       <Card style={{ padding: 16, gap: 10 }}>
-        <BulletRow color={colors.green}>Unlimited meal scanning</BulletRow>
-        <BulletRow color={colors.green}>Adaptive weekly plans</BulletRow>
-        <BulletRow color={colors.green}>Pattern detection &amp; doctor reports</BulletRow>
+        <BulletRow color={colors.green}>{t('quota.point1')}</BulletRow>
+        <BulletRow color={colors.green}>{t('quota.point2')}</BulletRow>
+        <BulletRow color={colors.green}>{t('quota.point3')}</BulletRow>
       </Card>
 
       <PrimaryButton
-        label="See Premium plans"
+        label={t('quota.cta')}
         style={{ marginTop: 4 }}
         onPress={() => navigation.navigate('Paywall')}
       />
       <OutlineButton
-        label="Log this meal manually"
+        label={t('quota.manual')}
         size={14.5}
         onPress={() => navigation.navigate('ManualAdd')}
       />
       <TextButton
-        label="Not now"
+        label={t('common.notNow')}
         color={colors.muted}
         style={{ alignSelf: 'center', padding: 4 }}
         onPress={() => navigation.navigate('Home')}

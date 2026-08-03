@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, ViewProps, ViewStyle } from 'react-native';
+import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
 import { Text } from './Text';
 
@@ -82,8 +83,9 @@ export function BulletRow({
   children: React.ReactNode;
   size?: number;
 }) {
+  const { row } = useI18n();
   return (
-    <View style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start' }}>
+    <View style={{ flexDirection: row, gap: 12, alignItems: 'flex-start' }}>
       <Dot color={color} style={{ marginTop: 4 }} />
       <Text size={size} color={colors.inkSoft} lineHeight={Math.round(size * 1.5)} style={{ flex: 1 }}>
         {children}

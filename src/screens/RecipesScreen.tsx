@@ -14,6 +14,7 @@ import {
 } from '../components';
 import { RECIPE_FILTERS, RECIPES, SAVED_FILTER_INDEX } from '../data/content';
 import { useAppState } from '../state/AppState';
+import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
 import { RootStackParamList, useAppNavigation } from '../navigation/types';
 
@@ -22,6 +23,7 @@ export function RecipesScreen() {
   const navigation = useAppNavigation();
   const route = useRoute<RouteProp<RootStackParamList, 'Recipes'>>();
   const { state, set } = useAppState();
+  const { t, row } = useI18n();
   const requestedFilter = route.params?.filter;
 
   useEffect(() => {
@@ -34,7 +36,10 @@ export function RecipesScreen() {
 
   return (
     <Screen tabs>
-      <PageTitle title="Recipes" trailing={<SmallButton label="Search" onPress={() => navigation.navigate('Explore')} />} />
+      <PageTitle
+        title={t('recipes.title')}
+        trailing={<SmallButton label={t('common.search')} onPress={() => navigation.navigate('Explore')} />}
+      />
 
       <ScrollView
         horizontal
@@ -45,7 +50,7 @@ export function RecipesScreen() {
         {RECIPE_FILTERS.map((filter, i) => (
           <Chip
             key={filter}
-            label={filter}
+            label={t(filter)}
             selected={state.recipeFilter === i}
             onPress={() => set({ recipeFilter: i })}
             size={13.5}
@@ -59,14 +64,14 @@ export function RecipesScreen() {
       {shown.length === 0 ? (
         <EmptyCard style={{ paddingVertical: 32, paddingHorizontal: 24, alignItems: 'center', gap: 8 }}>
           <Text weight="semibold" size={15}>
-            No saved recipes yet
+            {t('recipes.empty.title')}
           </Text>
           <Text size={13} color={colors.muted} lineHeight={20} align="center">
-            Tap "Save recipe" on anything you'd like to keep — it'll live here.
+            {t('recipes.empty.body')}
           </Text>
         </EmptyCard>
       ) : (
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+        <View style={{ flexDirection: row, flexWrap: 'wrap', gap: 12 }}>
           {shown.map((recipe) => (
             <Pressable
               key={recipe.name}
@@ -77,21 +82,21 @@ export function RecipesScreen() {
               <Card style={{ overflow: 'hidden' }}>
                 <Hatch band={7} style={{ height: 100 }}>
                   <Text mono size={10} color={colors.faint}>
-                    photo
+                    {t('recipes.photo')}
                   </Text>
                 </Hatch>
                 <View style={{ padding: 12 }}>
                   <Text weight="semibold" size={14} lineHeight={18}>
-                    {recipe.name}
+                    {t(recipe.name)}
                   </Text>
-                  <View style={{ flexDirection: 'row', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
+                  <View style={{ flexDirection: row, gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
                     <Pill
-                      label={recipe.tag}
+                      label={t(recipe.tag)}
                       size={11}
                       style={{ borderRadius: radius.thumbSm, paddingHorizontal: 9, paddingVertical: 3 }}
                     />
                     <Pill
-                      label={recipe.time}
+                      label={t('common.minutes', { count: recipe.minutes })}
                       size={11}
                       weight="semibold"
                       background={colors.sunken}

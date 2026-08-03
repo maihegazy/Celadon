@@ -11,6 +11,7 @@ import React, { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { I18nProvider } from './src/i18n';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { MealAnalysisProvider } from './src/services/mealAnalysis';
 import { AppStateProvider } from './src/state/AppState';
@@ -39,14 +40,16 @@ export default function App() {
   return (
     <GestureHandlerRootView style={styles.root} onLayout={onReady}>
       <SafeAreaProvider>
-        <AppStateProvider>
-          <MealAnalysisProvider>
-            <StatusBar style="dark" />
-            <SafeTop>
-              <RootNavigator />
-            </SafeTop>
-          </MealAnalysisProvider>
-        </AppStateProvider>
+        <I18nProvider>
+          <AppStateProvider>
+            <MealAnalysisProvider>
+              <StatusBar style="dark" />
+              <SafeTop>
+                <RootNavigator />
+              </SafeTop>
+            </MealAnalysisProvider>
+          </AppStateProvider>
+        </I18nProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

@@ -13,6 +13,7 @@ import {
 } from '../components';
 import { CUSTOM_GROCERY_CATEGORY, GROCERY_CATEGORIES } from '../data/content';
 import { useAppState } from '../state/AppState';
+import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
 import { useAppNavigation } from '../navigation/types';
 
@@ -25,18 +26,19 @@ export function GroceryScreen() {
   const navigation = useAppNavigation();
   const { state, dispatch } = useAppState();
   const [draft, setDraft] = useState('');
+  const { t, tp, row } = useI18n();
 
   const categories = GROCERY_CATEGORIES.map((category, ci) => {
-    const items = [
-      ...category.items,
+    const items: { name: string; qty: string | null; custom?: boolean }[] = [
+      ...category.items.map((item) => ({ name: t(item.name), qty: item.qty ? t(item.qty) : null })),
       ...(ci === CUSTOM_GROCERY_CATEGORY
-        ? state.customGroceryItems.map((name) => [name, ''] as [string, string])
+        ? state.customGroceryItems.map((name) => ({ name, qty: null, custom: true }))
         : []),
     ];
     return {
-      name: category.name,
+      name: t(category.name),
       items: items
-        .map(([name, qty], ii) => ({ name, qty, key: `${ci}-${ii}` }))
+        .map((item, ii) => ({ ...item, key: `${ci}-${ii}` }))
         .filter((item) => !state.groceryRemoved[item.key]),
     };
   }).filter((category) => category.items.length > 0);
@@ -55,10 +57,10 @@ export function GroceryScreen() {
   return (
     <Screen tabs>
       <ScreenHeader
-        title="Shopping list"
-        subtitle={`Built from this week's plan · ${remaining} items left`}
+        title={t('grocery.title')}
+        subtitle={tp('grocery.subtitle', remaining)}
         onBack={() => navigation.navigate('Plan')}
-        trailing={<SmallButton label="Share" />}
+        trailing={<SmallButton label={t('common.share')} />}
       />
 
       {categories.map((category) => (
@@ -73,7 +75,7 @@ export function GroceryScreen() {
                 <View
                   key={item.key}
                   style={{
-                    flexDirection: 'row',
+                    flexDirection: row,
                     alignItems: 'center',
                     gap: 12,
                     paddingVertical: 12,
@@ -106,7 +108,7 @@ export function GroceryScreen() {
                   ) : null}
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={`Remove ${item.name} — already have it`}
+                    accessibilityLabel={t('grocery.a11y.remove', { item: item.name })}
                     hitSlop={8}
                     onPress={() => dispatch({ type: 'removeGroceryItem', key: item.key })}
                   >
@@ -121,10 +123,10 @@ export function GroceryScreen() {
         </View>
       ))}
 
-      <View style={{ flexDirection: 'row', gap: 8 }}>
+      <View style={{ flexDirection: row, gap: 8 }}>
         <Field
           shape="pill"
-          placeholder="Add your own item…"
+          placeholder={t('grocery.addPlaceholder')}
           value={draft}
           onChangeText={setDraft}
           onSubmitEditing={addCustom}
@@ -132,7 +134,7 @@ export function GroceryScreen() {
           containerStyle={{ flex: 1 }}
         />
         <PrimaryButton
-          label="Add"
+          label={t('common.add')}
           size={14}
           style={{ borderRadius: radius.chip, paddingVertical: 12, paddingHorizontal: 20 }}
           onPress={addCustom}
@@ -140,7 +142,7 @@ export function GroceryScreen() {
       </View>
 
       <Text size={12.5} color={colors.faint} align="center">
-        Tap × on anything you already have at home.
+        {t('grocery.note')}
       </Text>
     </Screen>
   );

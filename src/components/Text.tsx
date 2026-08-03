@@ -1,5 +1,6 @@
 import React from 'react';
 import { Platform, StyleSheet, Text as RNText, TextProps as RNTextProps } from 'react-native';
+import { useI18n } from '../i18n';
 import { colors, fonts, FontWeightToken } from '../theme';
 
 export type TextProps = RNTextProps & {
@@ -29,6 +30,8 @@ export function Text({
   style,
   ...rest
 }: TextProps) {
+  // Copy reads right-to-left in Arabic unless a screen asks for something else.
+  const { textAlign } = useI18n();
   return (
     <RNText
       {...rest}
@@ -37,8 +40,8 @@ export function Text({
           fontFamily: mono ? monoFamily : fonts[weight],
           fontSize: size,
           color,
+          textAlign: align ?? textAlign,
           ...(lineHeight ? { lineHeight } : null),
-          ...(align ? { textAlign: align } : null),
         },
         style,
       ])}

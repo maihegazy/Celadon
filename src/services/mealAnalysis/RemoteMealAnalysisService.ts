@@ -32,7 +32,7 @@ type RemoteOptions = {
 export class RemoteMealAnalysisService implements MealAnalysisService {
   constructor(private readonly options: RemoteOptions) {}
 
-  async detect({ imageUri, source, profile }: DetectRequest): Promise<DetectionResult> {
+  async detect({ imageUri, source, profile, locale }: DetectRequest): Promise<DetectionResult> {
     const form = new FormData();
     form.append('image', {
       uri: imageUri,
@@ -41,6 +41,7 @@ export class RemoteMealAnalysisService implements MealAnalysisService {
     } as unknown as Blob);
     form.append('source', source);
     form.append('profile', JSON.stringify(profile));
+    form.append('locale', locale);
 
     const data = await this.post('/detect', form);
 
@@ -64,6 +65,7 @@ export class RemoteMealAnalysisService implements MealAnalysisService {
     portion,
     separateItems,
     profile,
+    locale,
   }: AnalyzeRequest): Promise<MealAnalysisResult> {
     const form = new FormData();
     form.append('image', {
@@ -75,6 +77,7 @@ export class RemoteMealAnalysisService implements MealAnalysisService {
     form.append('portion', portion);
     form.append('separate_items', String(separateItems));
     form.append('profile', JSON.stringify(profile));
+    form.append('locale', locale);
 
     const data = await this.post('/analyze', form);
     const nutrition = (data.nutrition ?? {}) as Record<string, unknown>;

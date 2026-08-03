@@ -4,6 +4,7 @@ import { BulletRow, Card, Display, NoteCard, OptionCard, Screen, Text } from '..
 import { BackChevron } from '../components/Buttons';
 import { COMFORT_MODES } from '../data/assessment';
 import { ComfortMode, useAppState } from '../state/AppState';
+import { useI18n } from '../i18n';
 import { colors } from '../theme';
 import { useAppNavigation } from '../navigation/types';
 
@@ -14,17 +15,17 @@ import { useAppNavigation } from '../navigation/types';
 export function GentleModeScreen() {
   const navigation = useAppNavigation();
   const { state, set } = useAppState();
+  const { t, row } = useI18n();
 
   return (
     <Screen tabs gap={14}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: 6 }}>
+      <View style={{ flexDirection: row, alignItems: 'center', gap: 12, paddingTop: 6 }}>
         <BackChevron onPress={() => navigation.navigate('Profile')} />
-        <Display size={26}>Gentle mode</Display>
+        <Display size={26}>{t('gentle.title')}</Display>
       </View>
 
       <Text size={14} color={colors.muted} lineHeight={22}>
-        Built with eating-disorder recovery in mind. If numbers around food feel heavy, Celadon works just as well
-        without them.
+        {t('gentle.intro')}
       </Text>
 
       <View style={{ gap: 10 }}>
@@ -35,10 +36,10 @@ export function GentleModeScreen() {
             onPress={() => set({ comfort: i as ComfortMode, numbersOverride: null })}
           >
             <Text weight="semibold" size={15.5}>
-              {mode.name}
+              {t(mode.name)}
             </Text>
             <Text size={13.5} color={colors.muted} lineHeight={20} style={{ marginTop: 3 }}>
-              {mode.desc}
+              {t(mode.desc)}
             </Text>
           </OptionCard>
         ))}
@@ -46,28 +47,27 @@ export function GentleModeScreen() {
 
       <Card style={{ padding: 16 }}>
         <Text weight="semibold" size={14.5} style={{ marginBottom: 8 }}>
-          What changes in gentle mode
+          {t('gentle.changes')}
         </Text>
         <View style={{ gap: 9 }}>
           <BulletRow color={colors.green} size={13.5}>
-            Calories and macros hidden everywhere
+            {t('gentle.change1')}
           </BulletRow>
           <BulletRow color={colors.green} size={13.5}>
-            No weight goals, prompts or tracking
+            {t('gentle.change2')}
           </BulletRow>
           <BulletRow color={colors.green} size={13.5}>
-            Check-ins focus on how you feel, not what you ate
+            {t('gentle.change3')}
           </BulletRow>
           <BulletRow color={colors.green} size={13.5}>
-            Same plans, same recipes, same care
+            {t('gentle.change4')}
           </BulletRow>
         </View>
       </Card>
 
       <NoteCard style={{ paddingVertical: 14, paddingHorizontal: 16 }}>
         <Text size={12.5} color={colors.muted} lineHeight={20}>
-          Switch anytime — quietly, no questions asked. If you're in treatment, your care team's guidance comes
-          first.
+          {t('gentle.note')}
         </Text>
       </NoteCard>
     </Screen>

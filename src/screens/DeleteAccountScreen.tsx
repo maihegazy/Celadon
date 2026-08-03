@@ -13,6 +13,7 @@ import {
 } from '../components';
 import { BackChevron } from '../components/Buttons';
 import { useAppState } from '../state/AppState';
+import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
 import { useAppNavigation } from '../navigation/types';
 
@@ -23,42 +24,43 @@ import { useAppNavigation } from '../navigation/types';
 export function DeleteAccountScreen() {
   const navigation = useAppNavigation();
   const { dispatch } = useAppState();
+  const { t, row } = useI18n();
 
   return (
     <Screen gap={14} paddingBottom={40}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: 6 }}>
+      <View style={{ flexDirection: row, alignItems: 'center', gap: 12, paddingTop: 6 }}>
         <BackChevron onPress={() => navigation.navigate('Profile')} />
         <Display size={26} style={{ flex: 1 }}>
-          Delete your account?
+          {t('delete.title')}
         </Display>
       </View>
 
       <Text size={14} color={colors.muted} lineHeight={22}>
-        We're sorry to see you go. Here's exactly what deletion means:
+        {t('delete.intro')}
       </Text>
 
       <Card style={{ padding: 16, gap: 10 }}>
         <BulletRow color={colors.red} size={13.5}>
-          Profile and health answers — erased
+          {t('delete.point1')}
         </BulletRow>
         <BulletRow color={colors.red} size={13.5}>
-          Diary, scans and check-ins — erased
+          {t('delete.point2')}
         </BulletRow>
         <BulletRow color={colors.faint} size={13.5}>
-          Subscription — cancel separately in your app store
+          {t('delete.point3')}
         </BulletRow>
       </Card>
 
       <View style={{ backgroundColor: colors.amberLight, borderRadius: radius.tile, paddingVertical: 14, paddingHorizontal: 16 }}>
         <Text size={13} color={colors.amberDeep} lineHeight={20}>
-          <Strong>This is immediate and permanent.</Strong> If you might want your history later, export it first.
+          <Strong>{t('delete.warning.strong')}</Strong> {t('delete.warning.body')}
         </Text>
       </View>
 
-      <OutlineButton label="Export my data first" size={14.5} />
+      <OutlineButton label={t('delete.export')} size={14.5} />
 
       <PrimaryButton
-        label="Delete permanently"
+        label={t('delete.confirm')}
         size={15}
         style={{ backgroundColor: colors.red, paddingVertical: 15 }}
         onPress={() => {
@@ -68,7 +70,7 @@ export function DeleteAccountScreen() {
       />
 
       <TextButton
-        label="Cancel"
+        label={t('common.cancel')}
         color={colors.muted}
         style={{ alignSelf: 'center', padding: 4 }}
         onPress={() => navigation.navigate('Profile')}

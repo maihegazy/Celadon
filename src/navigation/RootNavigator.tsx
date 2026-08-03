@@ -5,7 +5,6 @@ import React from 'react';
 import { colors } from '../theme';
 import type { RootStackParamList } from './types';
 
-import { ArabicPreviewScreen } from '../screens/ArabicPreviewScreen';
 import { AuthScreen } from '../screens/AuthScreen';
 import { CelebrateScreen } from '../screens/CelebrateScreen';
 import { CheckInScreen } from '../screens/CheckInScreen';
@@ -16,6 +15,7 @@ import { ExploreScreen } from '../screens/ExploreScreen';
 import { GentleModeScreen } from '../screens/GentleModeScreen';
 import { GroceryScreen } from '../screens/GroceryScreen';
 import { HomeScreen } from '../screens/HomeScreen';
+import { LanguageScreen } from '../screens/LanguageScreen';
 import { LegalScreen } from '../screens/LegalScreen';
 import { ManualAddScreen } from '../screens/ManualAddScreen';
 import { NotificationsScreen } from '../screens/NotificationsScreen';
@@ -85,7 +85,7 @@ const linking: LinkingOptions<RootStackParamList> = {
       GentleMode: 'settings/gentle-mode',
       Legal: 'legal',
       DeleteAccount: 'settings/delete-account',
-      ArabicPreview: 'language/arabic',
+      Language: 'settings/language',
       Offline: 'offline',
     },
   },
@@ -139,7 +139,7 @@ export function RootNavigator() {
         <Stack.Screen name="GentleMode" component={GentleModeScreen} />
         <Stack.Screen name="Legal" component={LegalScreen} />
         <Stack.Screen name="DeleteAccount" component={DeleteAccountScreen} />
-        <Stack.Screen name="ArabicPreview" component={ArabicPreviewScreen} />
+        <Stack.Screen name="Language" component={LanguageScreen} />
         <Stack.Screen name="Offline" component={OfflineScreen} options={{ animation: 'fade' }} />
       </Stack.Navigator>
     </NavigationContainer>

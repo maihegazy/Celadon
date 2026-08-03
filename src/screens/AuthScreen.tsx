@@ -13,6 +13,7 @@ import {
   TextButton,
   TintCard,
 } from '../components';
+import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
 import { RootStackParamList, useAppNavigation } from '../navigation/types';
 
@@ -28,6 +29,7 @@ export function AuthScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'Auth'>>();
   const [mode, setMode] = useState<Mode>(route.params?.mode ?? 'signin');
   const [resetSent, setResetSent] = useState(false);
+  const { t, row } = useI18n();
 
   return (
     <Screen scroll padding={28} paddingTop={0} gap={13} center keyboardAvoiding>
@@ -36,19 +38,19 @@ export function AuthScreen() {
       {mode === 'signin' ? (
         <>
           <Display size={30} lineHeight={35}>
-            Welcome back.
+            {t('auth.signIn.title')}
           </Display>
           <Text size={14.5} color={colors.muted} lineHeight={22}>
-            Your plan and progress are right where you left them.
+            {t('auth.signIn.subtitle')}
           </Text>
-          <Field placeholder="Email" autoCapitalize="none" keyboardType="email-address" textContentType="emailAddress" />
-          <Field placeholder="Password" secureTextEntry textContentType="password" />
-          <PrimaryButton label="Sign in" size={15.5} style={{ paddingVertical: 15 }} onPress={() => navigation.navigate('Home')} />
+          <Field placeholder={t('auth.email')} autoCapitalize="none" keyboardType="email-address" textContentType="emailAddress" />
+          <Field placeholder={t('auth.password')} secureTextEntry textContentType="password" />
+          <PrimaryButton label={t('auth.signIn.cta')} size={15.5} style={{ paddingVertical: 15 }} onPress={() => navigation.navigate('Home')} />
           <OrDivider />
           <SocialButtons />
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 2 }}>
+          <View style={{ flexDirection: row, justifyContent: 'space-between', marginTop: 2 }}>
             <TextButton
-              label="Forgot password?"
+              label={t('auth.forgot')}
               color={colors.muted}
               size={13.5}
               onPress={() => {
@@ -58,7 +60,7 @@ export function AuthScreen() {
             />
             <TextButton onPress={() => setMode('signup')}>
               <Text size={13.5} weight="medium" color={colors.muted}>
-                New here? <Strong color={colors.green}>Create account</Strong>
+                {t('auth.newHere')} <Strong color={colors.green}>{t('auth.createAccount')}</Strong>
               </Text>
             </TextButton>
           </View>
@@ -68,15 +70,15 @@ export function AuthScreen() {
       {mode === 'signup' ? (
         <>
           <Display size={30} lineHeight={35}>
-            Let's get you set up.
+            {t('auth.signUp.title')}
           </Display>
           <Text size={14.5} color={colors.muted} lineHeight={22}>
-            One account — both languages, all your devices.
+            {t('auth.signUp.subtitle')}
           </Text>
-          <Field placeholder="Email" autoCapitalize="none" keyboardType="email-address" textContentType="emailAddress" />
-          <Field placeholder="Choose a password" secureTextEntry textContentType="newPassword" />
+          <Field placeholder={t('auth.email')} autoCapitalize="none" keyboardType="email-address" textContentType="emailAddress" />
+          <Field placeholder={t('auth.choosePassword')} secureTextEntry textContentType="newPassword" />
           <PrimaryButton
-            label="Create account"
+            label={t('auth.signUp.cta')}
             size={15.5}
             style={{ paddingVertical: 15 }}
             onPress={() => navigation.navigate('Onboarding', { step: 1 })}
@@ -84,15 +86,15 @@ export function AuthScreen() {
           <OrDivider />
           <SocialButtons />
           <Text size={12.5} color={colors.faint} align="center" lineHeight={19}>
-            By continuing you agree to our{' '}
+            {t('auth.terms')}{' '}
             <Strong weight="semibold" color={colors.green} onPress={() => navigation.navigate('Legal', { tab: 1 })}>
-              Terms &amp; privacy
+              {t('auth.termsLink')}
             </Strong>
             .
           </Text>
           <TextButton onPress={() => setMode('signin')} style={{ paddingVertical: 4 }}>
             <Text size={13.5} weight="medium" color={colors.muted}>
-              Have an account? <Strong color={colors.green}>Sign in</Strong>
+              {t('auth.haveAccount')} <Strong color={colors.green}>{t('auth.signIn.cta')}</Strong>
             </Text>
           </TextButton>
         </>
@@ -101,13 +103,13 @@ export function AuthScreen() {
       {mode === 'forgot' ? (
         <>
           <Display size={30} lineHeight={35}>
-            Reset your password
+            {t('auth.reset.title')}
           </Display>
           <Text size={14.5} color={colors.muted} lineHeight={22}>
-            We'll email you a link — it expires in one hour.
+            {t('auth.reset.subtitle')}
           </Text>
           {resetSent ? (
-            <TintCard style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: radius.tile }}>
+            <TintCard style={{ flexDirection: row, alignItems: 'center', gap: 10, padding: 14, borderRadius: radius.tile }}>
               <View
                 style={{
                   width: 24,
@@ -123,19 +125,19 @@ export function AuthScreen() {
                 </Text>
               </View>
               <Text size={13.5} color={colors.greenDeep} lineHeight={20} style={{ flex: 1 }}>
-                <Strong>Sent.</Strong> Check your inbox — and spam, just in case.
+                <Strong>{t('auth.reset.sentTitle')}</Strong> {t('auth.reset.sentBody')}
               </Text>
             </TintCard>
           ) : null}
-          <Field placeholder="Email" autoCapitalize="none" keyboardType="email-address" />
+          <Field placeholder={t('auth.email')} autoCapitalize="none" keyboardType="email-address" />
           <PrimaryButton
-            label="Send reset link"
+            label={t('auth.reset.cta')}
             size={15.5}
             style={{ paddingVertical: 15 }}
             onPress={() => setResetSent(true)}
           />
           <TextButton
-            label="‹ Back to sign in"
+            label={t('auth.backToSignIn')}
             color={colors.muted}
             size={13.5}
             style={{ paddingVertical: 4 }}
@@ -151,11 +153,12 @@ export function AuthScreen() {
 }
 
 function OrDivider() {
+  const { t, row } = useI18n();
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+    <View style={{ flexDirection: row, alignItems: 'center', gap: 12 }}>
       <View style={{ flex: 1, height: 1, backgroundColor: colors.line }} />
       <Text size={12.5} color={colors.faint}>
-        or
+        {t('auth.or')}
       </Text>
       <View style={{ flex: 1, height: 1, backgroundColor: colors.line }} />
     </View>
@@ -163,15 +166,16 @@ function OrDivider() {
 }
 
 function SocialButtons() {
+  const { t } = useI18n();
   return (
     <>
       <PrimaryButton
-        label="Continue with Apple"
+        label={t('auth.apple')}
         size={14.5}
         style={{ backgroundColor: colors.ink, paddingVertical: 14 }}
       />
       <OutlineButton
-        label="Continue with Google"
+        label={t('auth.google')}
         size={14.5}
         color={colors.ink}
         background={colors.surface}

@@ -4,6 +4,7 @@ import { Card, Display, PrimaryButton, Screen, Text, TextButton } from '../compo
 import { BackChevron } from '../components/Buttons';
 import { PAYWALL_FEATURES, PAYWALL_PLANS } from '../data/content';
 import { useAppState } from '../state/AppState';
+import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
 import { useAppNavigation } from '../navigation/types';
 
@@ -14,36 +15,37 @@ import { useAppNavigation } from '../navigation/types';
 export function PaywallScreen() {
   const navigation = useAppNavigation();
   const { state, set } = useAppState();
+  const { t, row } = useI18n();
   const selected = PAYWALL_PLANS[state.selectedPlan];
 
   return (
     <Screen paddingBottom={40}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: 6 }}>
+      <View style={{ flexDirection: row, alignItems: 'center', gap: 12, paddingTop: 6 }}>
         <BackChevron onPress={() => navigation.goBack()} />
-        <Display size={26}>Celadon Premium</Display>
+        <Display size={26}>{t('paywall.title')}</Display>
       </View>
 
       <Text size={14.5} color={colors.muted} lineHeight={22}>
-        The full experience — unlimited scanning, adaptive plans and the insights that make patterns visible.
+        {t('paywall.subtitle')}
       </Text>
 
       <Card style={{ overflow: 'hidden', borderRadius: radius.cardLg }}>
         <View
-          style={{ flexDirection: 'row', backgroundColor: colors.sunken, paddingVertical: 12, paddingHorizontal: 16 }}
+          style={{ flexDirection: row, backgroundColor: colors.sunken, paddingVertical: 12, paddingHorizontal: 16 }}
         >
           <View style={{ flex: 1.6 }} />
           <Text weight="bold" size={12} color={colors.muted} style={{ flex: 1 }}>
-            Free
+            {t('paywall.free')}
           </Text>
           <Text weight="bold" size={12} color={colors.greenDeep} style={{ flex: 1 }}>
-            Premium
+            {t('paywall.premium')}
           </Text>
         </View>
         {PAYWALL_FEATURES.map((feature, index) => (
           <View
             key={feature.name}
             style={{
-              flexDirection: 'row',
+              flexDirection: row,
               alignItems: 'center',
               paddingVertical: 12,
               paddingHorizontal: 16,
@@ -52,19 +54,19 @@ export function PaywallScreen() {
             }}
           >
             <Text weight="medium" size={13} lineHeight={18} style={{ flex: 1.6 }}>
-              {feature.name}
+              {t(feature.name)}
             </Text>
             <Text size={13} color={colors.faint} style={{ flex: 1 }}>
-              {feature.free}
+              {t(feature.free)}
             </Text>
             <Text weight="semibold" size={13} color={colors.greenDeep} style={{ flex: 1 }}>
-              {feature.premium}
+              {t(feature.premium)}
             </Text>
           </View>
         ))}
       </Card>
 
-      <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
+      <View style={{ flexDirection: row, gap: 10, marginTop: 4 }}>
         {PAYWALL_PLANS.map((plan, index) => {
           const active = state.selectedPlan === index;
           return (
@@ -98,32 +100,31 @@ export function PaywallScreen() {
                   }}
                 >
                   <Text weight="bold" size={10.5} color={colors.white}>
-                    SAVE 33%
+                    {t('paywall.save')}
                   </Text>
                 </View>
               ) : null}
               <Text weight="semibold" size={13} color={colors.muted}>
-                {plan.name}
+                {t(plan.name)}
               </Text>
               <Text weight="bold" size={19} style={{ marginTop: 3 }}>
-                {plan.price}
+                {t(plan.price)}
               </Text>
               <Text size={12} color={colors.faint} style={{ marginTop: 2 }}>
-                {plan.note}
+                {t(plan.note)}
               </Text>
             </Pressable>
           );
         })}
       </View>
 
-      <PrimaryButton label="Start 7-day free trial" />
+      <PrimaryButton label={t('paywall.cta')} />
 
       <Text size={12.5} color={colors.faint} align="center" lineHeight={20}>
-        Free for 7 days, then {selected.billed}. Cancel anytime in one tap — we'll remind you two days before the
-        trial ends. Your data stays yours either way.
+        {t('paywall.terms', { price: t(selected.billed) })}
       </Text>
 
-      <TextButton label="Restore purchases" size={13.5} color={colors.green} style={{ alignSelf: 'center' }} />
+      <TextButton label={t('paywall.restore')} size={13.5} color={colors.green} style={{ alignSelf: 'center' }} />
     </Screen>
   );
 }
