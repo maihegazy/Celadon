@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useMemo, useReducer } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, useContext, useEffect, useMemo, useReducer, useState } from 'react';
 
 /**
  * One store for the whole app, mirroring the prototype's single state object.
@@ -56,6 +57,10 @@ export type AppState = {
   /** Free-tier scans used this week; the design shows "1 free scan left" of 3. */
   scansUsed: number;
   cameraPrimingSeen: boolean;
+  /** True once the assessment has been completed at least once. */
+  onboardingComplete: boolean;
+  /** Device-scoped: the permission priming screens have been shown. */
+  permissionsSeen: boolean;
 };
 
 const initialState: AppState = {
@@ -97,6 +102,8 @@ const initialState: AppState = {
   selectedPlan: 1,
   scansUsed: 2,
   cameraPrimingSeen: false,
+  onboardingComplete: false,
+  permissionsSeen: false,
 };
 
 type Action =
@@ -110,6 +117,10 @@ type Action =
   | { type: 'removeDiaryEntry'; index: number }
   | { type: 'addManualFood'; name: string }
   | { type: 'adjustServings'; delta: number }
+  /** Replace the saved answers with a profile loaded from the backend. */
+  | { type: 'hydrate'; profile: Partial<AppState> }
+  /** Clears account-scoped state on sign-out, keeping device preferences. */
+  | { type: 'signOut' }
   | { type: 'reset' };
 
 function reducer(state: AppState, action: Action): AppState {
@@ -144,6 +155,12 @@ function reducer(state: AppState, action: Action): AppState {
       return { ...state, manuallyAdded: [...state.manuallyAdded, action.name] };
     case 'adjustServings':
       return { ...state, servings: Math.max(1, Math.min(4, state.servings + action.delta)) };
+    case 'hydrate':
+      return { ...state, ...action.profile };
+    case 'signOut':
+      // The OS permission prompts were answered on this device, not by this
+      // account — asking again after a sign-out would be noise.
+      return { ...initialState, permissionsSeen: state.permissionsSeen };
     case 'reset':
       return initialState;
     default:
@@ -161,12 +178,58 @@ type AppStateValue = {
    * hide them; a per-screen "Show"/"Hide" toggle can override for the session.
    */
   numbersOn: boolean;
+  /** False until device-scoped preferences have been read back. */
+  booted: boolean;
 };
+
+/** Device-scoped flags — they describe this install, not this account. */
+const DEVICE_KEY = 'celadon.device';
+type DeviceState = Pick<AppState, 'permissionsSeen'>;
+
+/** The slice of state that belongs to the user rather than to this session. */
+export const assessmentSlice = (state: AppState) => ({
+  goal: state.goal,
+  conditions: state.conditions,
+  concerns: state.concerns,
+  avoids: state.avoids,
+  cuisines: state.cuisines,
+  country: state.country,
+  activity: state.activity,
+  mealsPerDay: state.mealsPerDay,
+  weightGoal: state.weightGoal,
+  comfort: state.comfort,
+  onboardingComplete: state.onboardingComplete,
+});
 
 const AppStateContext = createContext<AppStateValue | null>(null);
 
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [booted, setBooted] = useState(false);
+
+  // Read device preferences once at launch.
+  useEffect(() => {
+    let active = true;
+    AsyncStorage.getItem(DEVICE_KEY)
+      .then((raw) => {
+        if (!active) return;
+        if (raw) dispatch({ type: 'hydrate', profile: JSON.parse(raw) as DeviceState });
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setBooted(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // …and write them back whenever they change.
+  useEffect(() => {
+    if (!booted) return;
+    const device: DeviceState = { permissionsSeen: state.permissionsSeen };
+    AsyncStorage.setItem(DEVICE_KEY, JSON.stringify(device)).catch(() => {});
+  }, [booted, state.permissionsSeen]);
 
   const value = useMemo<AppStateValue>(() => {
     const numbersOn = state.numbersOverride ?? state.comfort === 0;
@@ -175,8 +238,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       dispatch,
       set: (patch: Partial<AppState>) => dispatch({ type: 'set', patch }),
       numbersOn,
+      booted,
     };
-  }, [state]);
+  }, [booted, state]);
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;
 }

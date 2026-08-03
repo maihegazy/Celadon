@@ -1,4 +1,8 @@
+import { ar } from '../../i18n/ar';
+import { en } from '../../i18n/en';
+import type { TranslationKey } from '../../i18n/en';
 import {
+  AnalysisLocale,
   AnalyzeRequest,
   DetectRequest,
   DetectionResult,
@@ -8,6 +12,10 @@ import {
 } from './types';
 
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+/** The stub writes its results in the caller's language, like a real backend would. */
+const say = (locale: AnalysisLocale, key: TranslationKey): string =>
+  (locale === 'ar' ? ar[key] : en[key]) ?? en[key];
 
 /**
  * On-device stand-in for the vision model. It returns the reference plate from
@@ -27,7 +35,7 @@ export class StubMealAnalysisService implements MealAnalysisService {
 
   constructor(private readonly options: { simulateGalleryFailure?: boolean } = {}) {}
 
-  async detect({ source, profile }: DetectRequest): Promise<DetectionResult> {
+  async detect({ source, profile, locale }: DetectRequest): Promise<DetectionResult> {
     await delay(1500);
 
     const simulateFailure = this.options.simulateGalleryFailure ?? true;
@@ -35,71 +43,65 @@ export class StubMealAnalysisService implements MealAnalysisService {
       this.galleryAttempts += 1;
       throw new MealAnalysisError(
         'unreadable',
-        "We couldn't read that photo",
-        'It looks too dark to identify confidently. Try more light, or shoot straight down at the plate. No result is better than a wrong one.',
+        say(locale, 'analysis.error.unreadable'),
+        say(locale, 'analysis.error.unreadableGuidance'),
       );
     }
     if (source === 'gallery') this.galleryAttempts += 1;
 
-    const avoidsNightshades = profile.avoids.some((a) => a.toLowerCase() === 'nightshades');
-
     return {
-      dish: 'salmon quinoa bowl',
+      dish: say(locale, 'meal.salmonBowl'),
       confidence: 0.87,
       mixedDishAmbiguity: true,
       ingredients: [
-        { id: 'salmon', name: 'Wild salmon fillet', confidence: 0.96 },
-        { id: 'quinoa', name: 'Quinoa', confidence: 0.91 },
-        {
-          id: 'tomatoes',
-          name: avoidsNightshades ? 'Cherry tomatoes' : 'Cherry tomatoes',
-          confidence: 0.84,
-        },
-        { id: 'olive-oil', name: 'Olive oil dressing', confidence: 0.78 },
-        { id: 'feta', name: 'Feta cheese', confidence: 0.72 },
+        { id: 'salmon', name: say(locale, 'ingredient.salmonFillet'), confidence: 0.96 },
+        { id: 'quinoa', name: say(locale, 'ingredient.quinoa'), confidence: 0.91 },
+        { id: 'tomatoes', name: say(locale, 'ingredient.tomatoes'), confidence: 0.84 },
+        { id: 'olive-oil', name: say(locale, 'ingredient.oliveOilDressing'), confidence: 0.78 },
+        { id: 'feta', name: say(locale, 'ingredient.feta'), confidence: 0.72 },
       ],
     };
   }
 
-  async analyze({ ingredients, portion, profile }: AnalyzeRequest): Promise<MealAnalysisResult> {
+  async analyze({ ingredients, portion, profile, locale }: AnalyzeRequest): Promise<MealAnalysisResult> {
     await delay(900);
 
-    const kept = new Set(ingredients.map((i) => i.toLowerCase()));
-    const has = (needle: string) => [...kept].some((i) => i.includes(needle));
+    // Ingredient identity travels as the stable id list the confirm screen kept,
+    // so this works whichever language the names were shown in.
+    const kept = new Set(ingredients);
     const flags = profile.avoids.map((a) => a.toLowerCase());
+    const nightshadeFlag = flags.includes('nightshades');
 
     const breakdown = [
-      has('salmon') && {
-        name: 'Wild salmon',
-        label: 'Supportive',
+      kept.has('salmon') && {
+        name: say(locale, 'ingredient.salmon'),
+        label: say(locale, 'tone.supportive'),
         tone: 'supportive' as const,
-        reason: 'Rich in omega-3 EPA/DHA — one of the strongest anti-inflammatory foods.',
+        reason: say(locale, 'reason.salmon'),
       },
-      has('olive oil') && {
-        name: 'Olive oil',
-        label: 'Supportive',
+      kept.has('olive-oil') && {
+        name: say(locale, 'ingredient.oliveOil'),
+        label: say(locale, 'tone.supportive'),
         tone: 'supportive' as const,
-        reason: 'Oleocanthal has well-studied anti-inflammatory activity.',
+        reason: say(locale, 'reason.oliveOil'),
       },
-      has('quinoa') && {
-        name: 'Quinoa',
-        label: 'Balanced',
+      kept.has('quinoa') && {
+        name: say(locale, 'ingredient.quinoa'),
+        label: say(locale, 'tone.balanced'),
         tone: 'balanced' as const,
-        reason: 'Gluten-free whole grain, gentle on most protocols.',
+        reason: say(locale, 'reason.quinoa'),
       },
-      has('tomato') && {
-        name: 'Cherry tomatoes',
-        label: flags.includes('nightshades') ? 'Your flag' : 'Balanced',
-        tone: flags.includes('nightshades') ? ('flagged' as const) : ('balanced' as const),
-        reason: flags.includes('nightshades')
-          ? 'Nightshade — on your avoid list. A small amount; swap for cucumber next time.'
-          : 'Nightshade — fine for most, worth watching if your joints flare.',
+      kept.has('tomatoes') && {
+        name: say(locale, 'ingredient.tomatoes'),
+        label: say(locale, nightshadeFlag ? 'tone.flagged' : 'tone.balanced'),
+        tone: nightshadeFlag ? ('flagged' as const) : ('balanced' as const),
+        reason: say(locale, nightshadeFlag ? 'reason.tomatoesFlagged' : 'reason.tomatoes'),
       },
-      has('feta') && {
-        name: 'Feta cheese',
-        label: 'Limit',
+      kept.has('feta') && {
+        name: say(locale, 'ingredient.feta'),
+        label: say(locale, 'tone.limit'),
         tone: 'limit' as const,
-        reason: "Salty aged dairy can be less supportive for some. You haven't tested dairy yet.",
+        reason: say(locale, 'reason.feta'),
       },
     ].filter(Boolean) as MealAnalysisResult['ingredients'];
 
@@ -113,12 +115,11 @@ export class StubMealAnalysisService implements MealAnalysisService {
     const celadonScore = Math.max(0, Math.min(100, 92 - penalties));
 
     return {
-      dish: 'Salmon quinoa bowl',
+      dish: say(locale, 'meal.salmonBowl'),
       celadonScore,
       classification: celadonScore >= 75 ? 'Supportive' : celadonScore >= 55 ? 'Balanced' : 'Limit',
       confidence: 'high',
-      summary:
-        'A strong choice. Omega-3s and olive oil do the heavy lifting; two small flags below.',
+      summary: say(locale, 'analysis.summary'),
       nutrition: {
         calories,
         protein: grams(34),
@@ -128,8 +129,8 @@ export class StubMealAnalysisService implements MealAnalysisService {
       },
       ingredients: breakdown,
       substitutions: [
-        { from: 'Feta', to: 'labneh (if dairy is fine) or extra avocado' },
-        { from: 'Cherry tomatoes', to: 'cucumber, radish or pickled beets' },
+        { from: say(locale, 'ingredient.fetaShort'), to: say(locale, 'sub.feta') },
+        { from: say(locale, 'ingredient.tomatoes'), to: say(locale, 'sub.tomatoes') },
       ],
     };
   }

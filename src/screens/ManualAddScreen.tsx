@@ -13,6 +13,7 @@ import {
 import { BackChevron } from '../components/Buttons';
 import { MANUAL_FOODS } from '../data/content';
 import { useAppState } from '../state/AppState';
+import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
 import { useAppNavigation } from '../navigation/types';
 
@@ -26,6 +27,7 @@ const toneBackground = {
 export function ManualAddScreen() {
   const navigation = useAppNavigation();
   const { dispatch } = useAppState();
+  const { t, row } = useI18n();
 
   const add = (name: string) => {
     dispatch({ type: 'addManualFood', name });
@@ -34,15 +36,15 @@ export function ManualAddScreen() {
 
   return (
     <Screen tabs>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: 6 }}>
+      <View style={{ flexDirection: row, alignItems: 'center', gap: 12, paddingTop: 6 }}>
         <BackChevron onPress={() => navigation.navigate('Diary')} />
-        <Display size={26}>Add food</Display>
+        <Display size={26}>{t('manual.title')}</Display>
       </View>
 
-      <Field shape="pill" placeholder="Search foods…" />
+      <Field shape="pill" placeholder={t('manual.searchPlaceholder')} />
 
       <View>
-        <SectionLabel style={{ marginBottom: 8 }}>Recent &amp; common</SectionLabel>
+        <SectionLabel style={{ marginBottom: 8 }}>{t('manual.recent')}</SectionLabel>
         <View style={{ gap: 8 }}>
           {MANUAL_FOODS.map((food) => {
             const tone = toneBackground[food.tone];
@@ -50,7 +52,7 @@ export function ManualAddScreen() {
               <Card
                 key={food.name}
                 style={{
-                  flexDirection: 'row',
+                  flexDirection: row,
                   alignItems: 'center',
                   gap: 12,
                   paddingVertical: 12,
@@ -60,14 +62,14 @@ export function ManualAddScreen() {
               >
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text weight="semibold" size={14.5}>
-                    {food.name}
+                    {t(food.name)}
                   </Text>
                   <Text size={12.5} color={colors.muted} style={{ marginTop: 1 }}>
-                    {food.note}
+                    {t(food.note)}
                   </Text>
                 </View>
                 <Pill
-                  label={food.tag}
+                  label={t(food.tag)}
                   size={11}
                   background={tone.bg}
                   color={tone.fg}
@@ -75,7 +77,7 @@ export function ManualAddScreen() {
                 />
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={`Add ${food.name}`}
+                  accessibilityLabel={t('manual.a11y.add', { food: t(food.name) })}
                   onPress={() => add(food.name)}
                   style={({ pressed }) => [
                     {
@@ -88,7 +90,7 @@ export function ManualAddScreen() {
                   ]}
                 >
                   <Text weight="bold" size={12.5} color={colors.green}>
-                    + Add
+                    {t('manual.add')}
                   </Text>
                 </Pressable>
               </Card>
@@ -97,17 +99,17 @@ export function ManualAddScreen() {
         </View>
       </View>
 
-      <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16 }}>
+      <Card style={{ flexDirection: row, alignItems: 'center', gap: 12, padding: 16 }}>
         <View style={{ flex: 1 }}>
           <Text weight="semibold" size={14}>
-            Faster with the camera
+            {t('manual.faster.title')}
           </Text>
           <Text size={12.5} color={colors.muted} style={{ marginTop: 2 }}>
-            Scanning fills in portions and the score for you
+            {t('manual.faster.body')}
           </Text>
         </View>
         <SmallButton
-          label="Scan"
+          label={t('manual.faster.cta')}
           style={{ borderRadius: 18, paddingHorizontal: 16 }}
           onPress={() => navigation.navigate('Scan')}
         />

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useI18n } from '../i18n';
 import { colors, overlay, radius, shadow } from '../theme';
 import { Text } from './Text';
 
@@ -18,10 +19,11 @@ export function BottomSheet({
   children: React.ReactNode;
 }) {
   const insets = useSafeAreaInsets();
+  const { t } = useI18n();
   if (!visible) return null;
   return (
     <View style={styles.layer} pointerEvents="box-none">
-      <Pressable accessibilityLabel="Dismiss" style={StyleSheet.absoluteFill} onPress={onDismiss}>
+      <Pressable accessibilityLabel={t('common.dismiss')} style={StyleSheet.absoluteFill} onPress={onDismiss}>
         <View style={[StyleSheet.absoluteFill, { backgroundColor: overlay.scrim }]} />
       </Pressable>
       <View style={[styles.panel, shadow.sheet, { paddingBottom: Math.max(insets.bottom, 20) + 14 }]}>

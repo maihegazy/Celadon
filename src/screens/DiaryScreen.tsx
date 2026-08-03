@@ -15,8 +15,10 @@ import {
   Strong,
   Text,
 } from '../components';
-import { DATE_LABEL, DAY_SCORE, DIARY_ENTRIES, MACRO_BARS, WATER_GLASSES } from '../data/content';
+import { DAY_SCORE, DIARY_ENTRIES, MACRO_BARS, WATER_GLASSES } from '../data/content';
+import type { TranslationKey } from '../i18n';
 import { useAppState } from '../state/AppState';
+import { useI18n } from '../i18n';
 import { colors, radius, tracking } from '../theme';
 import { useAppNavigation } from '../navigation/types';
 
@@ -28,13 +30,14 @@ export function DiaryScreen() {
   const navigation = useAppNavigation();
   const { state, set, dispatch, numbersOn } = useAppState();
   const [openMenu, setOpenMenu] = useState<number | null>(null);
+  const { t, n, row, textAlign, isRTL } = useI18n();
 
   const entries = [
-    ...DIARY_ENTRIES,
-    ...state.manuallyAdded.map((name) => ({
-      time: 'now',
-      slot: 'Snack',
-      name,
+    ...DIARY_ENTRIES.map((entry) => ({ ...entry, slot: t(entry.slot), name: t(entry.name) })),
+    ...state.manuallyAdded.map((key) => ({
+      time: '—',
+      slot: t('slot.snack'),
+      name: t(key as TranslationKey),
       calories: 120,
       score: 86,
     })),
@@ -47,12 +50,12 @@ export function DiaryScreen() {
   return (
     <Screen tabs>
       <ScreenHeader
-        title="Food diary"
-        subtitle={DATE_LABEL}
+        title={t('diary.title')}
+        subtitle={t('home.date')}
         onBack={() => navigation.navigate('Home')}
         trailing={
           <Pill
-            label={`Day score ${DAY_SCORE}`}
+            label={t('diary.dayScore', { score: DAY_SCORE })}
             size={12.5}
             style={{ borderRadius: 14, paddingHorizontal: 12, paddingVertical: 5 }}
           />
@@ -61,23 +64,23 @@ export function DiaryScreen() {
 
       {numbersOn ? (
         <Card style={{ paddingVertical: 16, paddingHorizontal: 18, borderRadius: radius.cardLg }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <View style={{ flexDirection: row, justifyContent: 'space-between', alignItems: 'baseline' }}>
             <Text weight="semibold" size={15}>
-              {totalCalories.toLocaleString()} cal so far
+              {t('diary.soFar', { calories: totalCalories })}
             </Text>
             <Text size={12.5} color={colors.faint}>
-              estimates
+              {t('common.estimates')}
             </Text>
           </View>
           <View style={{ gap: 9, marginTop: 12 }}>
             {MACRO_BARS.map((bar) => (
-              <View key={bar.name} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <Text weight="semibold" size={12} color={colors.muted} style={{ width: 52 }}>
-                  {bar.name}
+              <View key={bar.name} style={{ flexDirection: row, alignItems: 'center', gap: 10 }}>
+                <Text weight="semibold" size={12} color={colors.muted} style={{ width: isRTL ? 76 : 52 }}>
+                  {t(bar.name)}
                 </Text>
                 <Meter value={bar.fill} height={7} color={bar.color} track={colors.sunken} />
-                <Text size={12} color={colors.faint} align="right" style={{ width: 64 }}>
-                  {bar.value}
+                <Text size={12} color={colors.faint} align={textAlign === 'right' ? 'left' : 'right'} style={{ width: 64 }}>
+                  {t(bar.value)}
                 </Text>
               </View>
             ))}
@@ -86,28 +89,29 @@ export function DiaryScreen() {
       ) : (
         <NoteCard style={{ paddingVertical: 13, paddingHorizontal: 16 }}>
           <Text size={13} color={colors.muted} lineHeight={20}>
-            Numbers are hidden in gentle mode. Today reads as <Strong color={colors.green}>supportive</Strong> overall.
+            {t('diary.gentleNote')} <Strong color={colors.green}>{t('diary.gentleNoteStrong')}</Strong>{' '}
+            {t('diary.gentleNoteEnd')}
           </Text>
         </NoteCard>
       )}
 
       <Card style={{ paddingVertical: 16, paddingHorizontal: 18, borderRadius: radius.cardLg }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <View style={{ flexDirection: row, justifyContent: 'space-between', alignItems: 'baseline' }}>
           <Text weight="semibold" size={15}>
-            Water
+            {t('diary.water')}
           </Text>
           <Text size={12.5} color={colors.faint}>
-            {state.water} of {WATER_GLASSES} glasses
+            {t('diary.waterCount', { count: state.water, total: WATER_GLASSES })}
           </Text>
         </View>
-        <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
+        <View style={{ flexDirection: row, gap: 8, marginTop: 12 }}>
           {Array.from({ length: WATER_GLASSES }, (_, i) => {
             const filled = i < state.water;
             return (
               <Pressable
                 key={i}
                 accessibilityRole="button"
-                accessibilityLabel={`${i + 1} glasses`}
+                accessibilityLabel={t('diary.a11y.water', { count: i + 1 })}
                 onPress={() => set({ water: i + 1 })}
                 style={{
                   flex: 1,
@@ -125,24 +129,24 @@ export function DiaryScreen() {
 
       <View>
         <Text weight="semibold" size={16} style={{ marginBottom: 10 }}>
-          Logged today
+          {t('diary.logged')}
         </Text>
 
         {entries.length === 0 ? (
           <EmptyCard style={{ paddingVertical: 28, paddingHorizontal: 20, alignItems: 'center', gap: 8 }}>
             <LeafBadge size={44} leaf={16} />
             <Text weight="semibold" size={15}>
-              Nothing logged yet
+              {t('diary.empty.title')}
             </Text>
             <Text size={13} color={colors.muted} lineHeight={20} align="center">
-              Scan your first meal or add one below — no pressure to log everything.
+              {t('diary.empty.body')}
             </Text>
           </EmptyCard>
         ) : (
           <View style={{ gap: 10 }}>
             {entries.map((entry) => (
               <Card key={entry.index} style={{ paddingVertical: 13, paddingHorizontal: 14 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <View style={{ flexDirection: row, alignItems: 'center', gap: 12 }}>
                   <Hatch band={6} radius={11} style={{ width: 46, height: 46 }} />
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Text
@@ -151,17 +155,17 @@ export function DiaryScreen() {
                       color={colors.faint}
                       style={{ letterSpacing: tracking(11.5, 0.07), textTransform: 'uppercase' }}
                     >
-                      {entry.slot} · {entry.time}
+                      {entry.slot} · {n(entry.time)}
                     </Text>
                     <Text weight="semibold" size={14.5} style={{ marginTop: 1 }}>
                       {entry.name}
                     </Text>
                     <Text size={12.5} color={colors.muted} style={{ marginTop: 2 }}>
-                      {numbersOn ? `${entry.calories} cal · estimate` : 'logged'}
+                      {numbersOn ? t('diary.entryMeta', { calories: entry.calories }) : t('diary.entryLogged')}
                     </Text>
                   </View>
                   <Pill
-                    label={String(entry.score)}
+                    label={n(entry.score)}
                     size={11}
                     background={entry.score >= 80 ? colors.greenLight : colors.amberLight}
                     color={entry.score >= 80 ? colors.green : colors.amber}
@@ -169,7 +173,7 @@ export function DiaryScreen() {
                   />
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel="Entry options"
+                    accessibilityLabel={t('diary.a11y.options')}
                     hitSlop={8}
                     onPress={() => setOpenMenu(openMenu === entry.index ? null : entry.index)}
                   >
@@ -182,7 +186,7 @@ export function DiaryScreen() {
                 {openMenu === entry.index ? (
                   <View
                     style={{
-                      flexDirection: 'row',
+                      flexDirection: row,
                       gap: 8,
                       marginTop: 10,
                       paddingTop: 10,
@@ -192,7 +196,7 @@ export function DiaryScreen() {
                   >
                     <Pressable style={styleFor(colors.bg)} onPress={() => setOpenMenu(null)}>
                       <Text weight="semibold" size={13} color={colors.green}>
-                        Edit portion
+                        {t('diary.editPortion')}
                       </Text>
                     </Pressable>
                     <Pressable
@@ -203,7 +207,7 @@ export function DiaryScreen() {
                       }}
                     >
                       <Text weight="semibold" size={13} color={colors.red}>
-                        Remove
+                        {t('diary.remove')}
                       </Text>
                     </Pressable>
                   </View>
@@ -214,22 +218,22 @@ export function DiaryScreen() {
         )}
       </View>
 
-      <View style={{ flexDirection: 'row', gap: 10 }}>
+      <View style={{ flexDirection: row, gap: 10 }}>
         <PrimaryButton
-          label="Scan a meal"
+          label={t('diary.scanMeal')}
           size={14}
           style={{ flex: 1, paddingVertical: 13, borderRadius: radius.chip }}
           onPress={() => navigation.navigate('Scan')}
         />
         <OutlineButton
-          label="Add snack"
+          label={t('diary.addSnack')}
           size={14}
           background={colors.surface}
           style={{ flex: 1, paddingVertical: 13, borderRadius: radius.chip }}
           onPress={() => navigation.navigate('ManualAdd')}
         />
         <OutlineButton
-          label="Add drink"
+          label={t('diary.addDrink')}
           size={14}
           background={colors.surface}
           style={{ flex: 1, paddingVertical: 13, borderRadius: radius.chip }}

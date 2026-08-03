@@ -13,7 +13,8 @@ import {
   TintCard,
 } from '../components';
 import { BackChevron } from '../components/Buttons';
-import { COMPARE_ROWS, COMPARE_VERDICT, EXPLORE_CATEGORIES, POPULAR_FOODS } from '../data/content';
+import { COMPARE_ROWS, EXPLORE_CATEGORIES, POPULAR_FOODS } from '../data/content';
+import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
 import { useAppNavigation } from '../navigation/types';
 
@@ -21,28 +22,29 @@ import { useAppNavigation } from '../navigation/types';
 export function ExploreScreen() {
   const navigation = useAppNavigation();
   const [comparing, setComparing] = useState(false);
+  const { t, row } = useI18n();
 
   return (
     <Screen tabs>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: 6 }}>
+      <View style={{ flexDirection: row, alignItems: 'center', gap: 12, paddingTop: 6 }}>
         <BackChevron onPress={() => navigation.navigate('Home')} />
-        <Display size={26}>Explore</Display>
+        <Display size={26}>{t('explore.title')}</Display>
       </View>
 
-      <Field shape="pill" placeholder="Search meals, ingredients, recipes…" />
+      <Field shape="pill" placeholder={t('explore.searchPlaceholder')} />
 
       {!comparing ? (
         <>
           <View>
-            <SectionLabel style={{ marginBottom: 8 }}>Browse by kind</SectionLabel>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+            <SectionLabel style={{ marginBottom: 8 }}>{t('explore.browse')}</SectionLabel>
+            <View style={{ flexDirection: row, flexWrap: 'wrap', gap: 10 }}>
               {EXPLORE_CATEGORIES.map((category) => (
                 <Card
                   key={category.name}
                   style={{
                     flexGrow: 1,
                     flexBasis: '46%',
-                    flexDirection: 'row',
+                    flexDirection: row,
                     alignItems: 'center',
                     gap: 10,
                     padding: 14,
@@ -51,7 +53,7 @@ export function ExploreScreen() {
                 >
                   <Dot color={category.dot} />
                   <Text weight="semibold" size={13.5} style={{ flex: 1 }}>
-                    {category.name}
+                    {t(category.name)}
                   </Text>
                 </Card>
               ))}
@@ -59,13 +61,13 @@ export function ExploreScreen() {
           </View>
 
           <View>
-            <SectionLabel style={{ marginBottom: 8 }}>Popular near you</SectionLabel>
+            <SectionLabel style={{ marginBottom: 8 }}>{t('explore.popular')}</SectionLabel>
             <View style={{ gap: 8 }}>
               {POPULAR_FOODS.map((food) => (
                 <Card
                   key={food.name}
                   style={{
-                    flexDirection: 'row',
+                    flexDirection: row,
                     alignItems: 'center',
                     gap: 12,
                     paddingVertical: 12,
@@ -75,14 +77,14 @@ export function ExploreScreen() {
                 >
                   <View style={{ flex: 1 }}>
                     <Text weight="semibold" size={14.5}>
-                      {food.name}
+                      {t(food.name)}
                     </Text>
                     <Text size={12.5} color={colors.muted} style={{ marginTop: 1 }}>
-                      {food.note}
+                      {t(food.note)}
                     </Text>
                   </View>
                   <Pill
-                    label={food.tag}
+                    label={t(food.tag)}
                     size={11}
                     background={food.tone === 'good' ? colors.greenLight : colors.redLight}
                     color={food.tone === 'good' ? colors.green : colors.red}
@@ -96,9 +98,9 @@ export function ExploreScreen() {
           <Pressable accessibilityRole="button" onPress={() => setComparing(true)}>
             <Card style={{ padding: 15 }}>
               <Text weight="semibold" size={14} color={colors.green}>
-                Compare two foods →{' '}
+                {t('explore.compare')}{' '}
                 <Text weight="medium" size={14} color={colors.faint}>
-                  e.g. feta vs labneh
+                  {t('explore.compareHint')}
                 </Text>
               </Text>
             </Card>
@@ -106,12 +108,12 @@ export function ExploreScreen() {
         </>
       ) : (
         <>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ flexDirection: row, justifyContent: 'space-between', alignItems: 'center' }}>
             <Text weight="semibold" size={16}>
-              Feta vs Labneh
+              {t('explore.compareTitle')}
             </Text>
             <TextButton
-              label="‹ Back to search"
+              label={t('explore.backToSearch')}
               size={13.5}
               color={colors.muted}
               onPress={() => setComparing(false)}
@@ -121,7 +123,7 @@ export function ExploreScreen() {
           <Card style={{ overflow: 'hidden', borderRadius: radius.cardLg }}>
             <View
               style={{
-                flexDirection: 'row',
+                flexDirection: row,
                 backgroundColor: colors.sunken,
                 paddingVertical: 12,
                 paddingHorizontal: 16,
@@ -129,17 +131,17 @@ export function ExploreScreen() {
             >
               <View style={{ flex: 1 }} />
               <Text weight="bold" size={12.5} color={colors.muted} style={{ flex: 1 }}>
-                Feta
+                {t('compare.feta')}
               </Text>
               <Text weight="bold" size={12.5} color={colors.muted} style={{ flex: 1 }}>
-                Labneh
+                {t('compare.labneh')}
               </Text>
             </View>
-            {COMPARE_ROWS.map((row, index) => (
+            {COMPARE_ROWS.map((entry, index) => (
               <View
-                key={row.key}
+                key={entry.key}
                 style={{
-                  flexDirection: 'row',
+                  flexDirection: row,
                   paddingVertical: 13,
                   paddingHorizontal: 16,
                   borderBottomWidth: index === COMPARE_ROWS.length - 1 ? 0 : 1,
@@ -147,13 +149,13 @@ export function ExploreScreen() {
                 }}
               >
                 <Text weight="semibold" size={13} color={colors.faint} lineHeight={19} style={{ flex: 1 }}>
-                  {row.key}
+                  {t(entry.key)}
                 </Text>
                 <Text size={13} color={colors.inkSoft} lineHeight={19} style={{ flex: 1 }}>
-                  {row.a}
+                  {t(entry.a)}
                 </Text>
                 <Text size={13} color={colors.inkSoft} lineHeight={19} style={{ flex: 1 }}>
-                  {row.b}
+                  {t(entry.b)}
                 </Text>
               </View>
             ))}
@@ -161,7 +163,7 @@ export function ExploreScreen() {
 
           <TintCard style={{ paddingVertical: 14, paddingHorizontal: 16, borderRadius: radius.tile }}>
             <Text size={13.5} color={colors.greenDeep} lineHeight={20}>
-              {COMPARE_VERDICT}
+              {t('explore.compareVerdict')}
             </Text>
           </TintCard>
         </>

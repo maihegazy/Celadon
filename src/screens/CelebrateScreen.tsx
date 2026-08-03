@@ -1,6 +1,7 @@
 import React from 'react';
 import { Display, LeafBadge, PrimaryButton, Screen, Text } from '../components';
 import { useAppState } from '../state/AppState';
+import { useI18n } from '../i18n';
 import { colors } from '../theme';
 import { useAppNavigation } from '../navigation/types';
 
@@ -11,11 +12,10 @@ import { useAppNavigation } from '../navigation/types';
 export function CelebrateScreen() {
   const navigation = useAppNavigation();
   const { state } = useAppState();
+  const { t } = useI18n();
 
-  const title = state.flare ? 'Thanks for telling us.' : 'Logged — gently done.';
-  const body = state.flare
-    ? "We've softened the rest of this week and noted the date. Rest is productive too."
-    : "That's 12 check-ins this month. Small notices add up to real patterns.";
+  const title = state.flare ? t('celebrate.flareTitle') : t('celebrate.title');
+  const body = state.flare ? t('celebrate.flareBody') : t('celebrate.body');
 
   return (
     <Screen scroll={false} center padding={40} gap={16} contentStyle={{ alignItems: 'center' }}>
@@ -27,7 +27,7 @@ export function CelebrateScreen() {
         {body}
       </Text>
       <PrimaryButton
-        label="Continue"
+        label={t('common.continue')}
         size={15}
         style={{ paddingHorizontal: 40, paddingVertical: 15, marginTop: 8 }}
         onPress={() => navigation.navigate('Home')}

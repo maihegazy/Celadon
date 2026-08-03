@@ -10,8 +10,9 @@ import {
   TextButton,
 } from '../components';
 import { BellIcon, DiamondIcon, SearchIcon, TrendIcon } from '../components/Icons';
-import { DATE_LABEL, HOME_FOCUS, mealMeta, TODAY_MEALS } from '../data/content';
+import { TODAY_MEALS } from '../data/content';
 import { useAppState } from '../state/AppState';
+import { useI18n } from '../i18n';
 import { colors, radius, tracking } from '../theme';
 import { useAppNavigation } from '../navigation/types';
 
@@ -19,28 +20,29 @@ import { useAppNavigation } from '../navigation/types';
 export function HomeScreen() {
   const navigation = useAppNavigation();
   const { numbersOn } = useAppState();
+  const { t, row, chevronForward } = useI18n();
 
   return (
     <Screen tabs gap={18}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingTop: 6 }}>
+      <View style={{ flexDirection: row, justifyContent: 'space-between', alignItems: 'flex-start', paddingTop: 6 }}>
         <View>
           <Text weight="medium" size={13.5} color={colors.faint}>
-            {DATE_LABEL}
+            {t('home.date')}
           </Text>
           <Display size={27} style={{ marginTop: 2 }}>
-            Good morning, Maya
+            {t('home.greeting')}
           </Display>
         </View>
-        <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-          <RoundButton label="Search" onPress={() => navigation.navigate('Explore')}>
+        <View style={{ flexDirection: row, gap: 8, alignItems: 'center' }}>
+          <RoundButton label={t('common.search')} onPress={() => navigation.navigate('Explore')}>
             <SearchIcon />
           </RoundButton>
-          <RoundButton label="Notifications" onPress={() => navigation.navigate('Notifications')}>
+          <RoundButton label={t('home.a11y.notifications')} onPress={() => navigation.navigate('Notifications')}>
             <BellIcon />
           </RoundButton>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Profile"
+            accessibilityLabel={t('home.a11y.profile')}
             onPress={() => navigation.navigate('Profile')}
             style={{
               width: 40,
@@ -65,23 +67,23 @@ export function HomeScreen() {
           color={colors.greenPale}
           style={{ letterSpacing: tracking(12, 0.08), textTransform: 'uppercase' }}
         >
-          {HOME_FOCUS.eyebrow}
+          {t('home.focus.eyebrow')}
         </Text>
         <Text weight="serif" size={19} color={colors.white} lineHeight={26} style={{ marginTop: 6 }}>
-          {HOME_FOCUS.title}
+          {t('home.focus.title')}
         </Text>
         <Text size={13} color={colors.greenPale} style={{ marginTop: 8 }}>
-          {HOME_FOCUS.note}
+          {t('home.focus.note')}
         </Text>
       </FeatureCard>
 
       <View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+        <View style={{ flexDirection: row, justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
           <Text weight="semibold" size={16}>
-            Today's meals
+            {t('home.meals')}
           </Text>
           <TextButton
-            label="Food diary →"
+            label={t('home.diaryLink')}
             color={colors.green}
             size={13.5}
             onPress={() => navigation.navigate('Diary')}
@@ -91,27 +93,31 @@ export function HomeScreen() {
           {TODAY_MEALS.map((meal) => (
             <MealRow
               key={meal.name}
-              slot={meal.slot}
-              name={meal.name}
-              meta={mealMeta(meal, numbersOn)}
-              badge={meal.badge}
+              slot={t(meal.slot)}
+              name={t(meal.name)}
+              meta={
+                numbersOn
+                  ? t('common.minutesAndCalories', { count: meal.minutes, calories: meal.calories })
+                  : t('common.minutes', { count: meal.minutes })
+              }
+              badge={t(meal.badge)}
               onPress={() => navigation.navigate('RecipeDetail', { name: meal.name })}
             />
           ))}
         </View>
       </View>
 
-      <View style={{ flexDirection: 'row', gap: 10 }}>
+      <View style={{ flexDirection: row, gap: 10 }}>
         <QuickTile
           onPress={() => navigation.navigate('CheckIn')}
-          title="How's your body today?"
-          note="30-second check-in"
+          title={t('home.checkIn.title')}
+          note={t('home.checkIn.note')}
           mark={<View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: colors.amber }} />}
         />
         <QuickTile
           onPress={() => navigation.navigate('Progress')}
-          title="Your progress"
-          note="11 calm days this month"
+          title={t('home.progress.title')}
+          note={t('home.progress.note')}
           mark={<TrendIcon />}
         />
       </View>
@@ -121,7 +127,7 @@ export function HomeScreen() {
         onPress={() => navigation.navigate('Reintroduction')}
         style={({ pressed }) => [
           {
-            flexDirection: 'row',
+            flexDirection: row,
             alignItems: 'center',
             gap: 12,
             backgroundColor: colors.surface,
@@ -147,14 +153,14 @@ export function HomeScreen() {
         </View>
         <View style={{ flex: 1 }}>
           <Text weight="semibold" size={14.5}>
-            Reintroducing: Ghee
+            {t('home.reintro.title')}
           </Text>
           <Text size={12.5} color={colors.muted} style={{ marginTop: 2 }}>
-            Day 2 of 5 · No symptoms so far — looking good
+            {t('home.reintro.note')}
           </Text>
         </View>
         <Text size={18} color={colors.faint}>
-          ›
+          {chevronForward}
         </Text>
       </Pressable>
     </Screen>

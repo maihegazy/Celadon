@@ -17,6 +17,7 @@ import { FREE_SCANS_PER_WEEK } from '../data/content';
 import { useAppState } from '../state/AppState';
 import { useAnalysisProfile } from '../state/useAnalysisProfile';
 import { MealAnalysisError, PhotoSource, useMealAnalysis } from '../services/mealAnalysis';
+import { useI18n } from '../i18n';
 import { colors, overlay } from '../theme';
 import { useAppNavigation } from '../navigation/types';
 
@@ -36,6 +37,7 @@ export function ScanScreen() {
   const analysis = useMealAnalysis();
   const profile = useAnalysisProfile();
   const { state, set } = useAppState();
+  const { t, tp, row, lang } = useI18n();
 
   const [permission, requestPermission] = useCameraPermissions();
   const [priming, setPriming] = useState(false);
@@ -54,7 +56,7 @@ export function ScanScreen() {
     async (imageUri: string, source: PhotoSource) => {
       setPhase('analyzing');
       try {
-        const detection = await analysis.detect({ imageUri, source, profile });
+        const detection = await analysis.detect({ imageUri, source, profile, locale: lang });
         set({ scansUsed: state.scansUsed + 1 });
         setPhase('camera');
         navigation.navigate('ScanConfirm', { imageUri, detection });
@@ -62,14 +64,12 @@ export function ScanScreen() {
         const known = error instanceof MealAnalysisError;
         setFailure({
           title: known ? error.message : "We couldn't read that photo",
-          guidance: known
-            ? error.guidance
-            : 'Something interrupted the scan. Your photo is still here — try again in a moment.',
+          guidance: known ? error.guidance : t('scan.error.body'),
         });
         setPhase('error');
       }
     },
-    [analysis, navigation, profile, set, state.scansUsed],
+    [analysis, lang, navigation, profile, set, state.scansUsed, t],
   );
 
   const capture = async () => {
@@ -120,13 +120,13 @@ export function ScanScreen() {
             </Text>
           </View>
           <Display size={22} align="center">
-            {failure?.title ?? "We couldn't read that photo"}
+            {failure?.title ?? t('scan.error.title')}
           </Display>
           <Text size={14} color={colors.muted} lineHeight={22} align="center" style={{ maxWidth: 280 }}>
             {failure?.guidance}
           </Text>
           <PrimaryButton
-            label="Try again"
+            label={t('common.tryAgain')}
             size={15}
             style={{ paddingHorizontal: 32, paddingVertical: 15, marginTop: 6 }}
             onPress={() => {
@@ -134,7 +134,7 @@ export function ScanScreen() {
               setPhase('camera');
             }}
           />
-          <TextButton label="Not now" color={colors.muted} onPress={() => navigation.navigate('Home')} />
+          <TextButton label={t('common.notNow')} color={colors.muted} onPress={() => navigation.navigate('Home')} />
         </View>
       </BareScreen>
     );
@@ -145,7 +145,7 @@ export function ScanScreen() {
       <View style={{ flex: 1 }}>
         <View
           style={{
-            flexDirection: 'row',
+            flexDirection: row,
             alignItems: 'center',
             justifyContent: 'space-between',
             paddingHorizontal: 20,
@@ -158,11 +158,11 @@ export function ScanScreen() {
             style={styles.darkChip}
           >
             <Text weight="semibold" size={13.5} color={colors.white}>
-              Close
+              {t('scan.close')}
             </Text>
           </Pressable>
           <Text weight="semibold" size={14} color={colors.white}>
-            Scan a meal
+            {t('scan.title')}
           </Text>
           <Pressable
             accessibilityRole="button"
@@ -170,7 +170,7 @@ export function ScanScreen() {
             style={[styles.darkChip, { borderRadius: 14, paddingVertical: 7, paddingHorizontal: 12 }]}
           >
             <Text weight="semibold" size={11.5} color={overlay.onDarkText}>
-              {scansLeft === 1 ? '1 free scan left' : `${scansLeft} free scans left`}
+              {tp('scan.freeScans', scansLeft)}
             </Text>
           </Pressable>
         </View>
@@ -186,7 +186,7 @@ export function ScanScreen() {
               style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
             >
               <Text mono size={12} color={overlay.onDarkMono} align="center" lineHeight={19}>
-                camera viewfinder{'\n'}point at your plate
+                {t('scan.viewfinder')}
               </Text>
             </Hatch>
           )}
@@ -207,30 +207,30 @@ export function ScanScreen() {
 
         <View style={{ padding: 20, paddingBottom: Math.max(insets.bottom, 12) + 12, alignItems: 'center', gap: 12 }}>
           <Text size={13} color={overlay.onDarkFaint}>
-            Center your plate in the frame
+            {t('scan.centerPlate')}
           </Text>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Take photo"
+            accessibilityLabel={t('scan.a11y.capture')}
             onPress={capture}
             style={({ pressed }) => [styles.shutter, pressed && { opacity: 0.8 }]}
           >
             <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: colors.green }} />
           </Pressable>
-          <TextButton label="Upload from gallery" color={overlay.onDarkText} size={13.5} onPress={pickFromGallery} />
+          <TextButton label={t('scan.gallery')} color={overlay.onDarkText} size={13.5} onPress={pickFromGallery} />
         </View>
       </View>
 
       <CenterDialog visible={priming}>
         <Text weight="semibold" size={15.5} align="center" lineHeight={22}>
-          Allow Celadon to use the camera?
+          {t('scan.permission.title')}
         </Text>
         <Text size={13} color={colors.muted} align="center" lineHeight={20} style={{ marginTop: 8 }}>
-          Photos are analyzed to estimate ingredients. They aren't stored unless you choose to save them.
+          {t('scan.permission.body')}
         </Text>
-        <View style={{ flexDirection: 'row', gap: 8, marginTop: 16, alignSelf: 'stretch' }}>
+        <View style={{ flexDirection: row, gap: 8, marginTop: 16, alignSelf: 'stretch' }}>
           <OutlineButton
-            label="Don't allow"
+            label={t('scan.permission.deny')}
             size={13.5}
             color={colors.muted}
             style={{ flex: 1, paddingVertical: 11, borderRadius: 20 }}
@@ -240,7 +240,7 @@ export function ScanScreen() {
             }}
           />
           <PrimaryButton
-            label="Allow"
+            label={t('scan.permission.allow')}
             size={13.5}
             style={{ flex: 1, paddingVertical: 11, borderRadius: 20 }}
             onPress={async () => {
@@ -255,13 +255,8 @@ export function ScanScreen() {
 }
 
 /** "Looking at your plate…" — shown while the model works. */
-export function AnalyzingState({
-  title = 'Looking at your plate…',
-  note = 'Identifying ingredients, estimating portions and checking against your profile',
-}: {
-  title?: string;
-  note?: string;
-}) {
+export function AnalyzingState({ title, note }: { title?: string; note?: string }) {
+  const { t } = useI18n();
   const spin = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -288,9 +283,9 @@ export function AnalyzingState({
             transform: [{ rotate }],
           }}
         />
-        <Display size={21}>{title}</Display>
+        <Display size={21}>{title ?? t('scan.analyzing.title')}</Display>
         <Text size={14} color={colors.muted} align="center" lineHeight={21}>
-          {note}
+          {note ?? t('scan.analyzing.note')}
         </Text>
       </View>
     </BareScreen>

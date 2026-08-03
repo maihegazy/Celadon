@@ -13,7 +13,9 @@ import {
   TextButton,
 } from '../components';
 import { BellBadgeIcon } from '../components/Icons';
+import { useI18n } from '../i18n';
 import { colors } from '../theme';
+import { useAppState } from '../state/AppState';
 import { useAppNavigation } from '../navigation/types';
 
 /**
@@ -23,6 +25,14 @@ import { useAppNavigation } from '../navigation/types';
 export function PermissionsScreen() {
   const navigation = useAppNavigation();
   const [step, setStep] = useState<0 | 1>(0);
+  const { t } = useI18n();
+  const { set } = useAppState();
+
+  const finish = () => {
+    // Device-scoped: the OS prompts only need asking once per install.
+    set({ permissionsSeen: true });
+    navigation.navigate('Home');
+  };
 
   const requestNotifications = async () => {
     try {
@@ -50,33 +60,32 @@ export function PermissionsScreen() {
           >
             <BellBadgeIcon />
           </View>
-          <Display size={27}>Gentle reminders, if you want them</Display>
+          <Display size={27}>{t('perms.notifications.title')}</Display>
           <Text size={14.5} color={colors.muted} lineHeight={22}>
-            A nudge before meals and a weekly reflection. Never streak pressure, never guilt — and you can quiet
-            them anytime.
+            {t('perms.notifications.body')}
           </Text>
-          <PrimaryButton label="Enable notifications" onPress={requestNotifications} style={{ marginTop: 6 }} />
-          <OutlineButton label="Not now" color={colors.muted} onPress={() => setStep(1)} />
+          <PrimaryButton label={t('perms.notifications.cta')} onPress={requestNotifications} style={{ marginTop: 6 }} />
+          <OutlineButton label={t('common.notNow')} color={colors.muted} onPress={() => setStep(1)} />
         </>
       ) : (
         <>
           <LeafBadge />
-          <Display size={27}>Your health data, your call</Display>
+          <Display size={27}>{t('perms.data.title')}</Display>
           <Text size={14.5} color={colors.muted} lineHeight={22}>
-            Celadon stores your answers only to personalize your meals and insights.
+            {t('perms.data.body')}
           </Text>
           <Card style={{ padding: 16, gap: 10 }}>
-            <BulletRow color={colors.green}>We never sell your data or show ads</BulletRow>
-            <BulletRow color={colors.green}>Export or delete everything, anytime</BulletRow>
-            <BulletRow color={colors.green}>Meal photos are analyzed, not kept</BulletRow>
+            <BulletRow color={colors.green}>{t('perms.data.point1')}</BulletRow>
+            <BulletRow color={colors.green}>{t('perms.data.point2')}</BulletRow>
+            <BulletRow color={colors.green}>{t('perms.data.point3')}</BulletRow>
           </Card>
           <PrimaryButton
-            label="I understand — continue"
-            onPress={() => navigation.navigate('Home')}
+            label={t('perms.data.cta')}
+            onPress={finish}
             style={{ marginTop: 6 }}
           />
           <TextButton
-            label="Read the privacy policy"
+            label={t('perms.data.privacy')}
             color={colors.green}
             size={13.5}
             style={{ alignSelf: 'center', padding: 4 }}

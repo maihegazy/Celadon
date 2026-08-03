@@ -72,20 +72,25 @@ export type AnalysisProfile = {
   cuisines: string[];
 };
 
+/** BCP-47 language the result should be written in. */
+export type AnalysisLocale = 'en' | 'ar';
+
 export type DetectRequest = {
   imageUri: string;
   source: PhotoSource;
   profile: AnalysisProfile;
+  locale: AnalysisLocale;
 };
 
 export type AnalyzeRequest = {
   imageUri: string;
-  /** Ingredients the user kept after correcting the detection. */
+  /** Ids of the ingredients the user kept after correcting the detection. */
   ingredients: string[];
   portion: PortionSize;
   /** Whether the user said it's one mixed dish or separate items. */
   separateItems: boolean;
   profile: AnalysisProfile;
+  locale: AnalysisLocale;
 };
 
 export type MealAnalysisErrorCode =
@@ -116,5 +121,3 @@ export interface MealAnalysisService {
   analyze(request: AnalyzeRequest): Promise<MealAnalysisResult>;
 }
 
-export const confidenceLabel = (level: ConfidenceLevel) =>
-  level === 'high' ? 'High confidence' : level === 'medium' ? 'Medium confidence' : 'Low confidence';

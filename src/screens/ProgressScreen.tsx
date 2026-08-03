@@ -13,8 +13,9 @@ import {
   Text,
   TextButton,
 } from '../components';
-import { PATTERNS, STAT_CARDS, toneColors, trendColor, TREND_VALUES, WEEKLY_INSIGHT } from '../data/content';
+import { PATTERNS, STAT_CARDS, toneColors, trendColor, TREND_VALUES } from '../data/content';
 import { useAppState } from '../state/AppState';
+import { useI18n } from '../i18n';
 import { colors, radius, tracking } from '../theme';
 import { useAppNavigation } from '../navigation/types';
 
@@ -25,21 +26,22 @@ import { useAppNavigation } from '../navigation/types';
 export function ProgressScreen() {
   const navigation = useAppNavigation();
   const { state, set } = useAppState();
+  const { t, row } = useI18n();
 
   return (
     <Screen tabs>
       <Display size={26} style={{ paddingTop: 6 }}>
-        Your progress
+        {t('progress.title')}
       </Display>
 
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+      <View style={{ flexDirection: row, flexWrap: 'wrap', gap: 10 }}>
         {STAT_CARDS.map((stat) => (
           <Card key={stat.name} style={{ flexGrow: 1, flexBasis: '47%', paddingVertical: 14, paddingHorizontal: 16 }}>
             <Text weight="bold" size={20} color={colors.greenDeep}>
-              {stat.value}
+              {t(stat.value)}
             </Text>
             <Text size={12.5} color={colors.muted} style={{ marginTop: 2 }}>
-              {stat.name}
+              {t(stat.name)}
             </Text>
             <Text
               weight="semibold"
@@ -47,22 +49,22 @@ export function ProgressScreen() {
               color={stat.tone === 'good' ? colors.green : colors.faint}
               style={{ marginTop: 4 }}
             >
-              {stat.delta}
+              {t(stat.delta)}
             </Text>
           </Card>
         ))}
       </View>
 
       <Card style={{ padding: 18, borderRadius: radius.cardLg }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 }}>
+        <View style={{ flexDirection: row, justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 }}>
           <Text weight="semibold" size={15}>
-            Calm days
+            {t('progress.calmDays')}
           </Text>
           <Text size={12.5} color={colors.faint}>
-            last 14 days
+            {t('progress.last14')}
           </Text>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 5, height: 90 }}>
+        <View style={{ flexDirection: row, alignItems: 'flex-end', gap: 5, height: 90 }}>
           {TREND_VALUES.map((value, i) => (
             <View
               key={i}
@@ -78,16 +80,16 @@ export function ProgressScreen() {
             />
           ))}
         </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
+        <View style={{ flexDirection: row, justifyContent: 'space-between', marginTop: 8 }}>
           <Text size={11} color={colors.faint}>
-            Jul 18
+            {t('progress.chartStart')}
           </Text>
           <Text size={11} color={colors.faint}>
-            Jul 31
+            {t('progress.chartEnd')}
           </Text>
         </View>
         <Text size={13.5} color={colors.muted} lineHeight={20} style={{ marginTop: 12 }}>
-          11 of 14 days felt calm — your best two weeks since you started. Amber bars are flare days.
+          {t('progress.chartNote')}
         </Text>
       </Card>
 
@@ -98,59 +100,59 @@ export function ProgressScreen() {
           color={colors.greenPale}
           style={{ letterSpacing: tracking(12, 0.08), textTransform: 'uppercase' }}
         >
-          This week's insight
+          {t('progress.insight.eyebrow')}
         </Text>
         <Text weight="serif" size={18} color={colors.white} lineHeight={25} style={{ marginTop: 6 }}>
-          {WEEKLY_INSIGHT}
+          {t('progress.insight.body')}
         </Text>
         <Text size={13} color={colors.greenPale} style={{ marginTop: 8 }}>
-          An observation, not a conclusion — worth watching together.
+          {t('progress.insight.note')}
         </Text>
       </FeatureCard>
 
       <Card style={{ padding: 18, borderRadius: radius.cardLg }}>
         <Text weight="semibold" size={15} style={{ marginBottom: 10 }}>
-          Patterns we're noticing
+          {t('progress.patterns')}
         </Text>
         <View style={{ gap: 10 }}>
           {PATTERNS.map((pattern) => (
-            <View key={pattern.text} style={{ flexDirection: 'row', gap: 12 }}>
+            <View key={pattern.text} style={{ flexDirection: row, gap: 12 }}>
               <Dot color={toneColors[pattern.tone].dot} style={{ marginTop: 4 }} />
               <Text size={13.5} color={colors.inkSoft} lineHeight={20} style={{ flex: 1 }}>
-                <EmphasisedText text={pattern.text} />
+                <EmphasisedText text={t(pattern.text)} />
               </Text>
             </View>
           ))}
         </View>
         <NoteCard style={{ marginTop: 12, padding: 12 }}>
           <Text size={12.5} color={colors.muted} lineHeight={19}>
-            Patterns are hints, not verdicts. Share this view with your nutritionist or doctor from the export button.
+            {t('progress.patterns.note')}
           </Text>
         </NoteCard>
       </Card>
 
       {state.weightVisible ? (
         <Card style={{ padding: 18, borderRadius: radius.cardLg }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <View style={{ flexDirection: row, justifyContent: 'space-between', alignItems: 'baseline' }}>
             <Text weight="semibold" size={15}>
-              Weight
+              {t('progress.weight')}
             </Text>
-            <TextButton label="Hide" size={12.5} color={colors.faint} onPress={() => set({ weightVisible: false })} />
+            <TextButton label={t('common.hide')} size={12.5} color={colors.faint} onPress={() => set({ weightVisible: false })} />
           </View>
           <Text weight="bold" size={22} color={colors.greenDeep} style={{ marginTop: 6 }}>
-            72.4 kg{' '}
+            {t('progress.weightValue')}{' '}
             <Strong weight="semibold" size={12.5} color={colors.green}>
-              −0.6 this month
+              {t('progress.weightDelta')}
             </Strong>
           </Text>
           <Text size={12.5} color={colors.faint} style={{ marginTop: 4 }}>
-            Slow and steady — exactly right.
+            {t('progress.weightNote')}
           </Text>
         </Card>
       ) : (
         <EmptyCard style={{ padding: 14, alignItems: 'center' }}>
           <TextButton
-            label="Weight tracking is off — tap to show it"
+            label={t('progress.weightOff')}
             size={13.5}
             color={colors.faint}
             onPress={() => set({ weightVisible: true })}
@@ -158,9 +160,9 @@ export function ProgressScreen() {
         </EmptyCard>
       )}
 
-      <View style={{ flexDirection: 'row', gap: 10 }}>
+      <View style={{ flexDirection: row, gap: 10 }}>
         <OutlineButton
-          label="Daily check-in →"
+          label={t('progress.checkInLink')}
           size={14}
           background={colors.surface}
           borderColor={colors.line}
@@ -168,7 +170,7 @@ export function ProgressScreen() {
           onPress={() => navigation.navigate('CheckIn')}
         />
         <OutlineButton
-          label="Export for your doctor"
+          label={t('progress.exportLink')}
           size={14}
           background={colors.surface}
           style={{ flex: 1, borderRadius: radius.tile, paddingVertical: 14 }}

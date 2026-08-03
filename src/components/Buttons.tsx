@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
+import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
 import { Text } from './Text';
 
@@ -154,16 +155,17 @@ export function Chip({
 
 /** Chevron-only back control ("‹") used by the stacked screens. */
 export function BackChevron({ onPress, color = colors.muted }: { onPress?: () => void; color?: string }) {
+  const { t, chevronBack } = useI18n();
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="Back"
+      accessibilityLabel={t('common.back')}
       onPress={onPress}
       hitSlop={12}
       style={({ pressed: p }) => pressed(p)}
     >
       <Text weight="semibold" size={26} color={color} lineHeight={30}>
-        ‹
+        {chevronBack}
       </Text>
     </Pressable>
   );

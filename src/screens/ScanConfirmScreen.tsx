@@ -19,14 +19,16 @@ import {
   PortionSize,
   useMealAnalysis,
 } from '../services/mealAnalysis';
+import { useI18n } from '../i18n';
+import type { TranslationKey } from '../i18n';
 import { colors, radius } from '../theme';
 import { RootStackParamList, useAppNavigation } from '../navigation/types';
 import { AnalyzingState } from './ScanScreen';
 
-const PORTIONS: { key: PortionSize; label: string }[] = [
-  { key: 'small', label: 'Small' },
-  { key: 'medium', label: 'Medium' },
-  { key: 'large', label: 'Large' },
+const PORTIONS: { key: PortionSize; label: TranslationKey }[] = [
+  { key: 'small', label: 'scanConfirm.portion.small' },
+  { key: 'medium', label: 'scanConfirm.portion.medium' },
+  { key: 'large', label: 'scanConfirm.portion.large' },
 ];
 
 /**
@@ -40,14 +42,16 @@ export function ScanConfirmScreen() {
   const { imageUri, detection } = route.params;
   const analysis = useMealAnalysis();
   const profile = useAnalysisProfile();
+  const { t, n, row, lang } = useI18n();
 
   const [excluded, setExcluded] = useState<Record<string, boolean>>({});
   const [portion, setPortion] = useState<PortionSize>('medium');
   const [separateItems, setSeparateItems] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
 
+  // Ids, not names — the analyser scores on identity, not on display text.
   const kept = useMemo(
-    () => detection.ingredients.filter((item) => !excluded[item.id]).map((item) => item.name),
+    () => detection.ingredients.filter((item) => !excluded[item.id]).map((item) => item.id),
     [detection.ingredients, excluded],
   );
 
@@ -60,6 +64,7 @@ export function ScanConfirmScreen() {
         portion,
         separateItems,
         profile,
+        locale: lang,
       });
       navigation.navigate('ScanResult', { result, imageUri });
     } catch (error) {
@@ -73,7 +78,7 @@ export function ScanConfirmScreen() {
   };
 
   if (analyzing) {
-    return <AnalyzingState title="Scoring your plate…" note="Weighing each ingredient against your profile" />;
+    return <AnalyzingState title={t('scan.scoring.title')} note={t('scan.scoring.note')} />;
   }
 
   return (
@@ -83,23 +88,24 @@ export function ScanConfirmScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ padding: 24, paddingBottom: 32, gap: 6 }}
       >
-        <Display size={24}>Does this look right?</Display>
+        <Display size={24}>{t('scanConfirm.title')}</Display>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6, marginBottom: 14 }}>
+        <View style={{ flexDirection: row, alignItems: 'center', gap: 8, marginTop: 6, marginBottom: 14 }}>
           <Meter value={detection.confidence} width={120} />
           <Text weight="medium" size={13} color={colors.muted} style={{ flex: 1 }}>
-            {Math.round(detection.confidence * 100)}% confident it's a <Strong color={colors.ink}>{detection.dish}</Strong>
+            {t('scanConfirm.confidence', { percent: Math.round(detection.confidence * 100) })}{' '}
+            <Strong color={colors.ink}>{detection.dish}</Strong>
           </Text>
         </View>
 
         {detection.mixedDishAmbiguity ? (
           <Card style={{ paddingVertical: 13, paddingHorizontal: 14, marginBottom: 10, borderRadius: radius.tile }}>
             <Text weight="semibold" size={13.5} style={{ marginBottom: 8 }}>
-              One dish, or separate items?
+              {t('scanConfirm.mixed.question')}
             </Text>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
+            <View style={{ flexDirection: row, gap: 8 }}>
               <Chip
-                label="One mixed bowl"
+                label={t('scanConfirm.mixed.one')}
                 selected={!separateItems}
                 onPress={() => setSeparateItems(false)}
                 size={13}
@@ -108,7 +114,7 @@ export function ScanConfirmScreen() {
                 style={{ flex: 1, borderRadius: 18 }}
               />
               <Chip
-                label="Separate items"
+                label={t('scanConfirm.mixed.separate')}
                 selected={separateItems}
                 onPress={() => setSeparateItems(true)}
                 size={13}
@@ -121,7 +127,7 @@ export function ScanConfirmScreen() {
         ) : null}
 
         <Text size={13.5} color={colors.muted} style={{ marginBottom: 10 }}>
-          Tap anything we got wrong — your correction makes the result better.
+          {t('scanConfirm.correct')}
         </Text>
 
         <View style={{ gap: 8 }}>
@@ -135,7 +141,7 @@ export function ScanConfirmScreen() {
                 onPress={() => setExcluded((prev) => ({ ...prev, [item.id]: !prev[item.id] }))}
                 style={({ pressed }) => [
                   {
-                    flexDirection: 'row',
+                    flexDirection: row,
                     alignItems: 'center',
                     gap: 12,
                     paddingVertical: 13,
@@ -154,7 +160,7 @@ export function ScanConfirmScreen() {
                   {item.name}
                 </Text>
                 <Text size={12.5} color={colors.faint}>
-                  {Math.round(item.confidence * 100)}%
+                  {n(Math.round(item.confidence * 100))}%
                 </Text>
               </Pressable>
             );
@@ -162,19 +168,19 @@ export function ScanConfirmScreen() {
         </View>
 
         <TextButton
-          label="+ Add something we missed"
+          label={t('scanConfirm.addMissing')}
           color={colors.green}
           style={{ alignSelf: 'flex-start', paddingVertical: 8, marginTop: 6 }}
         />
 
         <Text weight="semibold" size={14} style={{ marginTop: 10, marginBottom: 8 }}>
-          Portion size
+          {t('scanConfirm.portion')}
         </Text>
-        <View style={{ flexDirection: 'row', gap: 10 }}>
+        <View style={{ flexDirection: row, gap: 10 }}>
           {PORTIONS.map((option) => (
             <Chip
               key={option.key}
-              label={option.label}
+              label={t(option.label)}
               selected={portion === option.key}
               onPress={() => setPortion(option.key)}
               size={14}
@@ -185,10 +191,10 @@ export function ScanConfirmScreen() {
           ))}
         </View>
         <Text size={12.5} color={colors.faint} style={{ marginTop: 6 }}>
-          Rough is fine — portions from photos are estimates.
+          {t('scanConfirm.portionNote')}
         </Text>
 
-        <PrimaryButton label="Looks right — analyze" onPress={confirm} style={{ marginTop: 20 }} />
+        <PrimaryButton label={t('scanConfirm.cta')} onPress={confirm} style={{ marginTop: 20 }} />
       </ScrollView>
     </BareScreen>
   );

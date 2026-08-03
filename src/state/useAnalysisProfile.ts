@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { AVOIDS, CONDITIONS, CUISINES } from '../data/assessment';
+import { AVOID_SLUGS, CONDITION_SLUGS, CUISINE_SLUGS } from '../data/assessment';
 import type { AnalysisProfile } from '../services/mealAnalysis';
 import { useAppState } from './AppState';
 
@@ -13,9 +13,9 @@ export function useAnalysisProfile(): AnalysisProfile {
   const { state } = useAppState();
   return useMemo(
     () => ({
-      avoids: picked(AVOIDS, state.avoids),
-      conditions: picked(CONDITIONS, state.conditions),
-      cuisines: picked(CUISINES, state.cuisines),
+      avoids: picked(AVOID_SLUGS, state.avoids),
+      conditions: picked(CONDITION_SLUGS, state.conditions),
+      cuisines: picked(CUISINE_SLUGS, state.cuisines),
     }),
     [state.avoids, state.conditions, state.cuisines],
   );

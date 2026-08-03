@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, ViewStyle } from 'react-native';
+import { useI18n } from '../i18n';
 import { colors } from '../theme';
 import { BackChevron } from './Buttons';
 import { Display, Text } from './Text';
@@ -24,10 +25,11 @@ export function ScreenHeader({
   align?: 'center' | 'top';
   style?: ViewStyle;
 }) {
+  const { row } = useI18n();
   return (
     <View
       style={[
-        { flexDirection: 'row', alignItems: align === 'center' ? 'center' : 'flex-start', gap: 12, paddingTop: 6 },
+        { flexDirection: row, alignItems: align === 'center' ? 'center' : 'flex-start', gap: 12, paddingTop: 6 },
         style,
       ]}
     >
@@ -55,10 +57,11 @@ export function PageTitle({
   trailing?: React.ReactNode;
   style?: ViewStyle;
 }) {
+  const { row } = useI18n();
   return (
     <View
       style={[
-        { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 6 },
+        { flexDirection: row, alignItems: 'center', justifyContent: 'space-between', paddingTop: 6 },
         style,
       ]}
     >

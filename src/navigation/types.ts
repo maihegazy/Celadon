@@ -1,6 +1,7 @@
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import type { DetectionResult, MealAnalysisResult } from '../services/mealAnalysis/types';
+import type { TranslationKey } from '../i18n';
 
 export type RootStackParamList = {
   /** `step` re-enters the assessment mid-way; `returnTo` sends you back where you came from. */
@@ -15,7 +16,7 @@ export type RootStackParamList = {
   ScanQuota: undefined;
 
   Plan: undefined;
-  RecipeDetail: { name: string };
+  RecipeDetail: { name: TranslationKey };
   Recipes: { filter?: number } | undefined;
   Grocery: undefined;
   Diary: undefined;
@@ -35,7 +36,7 @@ export type RootStackParamList = {
   GentleMode: undefined;
   Legal: { tab?: number } | undefined;
   DeleteAccount: undefined;
-  ArabicPreview: undefined;
+  Language: undefined;
   Offline: undefined;
 };
 

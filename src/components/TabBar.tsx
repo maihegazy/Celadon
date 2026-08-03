@@ -3,6 +3,8 @@ import { BlurView } from 'expo-blur';
 import React from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useI18n } from '../i18n';
+import type { TranslationKey } from '../i18n';
 import { colors, overlay } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
 import { useAppNavigation } from '../navigation/types';
@@ -11,11 +13,11 @@ import { Text } from './Text';
 
 type TabKey = Extract<keyof RootStackParamList, 'Home' | 'Plan' | 'Progress' | 'Profile'>;
 
-const TABS: { key: TabKey; label: string }[] = [
-  { key: 'Home', label: 'Home' },
-  { key: 'Plan', label: 'Meal Plan' },
-  { key: 'Progress', label: 'Progress' },
-  { key: 'Profile', label: 'Profile' },
+const TABS: { key: TabKey; label: TranslationKey }[] = [
+  { key: 'Home', label: 'tab.home' },
+  { key: 'Plan', label: 'tab.plan' },
+  { key: 'Progress', label: 'tab.progress' },
+  { key: 'Profile', label: 'tab.profile' },
 ];
 
 /**
@@ -25,6 +27,7 @@ const TABS: { key: TabKey; label: string }[] = [
  */
 export function TabBar() {
   const navigation = useAppNavigation();
+  const { t, row } = useI18n();
   const insets = useSafeAreaInsets();
   const route = useRoute();
   const navigationReady = useNavigationState((state) => state !== undefined);
@@ -35,7 +38,7 @@ export function TabBar() {
     navigation.navigate(key as never);
   };
 
-  const item = ({ key, label }: { key: TabKey; label: string }) => {
+  const item = ({ key, label }: { key: TabKey; label: TranslationKey }) => {
     const isActive = active === key;
     return (
       <Pressable
@@ -54,7 +57,7 @@ export function TabBar() {
           }}
         />
         <Text weight="semibold" size={12} color={isActive ? colors.greenDeep : colors.faint}>
-          {label}
+          {t(label)}
         </Text>
       </Pressable>
     );
@@ -63,7 +66,7 @@ export function TabBar() {
   if (!navigationReady) return null;
 
   return (
-    <View style={[styles.wrap, { paddingBottom: Math.max(insets.bottom, 12) + 10 }]}>
+    <View style={[styles.wrap, { flexDirection: row, paddingBottom: Math.max(insets.bottom, 12) + 10 }]}>
       {Platform.OS === 'web' ? (
         <View style={[StyleSheet.absoluteFill, { backgroundColor: overlay.tabBar }]} />
       ) : (
@@ -75,7 +78,7 @@ export function TabBar() {
       {item(TABS[1])}
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Scan a meal"
+        accessibilityLabel={t('tab.a11y.scan')}
         onPress={() => navigation.navigate('Scan')}
         style={({ pressed }) => [styles.scan, pressed && { opacity: 0.85 }]}
       >

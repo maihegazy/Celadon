@@ -1,6 +1,7 @@
 import React, { useId } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import Svg, { Circle, Defs, Pattern, Rect } from 'react-native-svg';
+import { useI18n } from '../i18n';
 import { colors } from '../theme';
 import { Text } from './Text';
 
@@ -245,6 +246,8 @@ export function Meter({
   track?: string;
   style?: ViewStyle;
 }) {
+  // Progress grows from the reading edge — right-to-left under Arabic.
+  const { isRTL } = useI18n();
   return (
     <View
       style={[
@@ -255,6 +258,7 @@ export function Meter({
           borderRadius: height / 2,
           backgroundColor: track,
           overflow: 'hidden',
+          alignItems: isRTL ? 'flex-end' : 'flex-start',
         },
         style,
       ]}

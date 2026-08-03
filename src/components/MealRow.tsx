@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
+import { useI18n } from '../i18n';
 import { colors, radius, tracking } from '../theme';
 import { Hatch } from './Graphics';
 import { Pill } from './Surfaces';
@@ -26,10 +27,12 @@ export function MealRow({
   thumbSize?: number;
   showThumbMark?: boolean;
 }) {
+  const { row } = useI18n();
+
   const body = (
     <View
       style={{
-        flexDirection: 'row',
+        flexDirection: row,
         gap: 12,
         alignItems: 'center',
         backgroundColor: colors.surface,
