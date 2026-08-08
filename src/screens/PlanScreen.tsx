@@ -184,12 +184,22 @@ export function PlanScreen() {
                       borderRadius={12}
                       onPress={() => toggleMeal(i)}
                     />
-                    <Pressable onPress={() => navigation.navigate('RecipeDetail', { name: meal.name })}>
+                    <Pressable
+                      onPress={
+                        meal.recipeSlug
+                          ? () => navigation.navigate('RecipeDetail', { slug: meal.recipeSlug as string })
+                          : undefined
+                      }
+                    >
                       <Hatch band={6} radius={radius.thumb} style={{ width: 52, height: 52 }} />
                     </Pressable>
                     <Pressable
                       style={{ flex: 1, minWidth: 0, opacity: done ? 0.55 : 1 }}
-                      onPress={() => navigation.navigate('RecipeDetail', { name: meal.name })}
+                      onPress={
+                        meal.recipeSlug
+                          ? () => navigation.navigate('RecipeDetail', { slug: meal.recipeSlug as string })
+                          : undefined
+                      }
                     >
                       <Text
                         weight="semibold"

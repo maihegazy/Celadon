@@ -16,13 +16,15 @@ export type Meal = {
   minutes: number;
   calories: number;
   badge: TranslationKey;
+  /** Catalogue slug, when the meal has a full recipe behind it. */
+  recipeSlug: string | null;
 };
 
 export const MEALS: Meal[] = [
-  { slot: 'slot.breakfast', name: 'meal.bessara', minutes: 10, calories: 320, badge: 'badge.supportive' },
-  { slot: 'slot.lunch', name: 'meal.salmonBowl', minutes: 25, calories: 540, badge: 'badge.omega3' },
-  { slot: 'slot.snack', name: 'meal.walnutsDates', minutes: 2, calories: 180, badge: 'badge.supportive' },
-  { slot: 'slot.dinner', name: 'meal.molokhia', minutes: 35, calories: 520, badge: 'badge.supportive' },
+  { slot: 'slot.breakfast', name: 'meal.bessara', minutes: 10, calories: 320, badge: 'badge.supportive', recipeSlug: 'bessara-greens' },
+  { slot: 'slot.lunch', name: 'meal.salmonBowl', minutes: 25, calories: 540, badge: 'badge.omega3', recipeSlug: 'salmon-quinoa-bowl' },
+  { slot: 'slot.snack', name: 'meal.walnutsDates', minutes: 2, calories: 180, badge: 'badge.supportive', recipeSlug: null },
+  { slot: 'slot.dinner', name: 'meal.molokhia', minutes: 35, calories: 520, badge: 'badge.supportive', recipeSlug: 'molokhia-grilled-chicken' },
 ];
 
 /** Home and the plan preview show breakfast, lunch and dinner. */
@@ -36,19 +38,7 @@ export const SWAP_ALTERNATIVES: { name: TranslationKey; minutes: number; calorie
 
 export const DAY_SCORE = 84;
 
-/* ── Recipe detail ─────────────────────────────────────────────────────── */
-
-export const RECIPE_DETAIL = {
-  score: 86,
-  classification: 'Supportive' as const,
-  minutes: 25,
-  caloriesPerServing: 270,
-  steps: ['recipe.step1', 'recipe.step2', 'recipe.step3', 'recipe.step4'] as TranslationKey[],
-  substitutions: [
-    { from: 'recipe.sub.quinoa.from', to: 'recipe.sub.quinoa.to' },
-    { from: 'recipe.sub.avocado.from', to: 'recipe.sub.avocado.to' },
-  ] as { from: TranslationKey; to: TranslationKey }[],
-};
+/* ── Ingredient tones ──────────────────────────────────────────────────── */
 
 export type Tone = 'good' | 'mid' | 'flag' | 'limit';
 
@@ -57,18 +47,6 @@ export const toneColors: Record<Tone, { dot: string; text: string }> = {
   mid: { dot: colors.greenMid, text: colors.greenText },
   flag: { dot: colors.amber, text: colors.amber },
   limit: { dot: colors.red, text: colors.red },
-};
-
-/** Quantities scale with the servings stepper; units are localised at render. */
-export const recipeIngredients = (servings: number) => {
-  const halves = ['½', '1', '1½', '2'];
-  return [
-    { name: 'ingredient.salmon' as TranslationKey, unit: 'unit.grams' as TranslationKey, value: String(150 * servings), tag: 'tone.supportive' as TranslationKey, tone: 'good' as Tone },
-    { name: 'ingredient.quinoaCooked' as TranslationKey, unit: 'unit.grams' as TranslationKey, value: String(80 * servings), tag: 'tone.balanced' as TranslationKey, tone: 'mid' as Tone },
-    { name: 'ingredient.avocado' as TranslationKey, unit: null, value: halves[Math.min(servings, 4) - 1], tag: 'tone.supportive' as TranslationKey, tone: 'good' as Tone },
-    { name: 'ingredient.cucumberHerbs' as TranslationKey, unit: 'unit.cup' as TranslationKey, value: String(servings), tag: 'tone.balanced' as TranslationKey, tone: 'mid' as Tone },
-    { name: 'ingredient.dressing' as TranslationKey, unit: 'unit.tbsp' as TranslationKey, value: String(servings), tag: 'tone.supportive' as TranslationKey, tone: 'good' as Tone },
-  ];
 };
 
 /* ── Check-in ──────────────────────────────────────────────────────────── */
@@ -179,17 +157,8 @@ export const RECIPE_FILTERS: TranslationKey[] = [
   'recipeFilter.batch',
   'recipeFilter.saved',
 ];
-/** The design demonstrates the empty state on the "Saved" filter. */
+/** Position of the "Saved" chip in RECIPE_FILTERS. */
 export const SAVED_FILTER_INDEX = 5;
-
-export const RECIPES: { name: TranslationKey; tag: TranslationKey; minutes: number }[] = [
-  { name: 'meal.molokhia', tag: 'badge.supportive', minutes: 35 },
-  { name: 'meal.salmonBowl', tag: 'badge.omega3', minutes: 25 },
-  { name: 'meal.codShort', tag: 'badge.omega3', minutes: 20 },
-  { name: 'meal.lentilSoupShort', tag: 'badge.gutGentle', minutes: 30 },
-  { name: 'meal.bessaraShort', tag: 'badge.supportive', minutes: 10 },
-  { name: 'meal.carrotSoup', tag: 'badge.gutGentle', minutes: 35 },
-];
 
 /* ── Progress ──────────────────────────────────────────────────────────── */
 

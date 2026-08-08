@@ -15,6 +15,7 @@ import { I18nProvider } from './src/i18n';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { AuthProvider } from './src/services/auth';
 import { MealAnalysisProvider } from './src/services/mealAnalysis';
+import { ContentProvider } from './src/services/content';
 import { PlanningProvider } from './src/services/planning';
 import { ProfileProvider } from './src/services/profile';
 import { TrackingProvider } from './src/services/tracking';
@@ -49,22 +50,24 @@ export default function App() {
         <I18nProvider>
           <AuthProvider>
             <ProfileProvider>
-              <TrackingProvider>
-                <PlanningProvider>
-                  <AppStateProvider>
-                    <TrackingSyncProvider>
-                      <PlanningSyncProvider>
-                        <MealAnalysisProvider>
-                          <StatusBar style="dark" />
-                          <SafeTop>
-                            <RootNavigator />
-                          </SafeTop>
-                        </MealAnalysisProvider>
-                      </PlanningSyncProvider>
-                    </TrackingSyncProvider>
-                  </AppStateProvider>
-                </PlanningProvider>
-              </TrackingProvider>
+              <ContentProvider>
+                <TrackingProvider>
+                  <PlanningProvider>
+                    <AppStateProvider>
+                      <TrackingSyncProvider>
+                        <PlanningSyncProvider>
+                          <MealAnalysisProvider>
+                            <StatusBar style="dark" />
+                            <SafeTop>
+                              <RootNavigator />
+                            </SafeTop>
+                          </MealAnalysisProvider>
+                        </PlanningSyncProvider>
+                      </TrackingSyncProvider>
+                    </AppStateProvider>
+                  </PlanningProvider>
+                </TrackingProvider>
+              </ContentProvider>
             </ProfileProvider>
           </AuthProvider>
         </I18nProvider>
