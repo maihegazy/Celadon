@@ -1,0 +1,51 @@
+# Celadon — continuous integration.
+#
+# Two independent checks, mirroring what's runnable locally:
+#   app:      npm run typecheck        (strict TypeScript over the whole app)
+#   database: supabase/tests/run.sh    (every migration, the seed, and the
+#             RLS suite against a throwaway Postgres — proving one account
+#             cannot reach another's health data)
+
+name: CI
+
+on:
+  push:
+    branches: [main, celadon-app]
+  pull_request:
+
+jobs:
+  app:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+
+  database:
+    name: Schema & RLS tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create test database
+        run: psql postgres://postgres:postgres@localhost:5432/postgres -c 'create database celadon_test'
+      - name: Apply migrations, seed, and RLS tests
+        run: ./supabase/tests/run.sh
+        env:
+          PGURL: postgres://postgres:postgres@localhost:5432/celadon_test
