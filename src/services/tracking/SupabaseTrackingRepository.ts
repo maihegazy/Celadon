@@ -1,5 +1,6 @@
 import { requireSupabase } from '../supabase';
 import {
+  CheckInDay,
   CheckInRecord,
   DayRecord,
   DiaryEntryRecord,
@@ -200,5 +201,18 @@ export class SupabaseTrackingRepository implements TrackingRepository {
   async removeEntry(userId: string, _day: string, entryId: string): Promise<void> {
     const { error } = await requireSupabase().from('diary_entries').delete().eq('id', entryId);
     if (error) throw error;
+  }
+
+  async loadCheckInRange(userId: string, fromDay: string, toDay: string): Promise<CheckInDay[]> {
+    const { data, error } = await requireSupabase()
+      .from('check_ins')
+      .select('checked_on, energy, digestion, sleep, stress, joint_comfort, overall, flare, note')
+      .eq('user_id', userId)
+      .gte('checked_on', fromDay)
+      .lte('checked_on', toDay)
+      .order('checked_on', { ascending: true })
+      .returns<(CheckInRow & { checked_on: string })[]>();
+    if (error) throw error;
+    return (data ?? []).map((row) => ({ ...rowToCheckIn(row), day: row.checked_on }));
   }
 }

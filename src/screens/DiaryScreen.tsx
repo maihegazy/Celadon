@@ -15,7 +15,7 @@ import {
   Strong,
   Text,
 } from '../components';
-import { DAY_SCORE, DIARY_ENTRIES, MACRO_BARS, WATER_GLASSES } from '../data/content';
+import { DIARY_ENTRIES, MACRO_METERS, WATER_GLASSES } from '../data/content';
 import type { TranslationKey } from '../i18n';
 import { useAppState } from '../state/AppState';
 import { useTracking } from '../state/TrackingSync';
@@ -53,6 +53,9 @@ export function DiaryScreen() {
         name: t(entry.name),
         calories: entry.calories as number | null,
         score: entry.score as number | null,
+        proteinG: null as number | null,
+        carbsG: null as number | null,
+        fatG: null as number | null,
         remove: () => dispatch({ type: 'removeDiaryEntry', index }),
       })).filter((_, index) => !state.diaryRemoved[index]);
 
@@ -65,11 +68,24 @@ export function DiaryScreen() {
       name: entry.name,
       calories: entry.calories,
       score: entry.score,
+      proteinG: entry.proteinG,
+      carbsG: entry.carbsG,
+      fatG: entry.fatG,
       remove: () => removeEntry(entry.id),
     })),
   ];
 
   const totalCalories = entries.reduce((sum, entry) => sum + (entry.calories ?? 0), 0);
+
+  // The day's score is the average of what was actually scored — no entries,
+  // no number. Estimates averaged, never invented.
+  const scored = entries.filter((entry) => entry.score !== null);
+  const dayScore = scored.length
+    ? Math.round(scored.reduce((sum, entry) => sum + (entry.score ?? 0), 0) / scored.length)
+    : null;
+
+  const macroTotal = (key: 'proteinG' | 'carbsG' | 'fatG') =>
+    Math.round(entries.reduce((sum, entry) => sum + (entry[key] ?? 0), 0));
 
   return (
     <Screen tabs>
@@ -78,11 +94,13 @@ export function DiaryScreen() {
         subtitle={t('home.date')}
         onBack={() => navigation.navigate('Home')}
         trailing={
-          <Pill
-            label={t('diary.dayScore', { score: DAY_SCORE })}
-            size={12.5}
-            style={{ borderRadius: 14, paddingHorizontal: 12, paddingVertical: 5 }}
-          />
+          dayScore !== null ? (
+            <Pill
+              label={t('diary.dayScore', { score: dayScore })}
+              size={12.5}
+              style={{ borderRadius: 14, paddingHorizontal: 12, paddingVertical: 5 }}
+            />
+          ) : undefined
         }
       />
 
@@ -97,17 +115,25 @@ export function DiaryScreen() {
             </Text>
           </View>
           <View style={{ gap: 9, marginTop: 12 }}>
-            {MACRO_BARS.map((bar) => (
-              <View key={bar.name} style={{ flexDirection: row, alignItems: 'center', gap: 10 }}>
-                <Text weight="semibold" size={12} color={colors.muted} style={{ width: isRTL ? 76 : 52 }}>
-                  {t(bar.name)}
-                </Text>
-                <Meter value={bar.fill} height={7} color={bar.color} track={colors.sunken} />
-                <Text size={12} color={colors.faint} align={textAlign === 'right' ? 'left' : 'right'} style={{ width: 64 }}>
-                  {t(bar.value)}
-                </Text>
-              </View>
-            ))}
+            {MACRO_METERS.map((meter) => {
+              const total = macroTotal(meter.key);
+              return (
+                <View key={meter.name} style={{ flexDirection: row, alignItems: 'center', gap: 10 }}>
+                  <Text weight="semibold" size={12} color={colors.muted} style={{ width: isRTL ? 76 : 52 }}>
+                    {t(meter.name)}
+                  </Text>
+                  <Meter
+                    value={Math.min(1, total / meter.target)}
+                    height={7}
+                    color={meter.color}
+                    track={colors.sunken}
+                  />
+                  <Text size={12} color={colors.faint} align={textAlign === 'right' ? 'left' : 'right'} style={{ width: 64 }}>
+                    {t('macro.progress', { total: n(total), target: n(meter.target) })}
+                  </Text>
+                </View>
+              );
+            })}
           </View>
         </Card>
       ) : (

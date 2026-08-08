@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
+  CheckInDay,
   CheckInRecord,
   DayRecord,
   DiaryEntryRecord,
@@ -59,6 +60,22 @@ export class LocalTrackingRepository implements TrackingRepository {
     // The diary entry carries everything the app shows; the full scan record
     // is a server-side archive, so on-device only the entry is kept.
     await this.addEntry(userId, day, entry);
+  }
+
+  async loadCheckInRange(userId: string, fromDay: string, toDay: string): Promise<CheckInDay[]> {
+    const prefix = `celadon.tracking.${userId}.`;
+    const keys = (await AsyncStorage.getAllKeys()).filter((key) => {
+      const day = key.slice(prefix.length);
+      return key.startsWith(prefix) && day >= fromDay && day <= toDay;
+    });
+    const days: CheckInDay[] = [];
+    for (const key of keys.sort()) {
+      const raw = await AsyncStorage.getItem(key);
+      if (!raw) continue;
+      const data = JSON.parse(raw) as DayRecord;
+      if (data.checkIn) days.push({ ...data.checkIn, day: key.slice(prefix.length) });
+    }
+    return days;
   }
 
   private async update(userId: string, day: string, fn: (data: DayRecord) => DayRecord) {

@@ -64,6 +64,9 @@ export type DayRecord = {
   entries: DiaryEntryRecord[];
 };
 
+/** One day's check-in with its date, for history and trends. */
+export type CheckInDay = CheckInRecord & { day: string };
+
 export const EMPTY_DAY: DayRecord = { checkIn: null, water: null, entries: [] };
 
 /**
@@ -79,6 +82,8 @@ export interface TrackingRepository {
   removeEntry(userId: string, day: string, entryId: string): Promise<void>;
   /** Archives a completed analysis and logs its diary entry together. */
   logScan(userId: string, day: string, scan: MealScanRecord, entry: DiaryEntryRecord): Promise<void>;
+  /** Check-ins between two dates inclusive, oldest first. Days without one are absent. */
+  loadCheckInRange(userId: string, fromDay: string, toDay: string): Promise<CheckInDay[]>;
   /** Pushes any writes that were queued while offline. No-op by default. */
   flush?(userId: string): Promise<void>;
 }

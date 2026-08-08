@@ -99,6 +99,15 @@ export class OfflineFirstTrackingRepository implements TrackingRepository {
     await this.push(userId, { kind: 'logScan', day, scan, entry });
   }
 
+  async loadCheckInRange(userId: string, fromDay: string, toDay: string) {
+    await this.flush(userId);
+    try {
+      return await this.remote.loadCheckInRange(userId, fromDay, toDay);
+    } catch {
+      return this.cache.loadCheckInRange(userId, fromDay, toDay);
+    }
+  }
+
   /** Replays the outbox in order, stopping at the first failure. */
   async flush(userId: string): Promise<void> {
     // One flush at a time; concurrent callers share the same attempt.

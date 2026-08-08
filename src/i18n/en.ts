@@ -496,6 +496,7 @@ export const en = {
   'macro.proteinValue': '64 / 96g',
   'macro.carbsValue': '110 / 152g',
   'macro.fatValue': '42 / 62g',
+  'macro.progress': '{{total}} / {{target}}g',
 
   /* ── manual add ─────────────────────────────────────────────────────── */
   'manual.title': 'Add food',
@@ -612,6 +613,8 @@ export const en = {
   'progress.weightOff': 'Weight tracking is off — tap to show it',
   'progress.checkInLink': 'Daily check-in →',
   'progress.exportLink': 'Export for your doctor',
+  'stat.delta.vsPrior': '{{value}} vs the two weeks before',
+  'progress.empty': 'Your first check-ins will draw this chart.',
   'stat.avgScore': 'Avg Celadon Score',
   'stat.avgScore.delta': '↑ 6 vs last month',
   'stat.adherence': 'Plan adherence',
