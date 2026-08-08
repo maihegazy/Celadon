@@ -43,12 +43,59 @@ Firebase was the alternative; Firestore's data model is the weaker fit here and
 per-user isolation ends up spread across security rules that are harder to
 audit than four SQL policies.
 
+### The schema
+
+`supabase/migrations/` is the whole database — 20 tables, 2 views, 13 enums and
+60 RLS policies. Since the project is connected to this repo, Supabase applies
+these on push to the tracked branch.
+
+| Area | Tables |
+| --- | --- |
+| Account | `profiles`, `subscriptions`, `push_devices` |
+| Catalogue (shared) | `foods`, `recipes`, `recipe_ingredients`, `recipe_steps`, `recipe_substitutions` |
+| Planning | `meal_plans`, `planned_meals`, `grocery_lists`, `grocery_items` |
+| Tracking | `meal_scans`, `diary_entries`, `check_ins`, `water_logs`, `reintroductions`, `reintroduction_checks` |
+| Personal | `saved_recipes`, `notifications` |
+| Views | `daily_totals`, `weekly_scan_usage` |
+
+Three rules the schema holds to:
+
+- **Personal tables are `auth.uid() = user_id`, in all four directions.** No
+  policy allows one account to see, change or delete another's rows. The
+  catalogue is the exception: readable by any signed-in account, writable by
+  none of them — content arrives through the service role.
+- **Both languages are first-class.** Catalogue rows carry `_en` and `_ar`
+  columns rather than a single `name`, because a catalogue that only speaks
+  English quietly breaks half the app.
+- **Nothing is stored by list position.** The app tracks assessment answers by
+  index; the database stores slugs (`nightshades`, `three_plus_snacks`). The
+  translation happens in `src/services/profile/mapping.ts` — inserting a new
+  option in the middle of a list must not silently rewrite everyone's answers.
+
+Deleting an account cascades from `auth.users`, so the promise the app makes on
+the delete screen is enforced by foreign keys rather than by cleanup code.
+
+### Testing the schema
+
+The migrations run against a real Postgres before they reach the project:
+
+```bash
+npm run db:test        # or: PGURL=postgres://… supabase/tests/run.sh
+```
+
+`supabase/tests/harness.sql` stands up the `auth` schema and the
+anon/authenticated/service_role roles that Supabase provides, then
+`rls.test.sql` creates two accounts and checks the boundary from both sides:
+that each sees only their own rows, that writing a row owned by someone else is
+refused, that a client can't insert into the catalogue or grant itself Premium,
+and that a signed-out caller sees nothing.
+
 ### Setting it up
 
 1. Create a project at [supabase.com](https://supabase.com) (free tier).
-2. Run `supabase/migrations/0001_profiles.sql` in the SQL editor — it creates
-   the `profiles` table, its RLS policies, and a trigger that gives every new
-   account an empty profile.
+2. Apply the schema. With the GitHub integration connected, merging to the
+   tracked branch does it; otherwise run the files in `supabase/migrations/`
+   in order from the SQL editor, then `supabase/seed.sql` for the catalogue.
 3. Copy `.env.example` to `.env` and fill in the project URL and **anon** key
    from Project Settings → API. The anon key is meant to ship in the app; the
    service-role key must never appear in this repo.
@@ -156,6 +203,8 @@ src/
 design/                      the Claude Design handoff this was built from
 supabase/migrations/         SQL schema and row-level security policies
 supabase/functions/          edge functions (account deletion)
+supabase/tests/              harness + RLS tests, run with `npm run db:test`
+supabase/seed.sql            bilingual food and recipe catalogue
 ```
 
 Deep links follow the route table in `src/navigation/RootNavigator.tsx` —
@@ -184,6 +233,11 @@ sizes and radii already match the design.
 **Content is fixtures.** `src/data/` holds the meals, recipes, shopping list
 and insights from the design, as translation keys. They're plain objects, ready
 to be replaced by API responses.
+
+**The client never stores an index.** Assessment answers travel to the
+database as slugs. `src/services/profile/mapping.ts` is the only place that
+knows about positions, and it degrades unknown values to a sane default rather
+than throwing.
 
 **Auth errors are translated, not passed through.** `AuthService` returns a
 translation key rather than a provider message, so a failed sign-in reads the

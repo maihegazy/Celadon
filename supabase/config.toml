@@ -1,0 +1,73 @@
+# Supabase CLI configuration.
+#
+# Used by `supabase start` / `supabase db reset` for local development. The
+# hosted project's own settings live in the dashboard; this file only shapes
+# the local stack and what the CLI pushes.
+
+project_id = "celadon"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+# Cap on rows returned by a single PostgREST request.
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+# Match the hosted project's major version.
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+# Local mail catcher — confirmation and reset emails land here in development
+# instead of a real inbox.
+enabled = true
+port = 54324
+
+[auth]
+enabled = true
+site_url = "celadon://"
+# Where Supabase is allowed to send people back to after a link or OAuth round
+# trip. Anything not listed here is rejected, which is the point.
+additional_redirect_urls = [
+  "celadon://auth/callback",
+  "exp://127.0.0.1:8081/--/auth/callback",
+  "http://localhost:8081",
+]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+# Confirmation is on: an unverified address shouldn't hold health data. The
+# app handles both settings — it shows a "check your inbox" state when this is
+# true, and signs the user straight in when it isn't.
+enable_confirmations = true
+double_confirm_changes = true
+
+[auth.external.apple]
+enabled = false
+client_id = ""
+secret = ""
+
+[auth.external.google]
+enabled = false
+client_id = ""
+secret = ""
+
+[storage]
+enabled = true
+# Meal photos are analysed and discarded; the bucket only holds ones a user
+# deliberately saved.
+file_size_limit = "10MiB"
+
+[edge_runtime]
+enabled = true
