@@ -585,6 +585,13 @@ export const ar: Catalogue = {
   'reintro.tag.testing': 'قيد الاختبار',
   'reintro.tag.queued': 'في الانتظار',
   'reintro.tag.later': 'لاحقًا',
+  'reintro.tag.reacted': 'تفاعل',
+  'reintro.tag.paused': 'متوقف',
+  'reintro.status.queued': 'التالي عندما تكون مستعدًا',
+  'reintro.status.testing': 'قيد التجربة — اليوم {{day}} من {{total}}',
+  'reintro.status.passed': 'نجح · بلا تفاعل',
+  'reintro.status.reacted': 'حدث تفاعل — مؤجل الآن',
+  'reintro.status.paused': 'متوقف مؤقتًا — ولا بأس بذلك',
 
   /* ── recipes ────────────────────────────────────────────────────────── */
   'recipes.title': 'الوصفات',

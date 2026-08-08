@@ -131,22 +131,6 @@ export const WATER_GLASSES = 8;
 
 /* ── Reintroduction ────────────────────────────────────────────────────── */
 
-export const REINTRO_ACTIVE = { name: 'reintro.ghee' as TranslationKey, day: 2, days: 5 };
-
-export const REINTRO_ITEMS: {
-  name: TranslationKey;
-  status: TranslationKey;
-  tag: TranslationKey;
-  tone: Tone | 'queued';
-  dim: boolean;
-}[] = [
-  { name: 'reintro.item.eggYolks', status: 'reintro.item.eggYolks.status', tag: 'reintro.tag.passed', tone: 'good', dim: false },
-  { name: 'reintro.ghee', status: 'reintro.item.ghee.status', tag: 'reintro.tag.testing', tone: 'flag', dim: false },
-  { name: 'reintro.item.whiteRice', status: 'reintro.item.whiteRice.status', tag: 'reintro.tag.queued', tone: 'queued', dim: false },
-  { name: 'reintro.item.nightshades', status: 'reintro.item.stage2', tag: 'reintro.tag.later', tone: 'queued', dim: true },
-  { name: 'reintro.item.coffee', status: 'reintro.item.stage2', tag: 'reintro.tag.later', tone: 'queued', dim: true },
-];
-
 /* ── Recipes ───────────────────────────────────────────────────────────── */
 
 export const RECIPE_FILTERS: TranslationKey[] = [

@@ -11,12 +11,31 @@ import {
   Text,
 } from '../components';
 import { BackChevron } from '../components/Buttons';
-import { REINTRO_ACTIVE, REINTRO_ITEMS, toneColors } from '../data/content';
+import { toneColors, Tone } from '../data/content';
+import { ReintroductionStatus } from '../services/reintroduction';
+import { useReintroduction } from '../state/useReintroduction';
+import type { TranslationKey } from '../i18n';
 import { useI18n } from '../i18n';
 import { colors, radius, tracking } from '../theme';
 import { useAppNavigation } from '../navigation/types';
 
 const queuedTone = { dot: colors.border, text: colors.faint };
+
+const STATUS_TONE: Record<ReintroductionStatus, Tone | 'queued'> = {
+  queued: 'queued',
+  testing: 'flag',
+  passed: 'good',
+  reacted: 'limit',
+  paused: 'mid',
+};
+
+const STATUS_TAG: Record<ReintroductionStatus, TranslationKey> = {
+  queued: 'reintro.tag.queued',
+  testing: 'reintro.tag.testing',
+  passed: 'reintro.tag.passed',
+  reacted: 'reintro.tag.reacted',
+  paused: 'reintro.tag.paused',
+};
 
 /**
  * Reintroduction tracker — one food at a time, five days each, and pausing is
@@ -24,7 +43,11 @@ const queuedTone = { dot: colors.border, text: colors.faint };
  */
 export function ReintroductionScreen() {
   const navigation = useAppNavigation();
-  const { t, row } = useI18n();
+  const { t, n, row, lang } = useI18n();
+  const { items, active, activeDay, markDay } = useReintroduction();
+
+  const displayName = (item: { nameEn: string; nameAr: string }) =>
+    lang === 'ar' ? item.nameAr : item.nameEn;
 
   return (
     <Screen tabs>
@@ -37,52 +60,65 @@ export function ReintroductionScreen() {
         {t('reintro.intro')}
       </Text>
 
-      <Card style={{ padding: 18, borderColor: colors.amber, borderWidth: 1.5, borderRadius: radius.cardLg }}>
-        <View style={{ flexDirection: row, justifyContent: 'space-between', alignItems: 'center' }}>
-          <Text
-            weight="bold"
-            size={12}
-            color={colors.amber}
-            style={{ letterSpacing: tracking(12, 0.07), textTransform: 'uppercase' }}
-          >
-            {t('reintro.testingNow')}
+      {active ? (
+        <Card style={{ padding: 18, borderColor: colors.amber, borderWidth: 1.5, borderRadius: radius.cardLg }}>
+          <View style={{ flexDirection: row, justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text
+              weight="bold"
+              size={12}
+              color={colors.amber}
+              style={{ letterSpacing: tracking(12, 0.07), textTransform: 'uppercase' }}
+            >
+              {t('reintro.testingNow')}
+            </Text>
+            <Text weight="semibold" size={12.5} color={colors.faint}>
+              {t('reintro.dayOf', { day: n(activeDay), total: n(active.trialDays) })}
+            </Text>
+          </View>
+          <Display size={22} style={{ marginTop: 6 }}>
+            {displayName(active)}
+          </Display>
+          <View style={{ marginTop: 12 }}>
+            <SegmentBar total={active.trialDays} filled={activeDay} />
+          </View>
+          <Text size={13.5} color={colors.muted} lineHeight={20} style={{ marginTop: 10 }}>
+            {t('reintro.note')}
           </Text>
-          <Text weight="semibold" size={12.5} color={colors.faint}>
-            {t('reintro.dayOf', { day: REINTRO_ACTIVE.day, total: REINTRO_ACTIVE.days })}
-          </Text>
-        </View>
-        <Display size={22} style={{ marginTop: 6 }}>
-          {t(REINTRO_ACTIVE.name)}
-        </Display>
-        <View style={{ marginTop: 12 }}>
-          <SegmentBar total={REINTRO_ACTIVE.days} filled={REINTRO_ACTIVE.day} />
-        </View>
-        <Text size={13.5} color={colors.muted} lineHeight={20} style={{ marginTop: 10 }}>
-          {t('reintro.note')}
-        </Text>
-        <View style={{ flexDirection: row, gap: 8, marginTop: 12 }}>
-          <PrimaryButton
-            label={t('reintro.fine')}
-            size={13.5}
-            style={{ flex: 1, paddingVertical: 11, borderRadius: 20 }}
-          />
-          <OutlineButton
-            label={t('reintro.symptoms')}
-            size={13.5}
-            color={colors.red}
-            background={colors.redLight}
-            borderColor={colors.redLight}
-            style={{ flex: 1, paddingVertical: 11, borderRadius: 20 }}
-          />
-        </View>
-      </Card>
+          <View style={{ flexDirection: row, gap: 8, marginTop: 12 }}>
+            <PrimaryButton
+              label={t('reintro.fine')}
+              size={13.5}
+              style={{ flex: 1, paddingVertical: 11, borderRadius: 20 }}
+              onPress={() => markDay(true)}
+            />
+            <OutlineButton
+              label={t('reintro.symptoms')}
+              size={13.5}
+              color={colors.red}
+              background={colors.redLight}
+              borderColor={colors.redLight}
+              style={{ flex: 1, paddingVertical: 11, borderRadius: 20 }}
+              onPress={() => markDay(false)}
+            />
+          </View>
+        </Card>
+      ) : null}
 
       <View style={{ gap: 8 }}>
-        {REINTRO_ITEMS.map((item) => {
-          const tone = item.tone === 'queued' ? queuedTone : toneColors[item.tone];
+        {items.map((item) => {
+          // Later stages stay dim until their turn; everything else wears
+          // its own status.
+          const laterStage = item.stage > 1 && item.status === 'queued';
+          const toneKey = STATUS_TONE[item.status];
+          const tone = toneKey === 'queued' ? queuedTone : toneColors[toneKey];
+          const statusText = laterStage
+            ? t('reintro.item.stage2')
+            : item.status === 'testing'
+              ? t('reintro.status.testing', { day: n(activeDay), total: n(item.trialDays) })
+              : t(`reintro.status.${item.status}` as TranslationKey);
           return (
             <Card
-              key={`${item.name}-${item.status}`}
+              key={item.id}
               style={{
                 flexDirection: row,
                 alignItems: 'center',
@@ -90,20 +126,20 @@ export function ReintroductionScreen() {
                 paddingVertical: 14,
                 paddingHorizontal: 16,
                 borderRadius: radius.tile,
-                opacity: item.dim ? 0.55 : 1,
+                opacity: laterStage ? 0.55 : 1,
               }}
             >
               <Dot color={tone.dot} />
               <View style={{ flex: 1 }}>
                 <Text weight="semibold" size={14.5}>
-                  {t(item.name)}
+                  {displayName(item)}
                 </Text>
                 <Text size={12.5} color={colors.muted} style={{ marginTop: 1 }}>
-                  {t(item.status)}
+                  {statusText}
                 </Text>
               </View>
               <Text weight="bold" size={12} color={tone.text}>
-                {t(item.tag)}
+                {t(laterStage ? 'reintro.tag.later' : STATUS_TAG[item.status])}
               </Text>
             </Card>
           );
