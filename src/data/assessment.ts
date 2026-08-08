@@ -48,24 +48,57 @@ export const AVOIDS: TranslationKey[] = [
   'avoid.nuts',
 ];
 
-/** English names, for the analysis service's profile payload. */
+/**
+ * Stable slugs, in the same order as the option lists above.
+ *
+ * These are what the database stores — indexes would break the moment an
+ * option is inserted in the middle, and display names change with language.
+ */
+export const GOAL_SLUGS = [
+  'calm_inflammation',
+  'autoimmune',
+  'energy',
+  'weight',
+  'eat_better',
+];
+
+export const CONCERN_SLUGS = [
+  'digestion',
+  'fatigue',
+  'joints',
+  'skin',
+  'brain_fog',
+  'sleep',
+  'none',
+];
+
+export const COUNTRY_SLUGS = ['egypt', 'saudi_arabia', 'uae', 'kuwait', 'qatar', 'elsewhere'];
+
+export const ACTIVITY_SLUGS = ['seated', 'light', 'high'] as const;
+
+export const MEAL_PATTERN_SLUGS = ['two', 'three', 'three_plus_snacks', 'four_five_small'];
+
+export const WEIGHT_GOAL_SLUGS = ['maintain', 'gentle_loss', 'unset'] as const;
+
+export const COMFORT_SLUGS = ['full', 'gentle', 'minimal'] as const;
+
 export const AVOID_SLUGS = [
   'gluten',
   'dairy',
   'nightshades',
   'eggs',
-  'refined sugar',
-  'seed oils',
+  'refined_sugar',
+  'seed_oils',
   'legumes',
   'caffeine',
   'alcohol',
   'shellfish',
-  'tree nuts',
+  'tree_nuts',
 ];
 
 export const CONDITION_SLUGS = [
   'hashimotos',
-  'rheumatoid arthritis',
+  'rheumatoid_arthritis',
   'ibd',
   'psoriasis',
   'lupus',

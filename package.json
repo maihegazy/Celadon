@@ -8,7 +8,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:test": "supabase/tests/run.sh"
   },
   "dependencies": {
     "@expo-google-fonts/albert-sans": "^0.4.2",
