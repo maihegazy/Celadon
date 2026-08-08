@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useMemo, useReducer, useState } from 'react';
+import type { DiaryEntryRecord } from '../services/tracking/types';
 
 /**
  * One store for the whole app, mirroring the prototype's single state object.
@@ -51,12 +52,15 @@ export type AppState = {
   /* check-in */
   checkInValues: Record<number, number>;
   flare: boolean;
+  checkInNote: string;
   checkInSaved: boolean;
 
   /* diary */
   water: number;
+  /** Demo-only: indexes of the fixture entries dismissed this session. */
   diaryRemoved: Record<number, boolean>;
-  manuallyAdded: string[];
+  /** Today's persisted entries, hydrated from the tracking repository. */
+  diaryEntries: DiaryEntryRecord[];
 
   /* misc UI */
   recipeFilter: number;
@@ -105,11 +109,12 @@ const initialState: AppState = {
 
   checkInValues: { 0: 3, 1: 2, 2: 3, 3: 1, 4: 1, 5: 3 },
   flare: false,
+  checkInNote: '',
   checkInSaved: false,
 
   water: 5,
   diaryRemoved: {},
-  manuallyAdded: [],
+  diaryEntries: [],
 
   recipeFilter: 0,
   weightVisible: false,
@@ -130,7 +135,8 @@ type Action =
   | { type: 'addGroceryItem'; name: string }
   | { type: 'setCheckIn'; metric: number; value: number }
   | { type: 'removeDiaryEntry'; index: number }
-  | { type: 'addManualFood'; name: string }
+  | { type: 'addDiaryEntry'; entry: DiaryEntryRecord }
+  | { type: 'removeDiaryEntryById'; id: string }
   | { type: 'adjustServings'; delta: number }
   /** Replace the saved answers with a profile loaded from the backend. */
   | { type: 'hydrate'; profile: Partial<AppState> }
@@ -166,8 +172,14 @@ function reducer(state: AppState, action: Action): AppState {
       };
     case 'removeDiaryEntry':
       return { ...state, diaryRemoved: { ...state.diaryRemoved, [action.index]: true } };
-    case 'addManualFood':
-      return { ...state, manuallyAdded: [...state.manuallyAdded, action.name] };
+    case 'addDiaryEntry':
+      // Keyed on id so a hydration racing a local add can't duplicate it.
+      return {
+        ...state,
+        diaryEntries: [...state.diaryEntries.filter((e) => e.id !== action.entry.id), action.entry],
+      };
+    case 'removeDiaryEntryById':
+      return { ...state, diaryEntries: state.diaryEntries.filter((e) => e.id !== action.id) };
     case 'adjustServings':
       return { ...state, servings: Math.max(1, Math.min(4, state.servings + action.delta)) };
     case 'hydrate':

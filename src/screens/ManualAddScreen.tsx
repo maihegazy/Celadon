@@ -12,7 +12,7 @@ import {
 } from '../components';
 import { BackChevron } from '../components/Buttons';
 import { MANUAL_FOODS } from '../data/content';
-import { useAppState } from '../state/AppState';
+import { useTracking } from '../state/TrackingSync';
 import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
 import { useAppNavigation } from '../navigation/types';
@@ -26,11 +26,12 @@ const toneBackground = {
 /** Manual entry — the path when there's no photo, or no appetite for one. */
 export function ManualAddScreen() {
   const navigation = useAppNavigation();
-  const { dispatch } = useAppState();
+  const { addFood } = useTracking();
   const { t, row } = useI18n();
 
-  const add = (name: string) => {
-    dispatch({ type: 'addManualFood', name });
+  const add = (nameKey: (typeof MANUAL_FOODS)[number]['name']) => {
+    // Stored as the text the user saw — the diary table keeps plain names.
+    addFood({ name: t(nameKey) });
     navigation.navigate('Diary');
   };
 
