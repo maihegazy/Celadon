@@ -18,9 +18,18 @@ import {
 import { DAY_SCORE, DIARY_ENTRIES, MACRO_BARS, WATER_GLASSES } from '../data/content';
 import type { TranslationKey } from '../i18n';
 import { useAppState } from '../state/AppState';
+import { useTracking } from '../state/TrackingSync';
+import { isSupabaseConfigured } from '../services/supabase';
 import { useI18n } from '../i18n';
 import { colors, radius, tracking } from '../theme';
 import { useAppNavigation } from '../navigation/types';
+
+/** '8:20' — the compact 12-hour form the entry rows use. */
+const clockTime = (iso: string): string => {
+  const date = new Date(iso);
+  const hours = date.getHours() % 12 || 12;
+  return `${hours}:${String(date.getMinutes()).padStart(2, '0')}`;
+};
 
 /**
  * Food diary. Entries arrive by scan or by hand, and the tone stays neutral —
@@ -28,24 +37,39 @@ import { useAppNavigation } from '../navigation/types';
  */
 export function DiaryScreen() {
   const navigation = useAppNavigation();
-  const { state, set, dispatch, numbersOn } = useAppState();
-  const [openMenu, setOpenMenu] = useState<number | null>(null);
+  const { state, dispatch, numbersOn } = useAppState();
+  const { setWater, removeEntry } = useTracking();
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
   const { t, n, row, textAlign, isRTL } = useI18n();
 
-  const entries = [
-    ...DIARY_ENTRIES.map((entry) => ({ ...entry, slot: t(entry.slot), name: t(entry.name) })),
-    ...state.manuallyAdded.map((key) => ({
-      time: '—',
-      slot: t('slot.snack'),
-      name: t(key as TranslationKey),
-      calories: 120,
-      score: 86,
-    })),
-  ]
-    .map((entry, index) => ({ ...entry, index }))
-    .filter((entry) => !state.diaryRemoved[entry.index]);
+  // Without a backend the walkable demo keeps its example entries; against a
+  // real one the diary shows only what was actually logged.
+  const demoEntries = isSupabaseConfigured
+    ? []
+    : DIARY_ENTRIES.map((entry, index) => ({
+        key: `demo-${index}`,
+        time: entry.time,
+        slot: t(entry.slot),
+        name: t(entry.name),
+        calories: entry.calories as number | null,
+        score: entry.score as number | null,
+        remove: () => dispatch({ type: 'removeDiaryEntry', index }),
+      })).filter((_, index) => !state.diaryRemoved[index]);
 
-  const totalCalories = entries.reduce((sum, entry) => sum + entry.calories, 0);
+  const entries = [
+    ...demoEntries,
+    ...state.diaryEntries.map((entry) => ({
+      key: entry.id,
+      time: clockTime(entry.loggedAt),
+      slot: t(`slot.${entry.slot}` as TranslationKey),
+      name: entry.name,
+      calories: entry.calories,
+      score: entry.score,
+      remove: () => removeEntry(entry.id),
+    })),
+  ];
+
+  const totalCalories = entries.reduce((sum, entry) => sum + (entry.calories ?? 0), 0);
 
   return (
     <Screen tabs>
@@ -112,7 +136,7 @@ export function DiaryScreen() {
                 key={i}
                 accessibilityRole="button"
                 accessibilityLabel={t('diary.a11y.water', { count: i + 1 })}
-                onPress={() => set({ water: i + 1 })}
+                onPress={() => setWater(i + 1)}
                 style={{
                   flex: 1,
                   height: 34,
@@ -145,7 +169,7 @@ export function DiaryScreen() {
         ) : (
           <View style={{ gap: 10 }}>
             {entries.map((entry) => (
-              <Card key={entry.index} style={{ paddingVertical: 13, paddingHorizontal: 14 }}>
+              <Card key={entry.key} style={{ paddingVertical: 13, paddingHorizontal: 14 }}>
                 <View style={{ flexDirection: row, alignItems: 'center', gap: 12 }}>
                   <Hatch band={6} radius={11} style={{ width: 46, height: 46 }} />
                   <View style={{ flex: 1, minWidth: 0 }}>
@@ -161,21 +185,25 @@ export function DiaryScreen() {
                       {entry.name}
                     </Text>
                     <Text size={12.5} color={colors.muted} style={{ marginTop: 2 }}>
-                      {numbersOn ? t('diary.entryMeta', { calories: entry.calories }) : t('diary.entryLogged')}
+                      {numbersOn && entry.calories !== null
+                        ? t('diary.entryMeta', { calories: entry.calories })
+                        : t('diary.entryLogged')}
                     </Text>
                   </View>
-                  <Pill
-                    label={n(entry.score)}
-                    size={11}
-                    background={entry.score >= 80 ? colors.greenLight : colors.amberLight}
-                    color={entry.score >= 80 ? colors.green : colors.amber}
-                    style={{ borderRadius: 10, paddingHorizontal: 9, paddingVertical: 3 }}
-                  />
+                  {entry.score !== null ? (
+                    <Pill
+                      label={n(entry.score)}
+                      size={11}
+                      background={entry.score >= 80 ? colors.greenLight : colors.amberLight}
+                      color={entry.score >= 80 ? colors.green : colors.amber}
+                      style={{ borderRadius: 10, paddingHorizontal: 9, paddingVertical: 3 }}
+                    />
+                  ) : null}
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel={t('diary.a11y.options')}
                     hitSlop={8}
-                    onPress={() => setOpenMenu(openMenu === entry.index ? null : entry.index)}
+                    onPress={() => setOpenMenu(openMenu === entry.key ? null : entry.key)}
                   >
                     <Text size={17} color={colors.faint} style={{ letterSpacing: 1 }}>
                       ···
@@ -183,7 +211,7 @@ export function DiaryScreen() {
                   </Pressable>
                 </View>
 
-                {openMenu === entry.index ? (
+                {openMenu === entry.key ? (
                   <View
                     style={{
                       flexDirection: row,
@@ -202,7 +230,7 @@ export function DiaryScreen() {
                     <Pressable
                       style={styleFor(colors.redLight)}
                       onPress={() => {
-                        dispatch({ type: 'removeDiaryEntry', index: entry.index });
+                        entry.remove();
                         setOpenMenu(null);
                       }}
                     >

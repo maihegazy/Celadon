@@ -16,7 +16,9 @@ import { RootNavigator } from './src/navigation/RootNavigator';
 import { AuthProvider } from './src/services/auth';
 import { MealAnalysisProvider } from './src/services/mealAnalysis';
 import { ProfileProvider } from './src/services/profile';
+import { TrackingProvider } from './src/services/tracking';
 import { AppStateProvider } from './src/state/AppState';
+import { TrackingSyncProvider } from './src/state/TrackingSync';
 import { colors } from './src/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -45,14 +47,18 @@ export default function App() {
         <I18nProvider>
           <AuthProvider>
             <ProfileProvider>
-              <AppStateProvider>
-                <MealAnalysisProvider>
-                  <StatusBar style="dark" />
-                  <SafeTop>
-                    <RootNavigator />
-                  </SafeTop>
-                </MealAnalysisProvider>
-              </AppStateProvider>
+              <TrackingProvider>
+                <AppStateProvider>
+                  <TrackingSyncProvider>
+                    <MealAnalysisProvider>
+                      <StatusBar style="dark" />
+                      <SafeTop>
+                        <RootNavigator />
+                      </SafeTop>
+                    </MealAnalysisProvider>
+                  </TrackingSyncProvider>
+                </AppStateProvider>
+              </TrackingProvider>
             </ProfileProvider>
           </AuthProvider>
         </I18nProvider>

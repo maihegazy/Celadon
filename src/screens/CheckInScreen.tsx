@@ -15,6 +15,7 @@ import {
 import { BackChevron } from '../components/Buttons';
 import { CHECK_IN_METRICS, INVERTED_METRIC } from '../data/content';
 import { useAppState } from '../state/AppState';
+import { useTracking } from '../state/TrackingSync';
 import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
 import { useAppNavigation } from '../navigation/types';
@@ -28,6 +29,7 @@ const SCALE = [0, 1, 2, 3, 4];
 export function CheckInScreen() {
   const navigation = useAppNavigation();
   const { state, set, dispatch } = useAppState();
+  const { saveCheckIn } = useTracking();
   const { t, row } = useI18n();
 
   return (
@@ -152,12 +154,16 @@ export function CheckInScreen() {
         </Card>
       ) : null}
 
-      <NoteField placeholder={t('checkIn.notePlaceholder')} />
+      <NoteField
+        placeholder={t('checkIn.notePlaceholder')}
+        value={state.checkInNote}
+        onChangeText={(note) => set({ checkInNote: note, checkInSaved: false })}
+      />
 
       <PrimaryButton
         label={t('checkIn.cta')}
         onPress={() => {
-          set({ checkInSaved: true });
+          saveCheckIn();
           navigation.navigate('Celebrate');
         }}
       />
