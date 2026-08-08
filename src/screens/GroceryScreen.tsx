@@ -11,11 +11,18 @@ import {
   SmallButton,
   Text,
 } from '../components';
-import { CUSTOM_GROCERY_CATEGORY, GROCERY_CATEGORIES } from '../data/content';
+import { GROCERY_CATEGORIES } from '../data/content';
+import type { TranslationKey } from '../i18n';
 import { useAppState } from '../state/AppState';
+import { usePlanning } from '../state/PlanningSync';
 import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
 import { useAppNavigation } from '../navigation/types';
+
+/** Fixture order — 'produce', 'protein', 'pantry', 'herbs'. */
+const CATEGORY_ORDER = GROCERY_CATEGORIES.map(
+  (category) => category.name.split('.').pop() as string,
+);
 
 /**
  * Shopping list generated from the week's plan. Checking things off and
@@ -24,33 +31,40 @@ import { useAppNavigation } from '../navigation/types';
  */
 export function GroceryScreen() {
   const navigation = useAppNavigation();
-  const { state, dispatch } = useAppState();
+  const { state } = useAppState();
+  const { toggleItem, dismissItem, addCustomItem } = usePlanning();
   const [draft, setDraft] = useState('');
-  const { t, tp, row } = useI18n();
+  const { t, tp, row, lang } = useI18n();
 
-  const categories = GROCERY_CATEGORIES.map((category, ci) => {
-    const items: { name: string; qty: string | null; custom?: boolean }[] = [
-      ...category.items.map((item) => ({ name: t(item.name), qty: item.qty ? t(item.qty) : null })),
-      ...(ci === CUSTOM_GROCERY_CATEGORY
-        ? state.customGroceryItems.map((name) => ({ name, qty: null, custom: true }))
-        : []),
-    ];
-    return {
-      name: t(category.name),
-      items: items
-        .map((item, ii) => ({ ...item, key: `${ci}-${ii}` }))
-        .filter((item) => !state.groceryRemoved[item.key]),
-    };
-  }).filter((category) => category.items.length > 0);
+  const visible = state.groceryItems.filter((item) => !item.dismissed);
+  const slugs = Array.from(new Set([...CATEGORY_ORDER, ...visible.map((item) => item.category)]));
+
+  const categories = slugs
+    .map((slug) => ({
+      name: t(`groceryCat.${slug}` as TranslationKey),
+      items: visible
+        .filter((item) => item.category === slug)
+        .sort((a, b) => a.position - b.position)
+        .map((item) => ({
+          key: item.id,
+          name: lang === 'ar' && item.nameAr ? item.nameAr : item.nameEn,
+          qty:
+            lang === 'ar' && item.quantityAr
+              ? item.quantityAr
+              : item.quantityEn,
+          checked: item.checked,
+        })),
+    }))
+    .filter((category) => category.items.length > 0);
 
   const remaining = categories
     .flatMap((category) => category.items)
-    .filter((item) => !state.groceryChecked[item.key]).length;
+    .filter((item) => !item.checked).length;
 
   const addCustom = () => {
     const value = draft.trim();
     if (!value) return;
-    dispatch({ type: 'addGroceryItem', name: value });
+    addCustomItem(value);
     setDraft('');
   };
 
@@ -70,7 +84,7 @@ export function GroceryScreen() {
           </SectionLabel>
           <Card style={{ overflow: 'hidden' }}>
             {category.items.map((item, index) => {
-              const checked = !!state.groceryChecked[item.key];
+              const checked = item.checked;
               return (
                 <View
                   key={item.key}
@@ -87,9 +101,9 @@ export function GroceryScreen() {
                   <CheckBox
                     checked={checked}
                     borderRadius={radius.check}
-                    onPress={() => dispatch({ type: 'toggleGrocery', key: item.key })}
+                    onPress={() => toggleItem(item.key)}
                   />
-                  <Pressable style={{ flex: 1 }} onPress={() => dispatch({ type: 'toggleGrocery', key: item.key })}>
+                  <Pressable style={{ flex: 1 }} onPress={() => toggleItem(item.key)}>
                     <Text
                       weight="medium"
                       size={14.5}
@@ -110,7 +124,7 @@ export function GroceryScreen() {
                     accessibilityRole="button"
                     accessibilityLabel={t('grocery.a11y.remove', { item: item.name })}
                     hitSlop={8}
-                    onPress={() => dispatch({ type: 'removeGroceryItem', key: item.key })}
+                    onPress={() => dismissItem(item.key)}
                   >
                     <Text size={15} color={colors.chevron}>
                       ×

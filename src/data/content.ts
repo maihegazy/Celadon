@@ -129,9 +129,6 @@ export const GROCERY_CATEGORIES: {
   },
 ];
 
-/** Custom additions land in the pantry group, as they do in the design. */
-export const CUSTOM_GROCERY_CATEGORY = 2;
-
 /* ── Diary ─────────────────────────────────────────────────────────────── */
 
 export const DIARY_ENTRIES: {
