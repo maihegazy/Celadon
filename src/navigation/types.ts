@@ -11,7 +11,13 @@ export type RootStackParamList = {
   Home: undefined;
   Scan: undefined;
   ScanConfirm: { imageUri: string; detection: DetectionResult };
-  ScanResult: { result: MealAnalysisResult; imageUri: string };
+  ScanResult: {
+    result: MealAnalysisResult;
+    imageUri: string;
+    /** The confirm step's answers, carried through so logging can archive them. */
+    portion?: string;
+    separateItems?: boolean;
+  };
   ScanQuota: undefined;
 
   Plan: undefined;

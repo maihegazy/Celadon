@@ -2,9 +2,15 @@ import * as Crypto from 'expo-crypto';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { AppState as RNAppState } from 'react-native';
 import { useAuth } from '../services/auth';
+import type { MealAnalysisResult } from '../services/mealAnalysis/types';
 import { useTrackingRepository } from '../services/tracking';
-import { DiaryEntryRecord, MealSlot, todayISO } from '../services/tracking/types';
+import { DiaryEntryRecord, MealScanRecord, MealSlot, todayISO } from '../services/tracking/types';
+import { useI18n } from '../i18n';
 import { useAppState } from './AppState';
+
+/** Which meal a log at this hour most plausibly belongs to. */
+const slotForHour = (hour: number): MealSlot =>
+  hour < 11 ? 'breakfast' : hour < 15 ? 'lunch' : hour < 18 ? 'snack' : 'dinner';
 
 /**
  * Keeps today's logs — check-in, water, diary — in step with the account.
@@ -29,6 +35,11 @@ type TrackingValue = {
   }) => DiaryEntryRecord;
   /** Removes a persisted diary entry. */
   removeEntry: (id: string) => void;
+  /** Archives a completed scan and logs it to today's diary. */
+  logScan: (
+    result: MealAnalysisResult,
+    details?: { portion?: string; separateItems?: boolean },
+  ) => DiaryEntryRecord;
 };
 
 const TrackingSyncContext = createContext<TrackingValue | null>(null);
@@ -39,6 +50,7 @@ export function TrackingSyncProvider({ children }: { children: React.ReactNode }
   const { session, status } = useAuth();
   const repository = useTrackingRepository();
   const { state, dispatch, set } = useAppState();
+  const { lang } = useI18n();
 
   const userId = session?.user.id ?? null;
   const stateRef = useRef(state);
@@ -146,6 +158,11 @@ export function TrackingSyncProvider({ children }: { children: React.ReactNode }
           name,
           calories,
           score,
+          proteinG: null,
+          carbsG: null,
+          fatG: null,
+          fibreG: null,
+          scanId: null,
         };
         dispatch({ type: 'addDiaryEntry', entry });
         persist((uid) => repository.addEntry(uid, dayRef.current, entry));
@@ -156,8 +173,49 @@ export function TrackingSyncProvider({ children }: { children: React.ReactNode }
         dispatch({ type: 'removeDiaryEntryById', id });
         persist((uid) => repository.removeEntry(uid, dayRef.current, id));
       },
+
+      logScan: (result: MealAnalysisResult, details = {}) => {
+        const now = new Date();
+        const scan: MealScanRecord = {
+          id: Crypto.randomUUID(),
+          createdAt: now.toISOString(),
+          dish: result.dish,
+          score: result.celadonScore,
+          // The API speaks in display casing; the schema in enum slugs.
+          classification: result.classification.toLowerCase() as MealScanRecord['classification'],
+          confidence: result.confidence,
+          summary: result.summary,
+          calories: result.nutrition.calories,
+          proteinG: result.nutrition.protein,
+          carbsG: result.nutrition.carbs,
+          fatG: result.nutrition.fat,
+          fibreG: result.nutrition.fibre,
+          portion: details.portion ?? 'medium',
+          separateItems: details.separateItems ?? false,
+          ingredients: result.ingredients,
+          substitutions: result.substitutions,
+          locale: lang,
+        };
+        const entry: DiaryEntryRecord = {
+          id: Crypto.randomUUID(),
+          loggedAt: scan.createdAt,
+          slot: slotForHour(now.getHours()),
+          source: 'scan',
+          name: result.dish,
+          calories: result.nutrition.calories,
+          score: result.celadonScore,
+          proteinG: result.nutrition.protein,
+          carbsG: result.nutrition.carbs,
+          fatG: result.nutrition.fat,
+          fibreG: result.nutrition.fibre,
+          scanId: scan.id,
+        };
+        dispatch({ type: 'addDiaryEntry', entry });
+        persist((uid) => repository.logScan(uid, dayRef.current, scan, entry));
+        return entry;
+      },
     };
-  }, [dispatch, repository, set, userId]);
+  }, [dispatch, lang, repository, set, userId]);
 
   return <TrackingSyncContext.Provider value={value}>{children}</TrackingSyncContext.Provider>;
 }

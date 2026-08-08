@@ -1,6 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LocalTrackingRepository } from './LocalTrackingRepository';
-import { CheckInRecord, DayRecord, DiaryEntryRecord, TrackingRepository } from './types';
+import {
+  CheckInRecord,
+  DayRecord,
+  DiaryEntryRecord,
+  MealScanRecord,
+  TrackingRepository,
+} from './types';
 
 /**
  * Offline-first wrapper: every write lands in the on-device cache immediately,
@@ -14,7 +20,8 @@ type Op =
   | { kind: 'checkIn'; day: string; checkIn: CheckInRecord }
   | { kind: 'water'; day: string; glasses: number }
   | { kind: 'addEntry'; day: string; entry: DiaryEntryRecord }
-  | { kind: 'removeEntry'; day: string; entryId: string };
+  | { kind: 'removeEntry'; day: string; entryId: string }
+  | { kind: 'logScan'; day: string; scan: MealScanRecord; entry: DiaryEntryRecord };
 
 const outboxKey = (userId: string) => `celadon.tracking.outbox.${userId}`;
 
@@ -28,6 +35,9 @@ function enqueue(queue: Op[], op: Op): Op[] {
     return [...queue.filter((q) => !(q.kind === op.kind && q.day === op.day)), op];
   }
   if (op.kind === 'removeEntry') {
+    // A plain insert that never left the device is cancelled outright. A
+    // queued scan-log is kept (the archive row should still land) and the
+    // delete is queued behind it, so the replay nets out to scan-without-entry.
     const pendingAdd = queue.some((q) => q.kind === 'addEntry' && q.entry.id === op.entryId);
     const remaining = queue.filter((q) => !(q.kind === 'addEntry' && q.entry.id === op.entryId));
     return pendingAdd ? remaining : [...remaining, op];
@@ -79,6 +89,16 @@ export class OfflineFirstTrackingRepository implements TrackingRepository {
     await this.push(userId, { kind: 'removeEntry', day, entryId });
   }
 
+  async logScan(
+    userId: string,
+    day: string,
+    scan: MealScanRecord,
+    entry: DiaryEntryRecord,
+  ): Promise<void> {
+    await this.cache.logScan(userId, day, scan, entry);
+    await this.push(userId, { kind: 'logScan', day, scan, entry });
+  }
+
   /** Replays the outbox in order, stopping at the first failure. */
   async flush(userId: string): Promise<void> {
     // One flush at a time; concurrent callers share the same attempt.
@@ -128,6 +148,8 @@ export class OfflineFirstTrackingRepository implements TrackingRepository {
         return this.remote.addEntry(userId, op.day, op.entry);
       case 'removeEntry':
         return this.remote.removeEntry(userId, op.day, op.entryId);
+      case 'logScan':
+        return this.remote.logScan(userId, op.day, op.scan, op.entry);
     }
   }
 

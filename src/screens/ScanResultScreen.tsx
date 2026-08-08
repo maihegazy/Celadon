@@ -19,6 +19,7 @@ import {
 import { IngredientTone, MealAnalysisResult } from '../services/mealAnalysis';
 import type { TranslationKey } from '../i18n';
 import { useAppState } from '../state/AppState';
+import { useTracking } from '../state/TrackingSync';
 import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
 import { RootStackParamList, useAppNavigation } from '../navigation/types';
@@ -40,7 +41,21 @@ export function ScanResultScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'ScanResult'>>();
   const result: MealAnalysisResult = route.params.result;
   const { numbersOn, set } = useAppState();
+  const { logScan } = useTracking();
   const { t, n, row } = useI18n();
+  // Logging is one tap and lands once — a second tap must not duplicate it.
+  const logged = React.useRef(false);
+
+  const addToDiary = () => {
+    if (!logged.current) {
+      logged.current = true;
+      logScan(result, {
+        portion: route.params.portion,
+        separateItems: route.params.separateItems,
+      });
+    }
+    navigation.navigate('Diary');
+  };
 
   return (
     <Screen padding={24} paddingTop={24} paddingBottom={32}>
@@ -166,7 +181,7 @@ export function ScanResultScreen() {
         </TintCard>
       ) : null}
 
-      <PrimaryButton label={t('scanResult.cta')} onPress={() => navigation.navigate('Diary')} />
+      <PrimaryButton label={t('scanResult.cta')} onPress={addToDiary} />
     </Screen>
   );
 }

@@ -4,6 +4,7 @@ import {
   DayRecord,
   DiaryEntryRecord,
   DiarySource,
+  MealScanRecord,
   MealSlot,
   TrackingRepository,
 } from './types';
@@ -36,6 +37,18 @@ type DiaryRow = {
   name: string;
   calories: number | null;
   celadon_score: number | null;
+  protein_g: number | string | null;
+  carbs_g: number | string | null;
+  fat_g: number | string | null;
+  fibre_g: number | string | null;
+  scan_id: string | null;
+};
+
+/** Numeric columns can arrive as strings depending on the driver. */
+const toNumber = (value: number | string | null): number | null => {
+  if (value === null || value === '') return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
 };
 
 const rowToCheckIn = (row: CheckInRow): CheckInRecord => {
@@ -62,6 +75,28 @@ const rowToEntry = (row: DiaryRow): DiaryEntryRecord => ({
   name: row.name,
   calories: row.calories,
   score: row.celadon_score,
+  proteinG: toNumber(row.protein_g),
+  carbsG: toNumber(row.carbs_g),
+  fatG: toNumber(row.fat_g),
+  fibreG: toNumber(row.fibre_g),
+  scanId: row.scan_id,
+});
+
+const entryToRow = (userId: string, day: string, entry: DiaryEntryRecord) => ({
+  id: entry.id,
+  user_id: userId,
+  logged_on: day,
+  logged_at: entry.loggedAt,
+  slot: entry.slot,
+  source: entry.source,
+  name: entry.name,
+  calories: entry.calories,
+  celadon_score: entry.score,
+  protein_g: entry.proteinG,
+  carbs_g: entry.carbsG,
+  fat_g: entry.fatG,
+  fibre_g: entry.fibreG,
+  scan_id: entry.scanId,
 });
 
 export class SupabaseTrackingRepository implements TrackingRepository {
@@ -82,7 +117,7 @@ export class SupabaseTrackingRepository implements TrackingRepository {
         .maybeSingle<{ glasses: number }>(),
       client
         .from('diary_entries')
-        .select('id, logged_at, slot, source, name, calories, celadon_score')
+        .select('id, logged_at, slot, source, name, calories, celadon_score, protein_g, carbs_g, fat_g, fibre_g, scan_id')
         .eq('user_id', userId)
         .eq('logged_on', day)
         .order('logged_at', { ascending: true })
@@ -121,21 +156,45 @@ export class SupabaseTrackingRepository implements TrackingRepository {
   async addEntry(userId: string, day: string, entry: DiaryEntryRecord): Promise<void> {
     const { error } = await requireSupabase()
       .from('diary_entries')
+      .upsert(entryToRow(userId, day, entry), { onConflict: 'id' });
+    if (error) throw error;
+  }
+
+  async logScan(
+    userId: string,
+    day: string,
+    scan: MealScanRecord,
+    entry: DiaryEntryRecord,
+  ): Promise<void> {
+    // The scan row first — the diary entry references it. Both upsert on
+    // client ids, so an offline replay that got halfway through is safe.
+    const scanWrite = await requireSupabase()
+      .from('meal_scans')
       .upsert(
         {
-          id: entry.id,
+          id: scan.id,
           user_id: userId,
-          logged_on: day,
-          logged_at: entry.loggedAt,
-          slot: entry.slot,
-          source: entry.source,
-          name: entry.name,
-          calories: entry.calories,
-          celadon_score: entry.score,
+          created_at: scan.createdAt,
+          dish: scan.dish,
+          celadon_score: scan.score,
+          classification: scan.classification,
+          confidence: scan.confidence,
+          summary: scan.summary,
+          calories: scan.calories,
+          protein_g: scan.proteinG,
+          carbs_g: scan.carbsG,
+          fat_g: scan.fatG,
+          fibre_g: scan.fibreG,
+          portion: scan.portion,
+          separate_items: scan.separateItems,
+          ingredients: scan.ingredients,
+          substitutions: scan.substitutions,
+          locale: scan.locale,
         },
         { onConflict: 'id' },
       );
-    if (error) throw error;
+    if (scanWrite.error) throw scanWrite.error;
+    await this.addEntry(userId, day, entry);
   }
 
   async removeEntry(userId: string, _day: string, entryId: string): Promise<void> {

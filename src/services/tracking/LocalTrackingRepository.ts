@@ -4,6 +4,7 @@ import {
   DayRecord,
   DiaryEntryRecord,
   EMPTY_DAY,
+  MealScanRecord,
   TrackingRepository,
 } from './types';
 
@@ -47,6 +48,17 @@ export class LocalTrackingRepository implements TrackingRepository {
       ...data,
       entries: data.entries.filter((e) => e.id !== entryId),
     }));
+  }
+
+  async logScan(
+    userId: string,
+    day: string,
+    _scan: MealScanRecord,
+    entry: DiaryEntryRecord,
+  ): Promise<void> {
+    // The diary entry carries everything the app shows; the full scan record
+    // is a server-side archive, so on-device only the entry is kept.
+    await this.addEntry(userId, day, entry);
   }
 
   private async update(userId: string, day: string, fn: (data: DayRecord) => DayRecord) {
