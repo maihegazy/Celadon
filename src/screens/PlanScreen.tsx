@@ -21,6 +21,7 @@ import {
 } from '../components';
 import { DAY_SCORE, MEALS, SWAP_ALTERNATIVES, WEEK_DATES, WEEKDAYS, UNPLANNED_DAY } from '../data/content';
 import { useAppState } from '../state/AppState';
+import { usePlanning } from '../state/PlanningSync';
 import { useI18n } from '../i18n';
 import { colors, radius, tracking } from '../theme';
 import { useAppNavigation } from '../navigation/types';
@@ -32,7 +33,8 @@ import { useAppNavigation } from '../navigation/types';
  */
 export function PlanScreen() {
   const navigation = useAppNavigation();
-  const { state, set, dispatch, numbersOn } = useAppState();
+  const { state, set, numbersOn } = useAppState();
+  const { toggleMeal } = usePlanning();
   const [swapFor, setSwapFor] = useState<string | null>(null);
   const { t, n, row } = useI18n();
 
@@ -180,7 +182,7 @@ export function PlanScreen() {
                       checked={done}
                       size={24}
                       borderRadius={12}
-                      onPress={() => dispatch({ type: 'toggleMealDone', index: i })}
+                      onPress={() => toggleMeal(i)}
                     />
                     <Pressable onPress={() => navigation.navigate('RecipeDetail', { name: meal.name })}>
                       <Hatch band={6} radius={radius.thumb} style={{ width: 52, height: 52 }} />

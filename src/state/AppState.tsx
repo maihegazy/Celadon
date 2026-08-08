@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useMemo, useReducer, useState } from 'react';
+import type { GroceryItemRecord, PlannedMealRecord } from '../services/planning/types';
 import type { DiaryEntryRecord } from '../services/tracking/types';
 
 /**
@@ -36,7 +37,10 @@ export type AppState = {
 
   /* meal plan */
   planDay: number;
+  /** Completion by meal position — mirrors `planMeals`, kept for the screens. */
   completedMeals: Record<number, boolean>;
+  /** This week's persisted meals, hydrated from the planning repository. */
+  planMeals: PlannedMealRecord[];
   planRegenerated: boolean;
   saturdayPlanned: boolean;
 
@@ -45,9 +49,9 @@ export type AppState = {
   savedRecipe: boolean;
 
   /* shopping list */
-  groceryChecked: Record<string, boolean>;
-  groceryRemoved: Record<string, boolean>;
-  customGroceryItems: string[];
+  groceryListId: string | null;
+  /** This week's persisted list, hydrated from the planning repository. */
+  groceryItems: GroceryItemRecord[];
 
   /* check-in */
   checkInValues: Record<number, number>;
@@ -97,15 +101,15 @@ const initialState: AppState = {
 
   planDay: 5,
   completedMeals: { 0: true },
+  planMeals: [],
   planRegenerated: false,
   saturdayPlanned: false,
 
   servings: 2,
   savedRecipe: false,
 
-  groceryChecked: {},
-  groceryRemoved: {},
-  customGroceryItems: [],
+  groceryListId: null,
+  groceryItems: [],
 
   checkInValues: { 0: 3, 1: 2, 2: 3, 3: 1, 4: 1, 5: 3 },
   flare: false,
@@ -129,10 +133,9 @@ const initialState: AppState = {
 type Action =
   | { type: 'set'; patch: Partial<AppState> }
   | { type: 'toggleIn'; key: 'conditions' | 'concerns' | 'avoids' | 'cuisines'; index: number }
-  | { type: 'toggleMealDone'; index: number }
-  | { type: 'toggleGrocery'; key: string }
-  | { type: 'removeGroceryItem'; key: string }
-  | { type: 'addGroceryItem'; name: string }
+  | { type: 'setMealCompleted'; position: number; completed: boolean }
+  | { type: 'updateGroceryItem'; id: string; patch: Partial<GroceryItemRecord> }
+  | { type: 'addGroceryItemRecord'; item: GroceryItemRecord }
   | { type: 'setCheckIn'; metric: number; value: number }
   | { type: 'removeDiaryEntry'; index: number }
   | { type: 'addDiaryEntry'; entry: DiaryEntryRecord }
@@ -153,17 +156,27 @@ function reducer(state: AppState, action: Action): AppState {
         ...state,
         [action.key]: { ...state[action.key], [action.index]: !state[action.key][action.index] },
       };
-    case 'toggleMealDone':
+    case 'setMealCompleted':
       return {
         ...state,
-        completedMeals: { ...state.completedMeals, [action.index]: !state.completedMeals[action.index] },
+        completedMeals: { ...state.completedMeals, [action.position]: action.completed },
+        planMeals: state.planMeals.map((meal) =>
+          meal.position === action.position ? { ...meal, completed: action.completed } : meal,
+        ),
       };
-    case 'toggleGrocery':
-      return { ...state, groceryChecked: { ...state.groceryChecked, [action.key]: !state.groceryChecked[action.key] } };
-    case 'removeGroceryItem':
-      return { ...state, groceryRemoved: { ...state.groceryRemoved, [action.key]: true } };
-    case 'addGroceryItem':
-      return { ...state, customGroceryItems: [...state.customGroceryItems, action.name] };
+    case 'updateGroceryItem':
+      return {
+        ...state,
+        groceryItems: state.groceryItems.map((item) =>
+          item.id === action.id ? { ...item, ...action.patch } : item,
+        ),
+      };
+    case 'addGroceryItemRecord':
+      // Keyed on id so a hydration racing a local add can't duplicate it.
+      return {
+        ...state,
+        groceryItems: [...state.groceryItems.filter((i) => i.id !== action.item.id), action.item],
+      };
     case 'setCheckIn':
       return {
         ...state,

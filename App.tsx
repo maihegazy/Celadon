@@ -15,9 +15,11 @@ import { I18nProvider } from './src/i18n';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { AuthProvider } from './src/services/auth';
 import { MealAnalysisProvider } from './src/services/mealAnalysis';
+import { PlanningProvider } from './src/services/planning';
 import { ProfileProvider } from './src/services/profile';
 import { TrackingProvider } from './src/services/tracking';
 import { AppStateProvider } from './src/state/AppState';
+import { PlanningSyncProvider } from './src/state/PlanningSync';
 import { TrackingSyncProvider } from './src/state/TrackingSync';
 import { colors } from './src/theme';
 
@@ -48,16 +50,20 @@ export default function App() {
           <AuthProvider>
             <ProfileProvider>
               <TrackingProvider>
-                <AppStateProvider>
-                  <TrackingSyncProvider>
-                    <MealAnalysisProvider>
-                      <StatusBar style="dark" />
-                      <SafeTop>
-                        <RootNavigator />
-                      </SafeTop>
-                    </MealAnalysisProvider>
-                  </TrackingSyncProvider>
-                </AppStateProvider>
+                <PlanningProvider>
+                  <AppStateProvider>
+                    <TrackingSyncProvider>
+                      <PlanningSyncProvider>
+                        <MealAnalysisProvider>
+                          <StatusBar style="dark" />
+                          <SafeTop>
+                            <RootNavigator />
+                          </SafeTop>
+                        </MealAnalysisProvider>
+                      </PlanningSyncProvider>
+                    </TrackingSyncProvider>
+                  </AppStateProvider>
+                </PlanningProvider>
               </TrackingProvider>
             </ProfileProvider>
           </AuthProvider>
