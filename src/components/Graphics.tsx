@@ -1,32 +1,52 @@
 import React, { useId } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
-import Svg, { Circle, Defs, Pattern, Rect } from 'react-native-svg';
+import Svg, { Circle, Defs, Path, Pattern, Rect } from 'react-native-svg';
 import { useI18n } from '../i18n';
 import { colors } from '../theme';
 import { Text } from './Text';
 
 /**
- * The Celadon leaf mark — a circle with one squared corner, rotated 45°.
- * (`border-radius:50% 50% 50% 0; transform:rotate(-45deg)` in the prototype.)
+ * The Celadon leaf, from the brand guidelines: a leaf drawn as a single
+ * celadon stroke. The paths are lifted verbatim from the brand sheet's
+ * 112-unit artboard; the viewBox crops to the leaf itself.
+ *
+ * The vein is drawn in the colour of whatever the leaf sits on, so pass
+ * `vein` when the background isn't known to the component. Per the brand
+ * sheet the vein is dropped at small sizes (the 28/20/16px specimens carry
+ * none) — omit `vein` there.
  */
-export function LeafMark({ size = 22, color = colors.green }: { size?: number; color?: string }) {
+export function LeafMark({
+  size = 22,
+  color = colors.green,
+  vein,
+}: {
+  size?: number;
+  color?: string;
+  vein?: string;
+}) {
   return (
-    <View
-      style={{
-        width: size,
-        height: size,
-        backgroundColor: color,
-        borderTopLeftRadius: size / 2,
-        borderTopRightRadius: size / 2,
-        borderBottomRightRadius: size / 2,
-        borderBottomLeftRadius: 0,
-        transform: [{ rotate: '-45deg' }],
-      }}
-    />
+    <Svg width={size} height={size} viewBox="35 26 50 50">
+      <Path
+        d="M56 26 C 76 34, 82 56, 74 76 C 66 70, 46 66, 42 44 C 40 36, 46 28, 56 26 Z"
+        fill={color}
+      />
+      {vein ? (
+        <Path
+          d="M50 38 C 58 50, 64 60, 70 72"
+          stroke={vein}
+          strokeWidth={3.5}
+          fill="none"
+          strokeLinecap="round"
+        />
+      ) : null}
+    </Svg>
   );
 }
 
-/** Leaf mark inside the pale circular badge used on intro / empty / success screens. */
+/**
+ * The full mark — leaf inside the soft ring — used on intro / empty /
+ * success screens.
+ */
 export function LeafBadge({
   size = 56,
   leaf = 22,
@@ -52,7 +72,7 @@ export function LeafBadge({
         style,
       ]}
     >
-      <LeafMark size={leaf} />
+      <LeafMark size={leaf} vein={leaf >= 24 ? background : undefined} />
     </View>
   );
 }
