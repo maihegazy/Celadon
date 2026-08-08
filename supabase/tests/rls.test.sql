@@ -50,6 +50,11 @@ values
   (:'alice', 'Alice scan', 82, 'supportive', 'high'),
   (:'bob', 'Bob scan', 60, 'balanced', 'medium');
 
+insert into public.scan_usage (user_id, week_start, scans_used)
+values
+  (:'alice', date_trunc('week', current_date)::date, 2),
+  (:'bob', date_trunc('week', current_date)::date, 1);
+
 update public.profiles set avoids = array['gluten', 'nightshades'] where id = :'alice';
 update public.profiles set avoids = array['dairy'] where id = :'bob';
 
@@ -137,6 +142,31 @@ begin
   exception
     when insufficient_privilege then null; -- expected
     when unique_violation then null;       -- also fine: the row already exists
+  end;
+
+  -- Scan usage is readable (the app shows "1 free scan left")…
+  if (select count(*) from public.scan_usage) <> 1 then
+    raise exception 'scan_usage leaked across accounts';
+  end if;
+  if (select scans_used from public.scan_usage) <> 2 then
+    raise exception 'Alice sees the wrong scan_usage row';
+  end if;
+
+  -- …but never writable: a client that could reset its own counter would
+  -- give itself unlimited free scans.
+  begin
+    update public.scan_usage set scans_used = 0
+    where user_id = '11111111-1111-1111-1111-111111111111';
+    raise exception 'a client was allowed to reset its own scan counter';
+  exception
+    when insufficient_privilege then null; -- expected
+  end;
+  begin
+    insert into public.scan_usage (user_id, week_start, scans_used)
+    values ('11111111-1111-1111-1111-111111111111', date_trunc('week', current_date)::date + 7, 0);
+    raise exception 'a client was allowed to insert its own scan_usage row';
+  exception
+    when insufficient_privilege then null; -- expected
   end;
 
   -- The derived views inherit the same scoping.

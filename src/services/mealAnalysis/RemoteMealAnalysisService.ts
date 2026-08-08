@@ -14,6 +14,10 @@ type RemoteOptions = {
   baseUrl: string;
   /** Optional bearer token for the analysis backend. */
   token?: string;
+  /** Per-request token, e.g. the signed-in user's session JWT. Wins over `token`. */
+  getToken?: () => Promise<string | null>;
+  /** Extra headers on every request — e.g. a Supabase anon `apikey`. */
+  headers?: Record<string, string>;
   /** Abort an in-flight analysis after this long. */
   timeoutMs?: number;
 };
@@ -83,6 +87,14 @@ export class RemoteMealAnalysisService implements MealAnalysisService {
     const nutrition = (data.nutrition ?? {}) as Record<string, unknown>;
 
     return {
+      quota:
+        typeof data.scans_used === 'number'
+          ? {
+              used: Number(data.scans_used),
+              limit: Number(data.scans_limit ?? 0),
+              premium: Boolean(data.premium ?? false),
+            }
+          : undefined,
       dish: String(data.dish ?? 'Your meal'),
       celadonScore: Number(data.score ?? 0),
       classification: (data.classification as Classification) ?? 'Balanced',
@@ -117,13 +129,26 @@ export class RemoteMealAnalysisService implements MealAnalysisService {
     const timer = setTimeout(() => controller.abort(), this.options.timeoutMs ?? 20000);
 
     try {
+      const token = (await this.options.getToken?.()) ?? this.options.token;
       const response = await fetch(`${this.options.baseUrl}${path}`, {
         method: 'POST',
         body,
         signal: controller.signal,
-        headers: this.options.token ? { Authorization: `Bearer ${this.options.token}` } : undefined,
+        headers: {
+          ...this.options.headers,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
       });
 
+      if (response.status === 402) {
+        // The backend said no more free scans this week — a quota answer,
+        // not a failure. The screens route this to the paywall explainer.
+        throw new MealAnalysisError(
+          'quota',
+          'Your free scans for this week are used up',
+          'Scans reset weekly, or go unlimited with Premium.',
+        );
+      }
       if (response.status === 422) {
         // The backend looked and couldn't identify the plate — a real answer,
         // not a failure. Say so honestly rather than guessing.

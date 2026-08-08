@@ -62,6 +62,13 @@ export function ScanScreen() {
         navigation.navigate('ScanConfirm', { imageUri, detection });
       } catch (error) {
         const known = error instanceof MealAnalysisError;
+        if (known && error.code === 'quota') {
+          // The server said the week's free scans are gone — that screen
+          // explains it better than an error state would.
+          setPhase('camera');
+          navigation.navigate('ScanQuota');
+          return;
+        }
         setFailure({
           title: known ? error.message : "We couldn't read that photo",
           guidance: known ? error.guidance : t('scan.error.body'),

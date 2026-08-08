@@ -13,6 +13,7 @@ import {
   Text,
   TextButton,
 } from '../components';
+import { useAppState } from '../state/AppState';
 import { useAnalysisProfile } from '../state/useAnalysisProfile';
 import {
   MealAnalysisError,
@@ -42,6 +43,7 @@ export function ScanConfirmScreen() {
   const { imageUri, detection } = route.params;
   const analysis = useMealAnalysis();
   const profile = useAnalysisProfile();
+  const { set } = useAppState();
   const { t, n, row, lang } = useI18n();
 
   const [excluded, setExcluded] = useState<Record<string, boolean>>({});
@@ -66,8 +68,14 @@ export function ScanConfirmScreen() {
         profile,
         locale: lang,
       });
+      // The backend's count is the truth; the local one is just the mirror.
+      if (result.quota) set({ scansUsed: result.quota.used });
       navigation.navigate('ScanResult', { result, imageUri });
     } catch (error) {
+      if (error instanceof MealAnalysisError && error.code === 'quota') {
+        navigation.navigate('ScanQuota');
+        return;
+      }
       // Analysis is the second call; if it fails we send the user back to the
       // camera rather than showing a half-empty result.
       navigation.navigate('Scan');
