@@ -9,7 +9,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "db:test": "supabase/tests/run.sh"
+    "db:test": "supabase/tests/run.sh",
+    "test": "jest"
   },
   "dependencies": {
     "@expo-google-fonts/albert-sans": "^0.4.2",
@@ -44,7 +45,10 @@
     "react-native-web": "^0.21.2"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/react": "~19.2.2",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.12",
     "typescript": "~6.0.3"
   }
 }

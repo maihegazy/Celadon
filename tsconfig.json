@@ -6,6 +6,9 @@
   "exclude": [
     "node_modules",
     // Supabase edge functions are Deno, with their own globals and URL imports.
-    "supabase/functions"
+    "supabase/functions",
+    // Tests run (and are type-checked) under jest via ts-jest, which brings
+    // the jest globals the app's own typecheck doesn't know about.
+    "**/__tests__/**"
   ]
 }

@@ -1,7 +1,8 @@
 # Celadon — continuous integration.
 #
 # Two independent checks, mirroring what's runnable locally:
-#   app:      npm run typecheck        (strict TypeScript over the whole app)
+#   app:      npm run typecheck + npm test   (strict TypeScript, then the
+#             unit tests — above all the offline-outbox replay semantics)
 #   database: supabase/tests/run.sh    (every migration, the seed, and the
 #             RLS suite against a throwaway Postgres — proving one account
 #             cannot reach another's health data)
@@ -15,7 +16,7 @@ on:
 
 jobs:
   app:
-    name: Typecheck
+    name: Typecheck & unit tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,6 +26,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run typecheck
+      - run: npm test
 
   database:
     name: Schema & RLS tests
