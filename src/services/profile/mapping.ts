@@ -8,6 +8,7 @@ import {
   CUISINE_SLUGS,
   GOAL_SLUGS,
   MEAL_PATTERN_SLUGS,
+  SEX_SLUGS,
   WEIGHT_GOAL_SLUGS,
 } from '../../data/assessment';
 import type { ComfortMode } from '../../state/AppState';
@@ -17,6 +18,13 @@ import type { ComfortMode } from '../../state/AppState';
  * that change how the app talks to this person.
  */
 export type StoredProfile = {
+  /* about you — all optional, stored only if volunteered */
+  displayName: string;
+  birthDate: string | null;
+  sex: number | null;
+  heightCm: number | null;
+  weightKg: number | null;
+
   goal: number;
   conditions: Record<number, boolean>;
   concerns: Record<number, boolean>;
@@ -55,7 +63,19 @@ const indexOf = (slugs: readonly string[], value: string | null, fallback = 0): 
   return found === -1 ? fallback : found;
 };
 
+/** Numeric columns can arrive as strings depending on the driver. */
+const toNumber = (value: number | string | null): number | null => {
+  if (value === null || value === '') return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
 type ProfileRow = {
+  display_name: string | null;
+  birth_date: string | null;
+  sex: string | null;
+  height_cm: number | string | null;
+  weight_kg: number | string | null;
   goal: string | null;
   country: string | null;
   activity: string | null;
@@ -70,6 +90,13 @@ type ProfileRow = {
 };
 
 const rowToProfile = (row: ProfileRow): StoredProfile => ({
+  displayName: row.display_name ?? '',
+  birthDate: row.birth_date,
+  // Unlike the assessment answers, "unset" is meaningful here — don't
+  // default an absent sex to the first option.
+  sex: row.sex !== null && SEX_SLUGS.includes(row.sex) ? SEX_SLUGS.indexOf(row.sex) : null,
+  heightCm: toNumber(row.height_cm),
+  weightKg: toNumber(row.weight_kg),
   goal: indexOf(GOAL_SLUGS, row.goal),
   country: indexOf(COUNTRY_SLUGS, row.country),
   activity: indexOf(ACTIVITY_SLUGS, row.activity, 1),
@@ -84,6 +111,11 @@ const rowToProfile = (row: ProfileRow): StoredProfile => ({
 });
 
 const profileToRow = (profile: StoredProfile) => ({
+  display_name: profile.displayName.trim() || null,
+  birth_date: profile.birthDate,
+  sex: profile.sex === null ? null : (SEX_SLUGS[profile.sex] ?? null),
+  height_cm: profile.heightCm,
+  weight_kg: profile.weightKg,
   goal: GOAL_SLUGS[profile.goal] ?? null,
   country: COUNTRY_SLUGS[profile.country] ?? null,
   activity: ACTIVITY_SLUGS[profile.activity] ?? 'light',
@@ -99,7 +131,7 @@ const profileToRow = (profile: StoredProfile) => ({
 
 
 export const PROFILE_COLUMNS =
-  'goal, country, activity, meal_pattern, weight_goal, comfort, conditions, concerns, avoids, cuisines, onboarding_complete';
+  'display_name, birth_date, sex, height_cm, weight_kg, goal, country, activity, meal_pattern, weight_goal, comfort, conditions, concerns, avoids, cuisines, onboarding_complete';
 
 export { rowToProfile, profileToRow };
 export type { ProfileRow };

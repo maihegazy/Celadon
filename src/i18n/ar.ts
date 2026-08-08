@@ -41,6 +41,22 @@ export const ar: Catalogue = {
   'onboarding.finish': 'إنشاء خطتي',
   'onboarding.save': 'حفظ',
 
+  'onboarding.about.title': 'أولًا، نبذة عنك',
+  'onboarding.about.subtitle':
+    'كل ما هنا اختياري — يمكن مشاركة ما يناسبك وتخطّي الباقي وتغييره في أي وقت.',
+  'onboarding.about.name': 'ما الاسم الذي نناديك به؟',
+  'onboarding.about.namePlaceholder': 'الاسم',
+  'onboarding.about.birth': 'تاريخ الميلاد',
+  'onboarding.about.day': 'اليوم',
+  'onboarding.about.month': 'الشهر',
+  'onboarding.about.year': 'السنة',
+  'onboarding.about.sex': 'الجنس',
+  'onboarding.about.body': 'قياسات الجسم',
+  'onboarding.about.height': 'الطول (سم)',
+  'onboarding.about.weight': 'الوزن (كغ)',
+  'onboarding.about.note':
+    'لماذا نسأل: العمر والجنس والقياسات تساعد في ضبط تقديرات الحصص والطاقة. تبقى خاصة، ولا تظهر في خطتك إلا برغبتك، ولا شيء هنا إلزامي.',
+
   'onboarding.goal.title': 'ما الذي جاء بك إلى سيلادون؟',
   'onboarding.goal.subtitle': 'هدفك الأساسي يشكّل كل ما يليه.',
   'onboarding.condition.title': 'هل تتعايش مع تشخيص معيّن؟',
@@ -86,6 +102,11 @@ export const ar: Catalogue = {
   'goal.energy': 'طاقة أكثر وإرهاق أقل',
   'goal.weight': 'هدف لطيف للوزن',
   'goal.better': 'أكل أفضل ببساطة',
+
+  'sex.female': 'أنثى',
+  'sex.male': 'ذكر',
+  'sex.other': 'غير ذلك',
+  'sex.preferNot': 'أفضّل عدم الإجابة',
 
   'condition.thyroid': 'هاشيموتو / الغدة الدرقية',
   'condition.arthritis': 'التهاب المفاصل الروماتويدي',
@@ -218,7 +239,8 @@ export const ar: Catalogue = {
 
   /* ── home ───────────────────────────────────────────────────────────── */
   'home.date': 'السبت ١ أغسطس',
-  'home.greeting': 'صباح الخير يا مايا',
+  'home.greeting': 'صباح الخير يا {{name}}',
+  'home.greetingPlain': 'صباح الخير',
   'home.focus.eyebrow': 'تركيز اليوم اللطيف',
   'home.focus.title': 'إضافة مصدر واحد للأوميغا ٣ — طبق السلمون على الغداء يكفي تمامًا.',
   'home.focus.note': 'الخطوات الصغيرة تتراكم. هذه هي الخطة كلها.',
@@ -695,7 +717,8 @@ export const ar: Catalogue = {
   'notifs.tweak.time': 'الأحد',
 
   /* ── profile ────────────────────────────────────────────────────────── */
-  'profile.name': 'مايا',
+  'profile.name': 'ملفك الشخصي',
+  'profile.about': 'نبذة عنك',
   'profile.meta': 'القاهرة · انضمت في يوليو ٢٠٢٦',
   'profile.trial.title': 'تجربة سيلادون بريميوم',
   'profile.trial.note': 'تبقّت ٥ أيام · عرض الباقات',

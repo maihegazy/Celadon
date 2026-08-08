@@ -35,6 +35,22 @@ export const en = {
   'onboarding.finish': 'Create my plan',
   'onboarding.save': 'Save',
 
+  'onboarding.about.title': 'First, a little about you',
+  'onboarding.about.subtitle':
+    'Everything here is optional — share what feels right, skip the rest, change it anytime.',
+  'onboarding.about.name': 'What should we call you?',
+  'onboarding.about.namePlaceholder': 'Your name',
+  'onboarding.about.birth': 'Date of birth',
+  'onboarding.about.day': 'Day',
+  'onboarding.about.month': 'Month',
+  'onboarding.about.year': 'Year',
+  'onboarding.about.sex': 'Sex',
+  'onboarding.about.body': 'Body measurements',
+  'onboarding.about.height': 'Height (cm)',
+  'onboarding.about.weight': 'Weight (kg)',
+  'onboarding.about.note':
+    'Why we ask: age, sex and measurements help size portions and energy estimates. They stay private, never appear in your plan unless you want them to, and nothing here is required.',
+
   'onboarding.goal.title': 'What brings you to Celadon?',
   'onboarding.goal.subtitle': 'Your main goal shapes everything else.',
   'onboarding.condition.title': 'Living with a diagnosis?',
@@ -80,6 +96,11 @@ export const en = {
   'goal.energy': 'More energy, less fatigue',
   'goal.weight': 'A gentle weight goal',
   'goal.better': 'Simply eat better',
+
+  'sex.female': 'Female',
+  'sex.male': 'Male',
+  'sex.other': 'Other',
+  'sex.preferNot': 'Prefer not to say',
 
   'condition.thyroid': "Hashimoto's / thyroid",
   'condition.arthritis': 'Rheumatoid arthritis',
@@ -212,7 +233,8 @@ export const en = {
 
   /* ── home ───────────────────────────────────────────────────────────── */
   'home.date': 'Saturday, August 1',
-  'home.greeting': 'Good morning, Maya',
+  'home.greeting': 'Good morning, {{name}}',
+  'home.greetingPlain': 'Good morning',
   'home.focus.eyebrow': "Today's gentle focus",
   'home.focus.title': 'Add one omega‑3 source — your salmon bowl at lunch has it covered.',
   'home.focus.note': "Small steps compound. That's the whole plan.",
@@ -689,7 +711,8 @@ export const en = {
   'notifs.tweak.time': 'Sun',
 
   /* ── profile ────────────────────────────────────────────────────────── */
-  'profile.name': 'Maya',
+  'profile.name': 'Your profile',
+  'profile.about': 'About you',
   'profile.meta': 'Cairo · joined July 2026',
   'profile.trial.title': 'Celadon Premium trial',
   'profile.trial.note': '5 days left · see plans',

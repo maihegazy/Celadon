@@ -10,6 +10,15 @@ import React, { createContext, useContext, useEffect, useMemo, useReducer, useSt
 export type ComfortMode = 0 | 1 | 2; // 0 show everything · 1 gentle · 2 minimal
 
 export type AppState = {
+  /* about you — every field is optional and null/empty until volunteered */
+  displayName: string;
+  /** ISO date (YYYY-MM-DD), or null while unset/incomplete. */
+  birthDate: string | null;
+  /** Index into SEXES, or null while unset. */
+  sex: number | null;
+  heightCm: number | null;
+  weightKg: number | null;
+
   /* assessment */
   goal: number;
   conditions: Record<number, boolean>;
@@ -64,6 +73,12 @@ export type AppState = {
 };
 
 const initialState: AppState = {
+  displayName: '',
+  birthDate: null,
+  sex: null,
+  heightCm: null,
+  weightKg: null,
+
   goal: 0,
   conditions: { 5: true },
   concerns: { 0: true, 1: true },
@@ -188,6 +203,11 @@ type DeviceState = Pick<AppState, 'permissionsSeen'>;
 
 /** The slice of state that belongs to the user rather than to this session. */
 export const assessmentSlice = (state: AppState) => ({
+  displayName: state.displayName,
+  birthDate: state.birthDate,
+  sex: state.sex,
+  heightCm: state.heightCm,
+  weightKg: state.weightKg,
   goal: state.goal,
   conditions: state.conditions,
   concerns: state.concerns,

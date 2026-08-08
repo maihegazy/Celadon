@@ -19,8 +19,9 @@ import { useAppNavigation } from '../navigation/types';
 /** Daily dashboard — one focus, today's meals, and two quiet entry points. */
 export function HomeScreen() {
   const navigation = useAppNavigation();
-  const { numbersOn } = useAppState();
+  const { state, numbersOn } = useAppState();
   const { t, row, chevronForward } = useI18n();
+  const name = state.displayName.trim();
 
   return (
     <Screen tabs gap={18}>
@@ -30,7 +31,7 @@ export function HomeScreen() {
             {t('home.date')}
           </Text>
           <Display size={27} style={{ marginTop: 2 }}>
-            {t('home.greeting')}
+            {name ? t('home.greeting', { name }) : t('home.greetingPlain')}
           </Display>
         </View>
         <View style={{ flexDirection: row, gap: 8, alignItems: 'center' }}>

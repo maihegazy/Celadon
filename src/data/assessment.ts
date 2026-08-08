@@ -14,6 +14,13 @@ export const GOALS: TranslationKey[] = [
   'goal.better',
 ];
 
+export const SEXES: TranslationKey[] = [
+  'sex.female',
+  'sex.male',
+  'sex.other',
+  'sex.preferNot',
+];
+
 export const CONDITIONS: TranslationKey[] = [
   'condition.thyroid',
   'condition.arthritis',
@@ -73,6 +80,8 @@ export const CONCERN_SLUGS = [
 ];
 
 export const COUNTRY_SLUGS = ['egypt', 'saudi_arabia', 'uae', 'kuwait', 'qatar', 'elsewhere'];
+
+export const SEX_SLUGS = ['female', 'male', 'other', 'prefer_not_to_say'];
 
 export const ACTIVITY_SLUGS = ['seated', 'light', 'high'] as const;
 
@@ -151,10 +160,11 @@ export const COMFORT_MODES: { name: TranslationKey; desc: TranslationKey }[] = [
   { name: 'comfort.minimal.name', desc: 'comfort.minimal.desc' },
 ];
 
-export const ONBOARDING_STEPS = 9;
+export const ONBOARDING_STEPS = 10;
 
 export const STEP_TITLES: { title: TranslationKey; subtitle?: TranslationKey }[] = [
   { title: 'onboarding.intro.title' },
+  { title: 'onboarding.about.title', subtitle: 'onboarding.about.subtitle' },
   { title: 'onboarding.goal.title', subtitle: 'onboarding.goal.subtitle' },
   { title: 'onboarding.condition.title', subtitle: 'onboarding.condition.subtitle' },
   { title: 'onboarding.concern.title', subtitle: 'onboarding.concern.subtitle' },
