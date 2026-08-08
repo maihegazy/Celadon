@@ -63,6 +63,8 @@ export type MealAnalysisResult = {
   nutrition: Nutrition;
   ingredients: AnalyzedIngredient[];
   substitutions: { from: string; to: string }[];
+  /** Server-reported usage after this scan, when the backend tracks it. */
+  quota?: { used: number; limit: number; premium: boolean };
 };
 
 /** The bits of the health profile that change how a meal is scored. */
@@ -98,6 +100,8 @@ export type MealAnalysisErrorCode =
   | 'unreadable'
   /** No food found in frame. */
   | 'no_food'
+  /** The free tier's weekly scans are used up (server-enforced). */
+  | 'quota'
   /** Network or server failure. */
   | 'unavailable';
 
