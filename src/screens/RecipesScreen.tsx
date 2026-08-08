@@ -12,18 +12,38 @@ import {
   SmallButton,
   Text,
 } from '../components';
-import { RECIPE_FILTERS, RECIPES, SAVED_FILTER_INDEX } from '../data/content';
+import { RECIPE_FILTERS } from '../data/content';
+import { RecipeSummary, useContent } from '../services/content';
+import type { TranslationKey } from '../i18n';
 import { useAppState } from '../state/AppState';
 import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
 import { RootStackParamList, useAppNavigation } from '../navigation/types';
+
+/** First matching tag decides the card's badge. */
+const TAG_BADGES: Record<string, TranslationKey> = {
+  omega3: 'badge.omega3',
+  supportive: 'badge.supportive',
+  'gut-gentle': 'badge.gutGentle',
+};
+
+/** Filter chips, in RECIPE_FILTERS order: all, quick, omega-3, Egyptian, batch, saved. */
+const FILTERS: ((recipe: RecipeSummary, savedSlugs: string[]) => boolean)[] = [
+  () => true,
+  (recipe) => recipe.tags.includes('quick'),
+  (recipe) => recipe.tags.includes('omega3'),
+  (recipe) => recipe.cuisine === 'egyptian',
+  (recipe) => recipe.tags.includes('batch'),
+  (recipe, savedSlugs) => savedSlugs.includes(recipe.slug),
+];
 
 /** Recipe library with filters — including the empty "saved" state. */
 export function RecipesScreen() {
   const navigation = useAppNavigation();
   const route = useRoute<RouteProp<RootStackParamList, 'Recipes'>>();
   const { state, set } = useAppState();
-  const { t, row } = useI18n();
+  const { recipes, savedSlugs } = useContent();
+  const { t, lang, row } = useI18n();
   const requestedFilter = route.params?.filter;
 
   useEffect(() => {
@@ -31,8 +51,8 @@ export function RecipesScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestedFilter]);
 
-  // Nothing is saved yet in this build, so the Saved tab shows its empty state.
-  const shown = state.recipeFilter === SAVED_FILTER_INDEX ? [] : RECIPES;
+  const filter = FILTERS[state.recipeFilter] ?? FILTERS[0];
+  const shown = recipes.filter((recipe) => filter(recipe, savedSlugs));
 
   return (
     <Screen tabs>
@@ -72,11 +92,13 @@ export function RecipesScreen() {
         </EmptyCard>
       ) : (
         <View style={{ flexDirection: row, flexWrap: 'wrap', gap: 12 }}>
-          {shown.map((recipe) => (
+          {shown.map((recipe) => {
+            const badgeTag = recipe.tags.find((tag) => TAG_BADGES[tag]);
+            return (
             <Pressable
-              key={recipe.name}
+              key={recipe.slug}
               accessibilityRole="button"
-              onPress={() => navigation.navigate('RecipeDetail', { name: recipe.name })}
+              onPress={() => navigation.navigate('RecipeDetail', { slug: recipe.slug })}
               style={({ pressed }) => [{ flexGrow: 1, flexBasis: '46%' }, pressed && { opacity: 0.85 }]}
             >
               <Card style={{ overflow: 'hidden' }}>
@@ -87,14 +109,16 @@ export function RecipesScreen() {
                 </Hatch>
                 <View style={{ padding: 12 }}>
                   <Text weight="semibold" size={14} lineHeight={18}>
-                    {t(recipe.name)}
+                    {lang === 'ar' ? recipe.nameAr : recipe.nameEn}
                   </Text>
                   <View style={{ flexDirection: row, gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-                    <Pill
-                      label={t(recipe.tag)}
-                      size={11}
-                      style={{ borderRadius: radius.thumbSm, paddingHorizontal: 9, paddingVertical: 3 }}
-                    />
+                    {badgeTag ? (
+                      <Pill
+                        label={t(TAG_BADGES[badgeTag])}
+                        size={11}
+                        style={{ borderRadius: radius.thumbSm, paddingHorizontal: 9, paddingVertical: 3 }}
+                      />
+                    ) : null}
                     <Pill
                       label={t('common.minutes', { count: recipe.minutes })}
                       size={11}
@@ -107,7 +131,8 @@ export function RecipesScreen() {
                 </View>
               </Card>
             </Pressable>
-          ))}
+            );
+          })}
         </View>
       )}
     </Screen>

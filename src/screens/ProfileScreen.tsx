@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import { Card, Display, LeafMark, NoteCard, Screen, SectionLabel, Text, TextButton } from '../components';
 import { useAuth } from '../services/auth';
+import { useContent } from '../services/content';
 import { useAppState } from '../state/AppState';
 import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
@@ -14,6 +15,7 @@ import { RootStackParamList, useAppNavigation } from '../navigation/types';
 export function ProfileScreen() {
   const navigation = useAppNavigation();
   const { state, dispatch } = useAppState();
+  const { savedSlugs } = useContent();
   const { service } = useAuth();
 
   const signOut = async () => {
@@ -40,7 +42,7 @@ export function ProfileScreen() {
     {
       name: t('profile.section.food'),
       rows: [
-        { name: t('profile.savedRecipes'), value: n(8), onPress: () => navigation.navigate('Recipes', { filter: 5 }) },
+        { name: t('profile.savedRecipes'), value: n(savedSlugs.length), onPress: () => navigation.navigate('Recipes', { filter: 5 }) },
         { name: t('profile.favouriteMeals'), value: n(5), onPress: () => navigation.navigate('Recipes', { filter: 0 }) },
       ],
     },

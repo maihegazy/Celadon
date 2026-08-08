@@ -46,7 +46,6 @@ export type AppState = {
 
   /* recipe detail */
   servings: number;
-  savedRecipe: boolean;
 
   /* shopping list */
   groceryListId: string | null;
@@ -106,7 +105,6 @@ const initialState: AppState = {
   saturdayPlanned: false,
 
   servings: 2,
-  savedRecipe: false,
 
   groceryListId: null,
   groceryItems: [],

@@ -102,7 +102,11 @@ export function HomeScreen() {
                   : t('common.minutes', { count: meal.minutes })
               }
               badge={t(meal.badge)}
-              onPress={() => navigation.navigate('RecipeDetail', { name: meal.name })}
+              onPress={
+                meal.recipeSlug
+                  ? () => navigation.navigate('RecipeDetail', { slug: meal.recipeSlug as string })
+                  : undefined
+              }
             />
           ))}
         </View>
