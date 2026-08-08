@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import { Card, Display, NoteCard, Screen, SectionLabel, Text, TextButton } from '../components';
+import { Card, Display, LeafMark, NoteCard, Screen, SectionLabel, Text, TextButton } from '../components';
 import { useAuth } from '../services/auth';
 import { useAppState } from '../state/AppState';
 import { useI18n } from '../i18n';
@@ -31,9 +31,10 @@ export function ProfileScreen() {
     {
       name: t('profile.section.health'),
       rows: [
-        { name: t('profile.healthProfile'), value: t('profile.healthProfile.value'), onPress: goStep(1) },
-        { name: t('profile.conditions'), onPress: goStep(2) },
-        { name: t('profile.restrictions'), value: t('profile.restrictions.value'), onPress: goStep(4) },
+        { name: t('profile.about'), value: state.displayName || undefined, onPress: goStep(1) },
+        { name: t('profile.healthProfile'), value: t('profile.healthProfile.value'), onPress: goStep(2) },
+        { name: t('profile.conditions'), onPress: goStep(3) },
+        { name: t('profile.restrictions'), value: t('profile.restrictions.value'), onPress: goStep(5) },
       ],
     },
     {
@@ -82,12 +83,16 @@ export function ProfileScreen() {
             justifyContent: 'center',
           }}
         >
-          <Text weight="semibold" size={20} color={colors.green}>
-            M
-          </Text>
+          {state.displayName.trim() ? (
+            <Text weight="semibold" size={20} color={colors.green}>
+              {state.displayName.trim().charAt(0).toUpperCase()}
+            </Text>
+          ) : (
+            <LeafMark size={24} />
+          )}
         </View>
         <View style={{ flex: 1 }}>
-          <Display size={24}>{t('profile.name')}</Display>
+          <Display size={24}>{state.displayName.trim() || t('profile.name')}</Display>
           <Text size={13} color={colors.faint} style={{ marginTop: 1 }}>
             {t('profile.meta')}
           </Text>

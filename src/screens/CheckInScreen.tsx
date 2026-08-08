@@ -147,7 +147,7 @@ export function CheckInScreen() {
           <SmallButton
             label={t('checkIn.reassess.cta')}
             style={{ alignSelf: 'flex-start', borderRadius: 18, paddingHorizontal: 16 }}
-            onPress={() => navigation.navigate('Onboarding', { step: 4, returnTo: 'CheckIn' })}
+            onPress={() => navigation.navigate('Onboarding', { step: 5, returnTo: 'CheckIn' })}
           />
         </Card>
       ) : null}

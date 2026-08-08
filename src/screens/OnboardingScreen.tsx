@@ -6,6 +6,7 @@ import {
   Card,
   Chip,
   Display,
+  Field,
   Hatch,
   LeafBadge,
   NoteCard,
@@ -30,6 +31,7 @@ import {
   GOALS,
   MEALS_PER_DAY,
   ONBOARDING_STEPS,
+  SEXES,
   STEP_TITLES,
   WEIGHT_GOALS,
 } from '../data/assessment';
@@ -43,8 +45,9 @@ import { colors, radius, tracking } from '../theme';
 import { RootStackParamList, useAppNavigation } from '../navigation/types';
 
 /**
- * Nine-step health assessment. Every step is optional in spirit — the copy
- * never implies a diagnosis and nothing is framed as forbidden.
+ * Ten-step health assessment. Every step is optional in spirit — the copy
+ * never implies a diagnosis, nothing is framed as forbidden, and the personal
+ * step ("About you") is explicitly skippable in full.
  *
  * Profile deep-links back into a single step (`step` + `returnTo`), which is
  * how "Restrictions & avoids" is edited after onboarding.
@@ -116,7 +119,9 @@ export function OnboardingScreen() {
             </Text>
           ) : null}
 
-          {step === 1 ? (
+          {step === 1 ? <AboutStep /> : null}
+
+          {step === 2 ? (
             <View style={{ gap: 10 }}>
               {GOALS.map((goal, i) => (
                 <RadioRow key={goal} label={t(goal)} selected={state.goal === i} onPress={() => set({ goal: i })} />
@@ -124,7 +129,7 @@ export function OnboardingScreen() {
             </View>
           ) : null}
 
-          {step === 2 ? (
+          {step === 3 ? (
             <View style={{ gap: 10 }}>
               {CONDITIONS.map((condition, i) => (
                 <RadioRow
@@ -137,7 +142,7 @@ export function OnboardingScreen() {
             </View>
           ) : null}
 
-          {step === 3 ? (
+          {step === 4 ? (
             <ChipWrap direction={row}>
               {CONCERNS.map((concern, i) => (
                 <Chip
@@ -150,7 +155,7 @@ export function OnboardingScreen() {
             </ChipWrap>
           ) : null}
 
-          {step === 4 ? (
+          {step === 5 ? (
             <>
               <ChipWrap direction={row}>
                 {AVOIDS.map((avoid, i) => (
@@ -168,7 +173,7 @@ export function OnboardingScreen() {
             </>
           ) : null}
 
-          {step === 5 ? (
+          {step === 6 ? (
             <>
               <ChipWrap direction={row}>
                 {CUISINES.map((cuisine, i) => (
@@ -194,7 +199,7 @@ export function OnboardingScreen() {
             </>
           ) : null}
 
-          {step === 6 ? (
+          {step === 7 ? (
             <>
               <View style={{ gap: 10 }}>
                 {ACTIVITY_LEVELS.map((level, i) => (
@@ -242,7 +247,7 @@ export function OnboardingScreen() {
             </>
           ) : null}
 
-          {step === 7 ? (
+          {step === 8 ? (
             <>
               <View style={{ gap: 10 }}>
                 {COMFORT_MODES.map((mode, i) => (
@@ -294,6 +299,138 @@ export function OnboardingScreen() {
           />
         </View>
       ) : null}
+    </View>
+  );
+}
+
+/** Arabic keyboards produce Arabic-Indic digits; parse both. */
+const asciiDigits = (text: string) =>
+  text.replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
+
+const parseNumber = (text: string): number | null => {
+  const value = Number(asciiDigits(text).replace(',', '.'));
+  return Number.isFinite(value) && value > 0 ? value : null;
+};
+
+/**
+ * "About you" — the only step that asks about the person rather than the food.
+ * Everything is optional: empty fields stay null and the plan works without
+ * them. A second tap clears the sex selection for the same reason.
+ */
+function AboutStep() {
+  const { state, set, numbersOn } = useAppState();
+  const { t, row } = useI18n();
+
+  // Date-of-birth pieces live locally; AppState holds the assembled ISO date
+  // only once all three parts form a real date.
+  const [birth, setBirth] = useState(() => {
+    const [y, m, d] = (state.birthDate ?? '').split('-');
+    return { day: d ?? '', month: m ?? '', year: y ?? '' };
+  });
+  const [height, setHeight] = useState(state.heightCm?.toString() ?? '');
+  const [weight, setWeight] = useState(state.weightKg?.toString() ?? '');
+
+  const setBirthPart = (part: 'day' | 'month' | 'year') => (text: string) => {
+    const nextBirth = { ...birth, [part]: asciiDigits(text).replace(/\D/g, '') };
+    setBirth(nextBirth);
+
+    const day = Number(nextBirth.day);
+    const month = Number(nextBirth.month);
+    const year = Number(nextBirth.year);
+    const plausible =
+      day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900 && year <= 2100;
+    if (plausible) {
+      const iso = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      // Reject the 31st of February and friends.
+      const parsed = new Date(`${iso}T00:00:00Z`);
+      const real =
+        parsed.getUTCFullYear() === year &&
+        parsed.getUTCMonth() === month - 1 &&
+        parsed.getUTCDate() === day;
+      set({ birthDate: real ? iso : null });
+    } else {
+      set({ birthDate: null });
+    }
+  };
+
+  const birthField = (part: 'day' | 'month' | 'year', placeholder: string, flex: number) => (
+    <Field
+      value={birth[part]}
+      onChangeText={setBirthPart(part)}
+      placeholder={placeholder}
+      keyboardType="number-pad"
+      maxLength={part === 'year' ? 4 : 2}
+      containerStyle={{ flex }}
+      accessibilityLabel={placeholder}
+    />
+  );
+
+  return (
+    <View>
+      <SubLabel>{t('onboarding.about.name')}</SubLabel>
+      <Field
+        value={state.displayName}
+        onChangeText={(text) => set({ displayName: text })}
+        placeholder={t('onboarding.about.namePlaceholder')}
+        autoComplete="name"
+        accessibilityLabel={t('onboarding.about.name')}
+      />
+
+      <SubLabel>{t('onboarding.about.birth')}</SubLabel>
+      <View style={{ flexDirection: row, gap: 10 }}>
+        {birthField('day', t('onboarding.about.day'), 1)}
+        {birthField('month', t('onboarding.about.month'), 1)}
+        {birthField('year', t('onboarding.about.year'), 1.4)}
+      </View>
+
+      <SubLabel>{t('onboarding.about.sex')}</SubLabel>
+      <ChipWrap direction={row}>
+        {SEXES.map((sex, i) => (
+          <Chip
+            key={sex}
+            label={t(sex)}
+            selected={state.sex === i}
+            onPress={() => set({ sex: state.sex === i ? null : i })}
+          />
+        ))}
+      </ChipWrap>
+
+      <SubLabel>{t('onboarding.about.body')}</SubLabel>
+      <View style={{ flexDirection: row, gap: 10 }}>
+        <Field
+          value={height}
+          onChangeText={(text) => {
+            setHeight(text);
+            set({ heightCm: parseNumber(text) });
+          }}
+          placeholder={t('onboarding.about.height')}
+          keyboardType="decimal-pad"
+          maxLength={5}
+          containerStyle={{ flex: 1 }}
+          accessibilityLabel={t('onboarding.about.height')}
+        />
+        {/* Gentle mode hides weight everywhere, including the ask. */}
+        {numbersOn ? (
+          <Field
+            value={weight}
+            onChangeText={(text) => {
+              setWeight(text);
+              set({ weightKg: parseNumber(text) });
+            }}
+            placeholder={t('onboarding.about.weight')}
+            keyboardType="decimal-pad"
+            maxLength={5}
+            containerStyle={{ flex: 1 }}
+            accessibilityLabel={t('onboarding.about.weight')}
+          />
+        ) : null}
+      </View>
+
+      <NoteCard style={{ padding: 14, marginTop: 16 }}>
+        <Text size={13} color={colors.muted} lineHeight={20}>
+          {t('onboarding.about.note')}
+        </Text>
+      </NoteCard>
     </View>
   );
 }
