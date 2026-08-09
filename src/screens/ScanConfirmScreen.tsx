@@ -179,6 +179,7 @@ export function ScanConfirmScreen() {
           label={t('scanConfirm.addMissing')}
           color={colors.green}
           style={{ alignSelf: 'flex-start', paddingVertical: 8, marginTop: 6 }}
+          onPress={() => navigation.navigate('ManualAdd')}
         />
 
         <Text weight="semibold" size={14} style={{ marginTop: 10, marginBottom: 8 }}>

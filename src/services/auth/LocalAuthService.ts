@@ -94,7 +94,7 @@ export class LocalAuthService implements AuthService {
   }
 
   private async startSession(account: StoredAccount) {
-    const session: AuthSession = { user: { id: account.id, email: account.email } };
+    const session: AuthSession = { user: { id: account.id, email: account.email, createdAt: null } };
     await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(session));
     this.emit(session);
   }

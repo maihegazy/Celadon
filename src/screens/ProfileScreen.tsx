@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { Card, Display, LeafMark, NoteCard, Screen, SectionLabel, Text, TextButton } from '../components';
+import { AVOIDS, COUNTRIES, GOALS } from '../data/assessment';
 import { useAuth } from '../services/auth';
 import { useContent } from '../services/content';
 import { useAppState } from '../state/AppState';
@@ -16,7 +17,7 @@ export function ProfileScreen() {
   const navigation = useAppNavigation();
   const { state, dispatch } = useAppState();
   const { savedSlugs } = useContent();
-  const { service } = useAuth();
+  const { service, session } = useAuth();
 
   const signOut = async () => {
     await service.signOut();
@@ -24,26 +25,50 @@ export function ProfileScreen() {
     // next sign-in.
     dispatch({ type: 'signOut' });
   };
-  const { t, n, row, chevronForward } = useI18n();
+  const { t, n, lang, row, chevronForward } = useI18n();
 
   const goStep = (step: number) => () =>
     navigation.navigate('Onboarding', { step, returnTo: 'Profile' as keyof RootStackParamList });
+
+  // "Egypt · joined August 2026" — the location is the assessment answer, the
+  // date comes from the account itself.
+  const joinedAt = session?.user.createdAt ? new Date(session.user.createdAt) : null;
+  const meta = [
+    t(COUNTRIES[state.country] ?? COUNTRIES[COUNTRIES.length - 1]),
+    joinedAt
+      ? t('profile.joined', {
+          date: joinedAt.toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-GB', {
+            month: 'long',
+            year: 'numeric',
+          }),
+        })
+      : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  const avoidLabels = AVOIDS.filter((_, index) => state.avoids[index]).map((key) => t(key));
+  const restrictionsValue =
+    avoidLabels.length === 0
+      ? t('profile.restrictions.none')
+      : avoidLabels.length <= 2
+        ? avoidLabels.join(t('common.listSeparator'))
+        : `${avoidLabels.slice(0, 2).join(t('common.listSeparator'))} +${n(avoidLabels.length - 2)}`;
 
   const sections: { name: string; rows: { name: string; value?: string; onPress?: () => void }[] }[] = [
     {
       name: t('profile.section.health'),
       rows: [
         { name: t('profile.about'), value: state.displayName || undefined, onPress: goStep(1) },
-        { name: t('profile.healthProfile'), value: t('profile.healthProfile.value'), onPress: goStep(2) },
+        { name: t('profile.healthProfile'), value: t(GOALS[state.goal] ?? GOALS[0]), onPress: goStep(2) },
         { name: t('profile.conditions'), onPress: goStep(3) },
-        { name: t('profile.restrictions'), value: t('profile.restrictions.value'), onPress: goStep(5) },
+        { name: t('profile.restrictions'), value: restrictionsValue, onPress: goStep(5) },
       ],
     },
     {
       name: t('profile.section.food'),
       rows: [
         { name: t('profile.savedRecipes'), value: n(savedSlugs.length), onPress: () => navigation.navigate('Recipes', { filter: 5 }) },
-        { name: t('profile.favouriteMeals'), value: n(5), onPress: () => navigation.navigate('Recipes', { filter: 0 }) },
       ],
     },
     {
@@ -56,7 +81,6 @@ export function ProfileScreen() {
           onPress: () => navigation.navigate('GentleMode'),
         },
         { name: t('profile.notifications'), value: t('profile.notifications.value'), onPress: () => navigation.navigate('Notifications') },
-        { name: t('profile.devices'), value: t('profile.devices.value') },
         { name: t('profile.subscription'), value: t('profile.subscription.value'), onPress: () => navigation.navigate('TrialEnding') },
       ],
     },
@@ -65,7 +89,6 @@ export function ProfileScreen() {
       rows: [
         { name: t('profile.privacy'), onPress: () => navigation.navigate('Legal', { tab: 0 }) },
         { name: t('profile.disclaimer'), onPress: () => navigation.navigate('Legal', { tab: 2 }) },
-        { name: t('profile.help') },
       ],
     },
   ];
@@ -96,7 +119,7 @@ export function ProfileScreen() {
         <View style={{ flex: 1 }}>
           <Display size={24}>{state.displayName.trim() || t('profile.name')}</Display>
           <Text size={13} color={colors.faint} style={{ marginTop: 1 }}>
-            {t('profile.meta')}
+            {meta}
           </Text>
         </View>
       </View>

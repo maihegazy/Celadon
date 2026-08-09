@@ -10,6 +10,8 @@ import type { TranslationKey } from '../../i18n';
 export type AuthUser = {
   id: string;
   email: string | null;
+  /** ISO timestamp of account creation, when the backend provides it. */
+  createdAt: string | null;
 };
 
 export type AuthSession = {

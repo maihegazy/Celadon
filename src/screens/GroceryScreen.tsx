@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, Share, View } from 'react-native';
 import {
   Card,
   CheckBox,
@@ -68,13 +68,26 @@ export function GroceryScreen() {
     setDraft('');
   };
 
+  const shareList = () => {
+    const lines = categories.flatMap((category) => [
+      category.name,
+      ...category.items.map(
+        (item) => `${item.checked ? '✓' : '•'} ${item.name}${item.qty ? ` — ${item.qty}` : ''}`,
+      ),
+      '',
+    ]);
+    Share.share({ message: [t('grocery.title'), '', ...lines].join('\n').trimEnd() }).catch(() => {
+      // Dismissing the share sheet is not an error.
+    });
+  };
+
   return (
     <Screen tabs>
       <ScreenHeader
         title={t('grocery.title')}
         subtitle={tp('grocery.subtitle', remaining)}
         onBack={() => navigation.navigate('Plan')}
-        trailing={<SmallButton label={t('common.share')} />}
+        trailing={<SmallButton label={t('common.share')} onPress={shareList} />}
       />
 
       {categories.map((category) => (
