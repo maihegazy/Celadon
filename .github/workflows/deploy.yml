@@ -1,0 +1,78 @@
+# Celadon — backend deployment.
+#
+# On every merge to main: apply the migrations to the hosted Supabase project
+# and deploy both edge functions. CI (ci.yml) has already proven the schema
+# and RLS suite against a throwaway Postgres by the time anything lands here.
+#
+# The whole workflow is inert until the repository secrets exist, so forks
+# and pre-production checkouts merge cleanly without red crosses:
+#
+#   SUPABASE_ACCESS_TOKEN   personal access token (dashboard → account → tokens)
+#   SUPABASE_PROJECT_REF    the project's ref, e.g. abcdefghijklmnop
+#   SUPABASE_DB_PASSWORD    the project's database password (for db push)
+#   SUPABASE_DB_URL         optional — full connection string; when present,
+#                           the idempotent catalogue seed is applied too
+#
+# Edge-function secrets (ANALYSIS_PROVIDER, ANTHROPIC_API_KEY, …) are set in
+# the dashboard, not here — they are runtime configuration, not deploy state.
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Secrets configured?
+    runs-on: ubuntu-latest
+    outputs:
+      configured: ${{ steps.check.outputs.configured }}
+    steps:
+      - id: check
+        env:
+          TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          if [ -n "$TOKEN" ] && [ -n "$REF" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "Supabase secrets not set — skipping deploy." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  deploy:
+    name: Migrations & edge functions
+    needs: preflight
+    if: needs.preflight.outputs.configured == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link project
+        run: supabase link --project-ref "$PROJECT_REF"
+
+      - name: Apply migrations
+        run: supabase db push
+
+      - name: Apply catalogue seed
+        if: ${{ env.DB_URL != '' }}
+        run: psql "$DB_URL" -v ON_ERROR_STOP=1 -f supabase/seed.sql
+
+      - name: Deploy edge functions
+        run: supabase functions deploy delete-account analyze-meal --project-ref "$PROJECT_REF"
