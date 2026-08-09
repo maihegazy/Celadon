@@ -70,7 +70,7 @@ export function ScanConfirmScreen() {
       });
       // The backend's count is the truth; the local one is just the mirror.
       if (result.quota) set({ scansUsed: result.quota.used });
-      navigation.navigate('ScanResult', { result, imageUri });
+      navigation.navigate('ScanResult', { result, imageUri, portion, separateItems });
     } catch (error) {
       if (error instanceof MealAnalysisError && error.code === 'quota') {
         navigation.navigate('ScanQuota');
