@@ -11,6 +11,7 @@ import {
 } from '../components';
 import { BellIcon, DiamondIcon, SearchIcon, TrendIcon } from '../components/Icons';
 import { useContent } from '../services/content';
+import { useNotifications } from '../services/notifications';
 import { todayISO } from '../services/tracking/types';
 import { useAppState } from '../state/AppState';
 import { useI18n } from '../i18n';
@@ -30,6 +31,7 @@ export function HomeScreen() {
   const navigation = useAppNavigation();
   const { state, numbersOn } = useAppState();
   const { recipes } = useContent();
+  const { unreadCount } = useNotifications();
   const { t, row, lang, chevronForward } = useI18n();
   const name = state.displayName.trim();
 
@@ -61,9 +63,27 @@ export function HomeScreen() {
           <RoundButton label={t('common.search')} onPress={() => navigation.navigate('Explore')}>
             <SearchIcon />
           </RoundButton>
-          <RoundButton label={t('home.a11y.notifications')} onPress={() => navigation.navigate('Notifications')}>
-            <BellIcon />
-          </RoundButton>
+          <View>
+            <RoundButton label={t('home.a11y.notifications')} onPress={() => navigation.navigate('Notifications')}>
+              <BellIcon />
+            </RoundButton>
+            {unreadCount > 0 && (
+              <View
+                pointerEvents="none"
+                style={{
+                  position: 'absolute',
+                  top: 2,
+                  right: 2,
+                  width: 9,
+                  height: 9,
+                  borderRadius: 4.5,
+                  backgroundColor: colors.amber,
+                  borderWidth: 1.5,
+                  borderColor: colors.bg,
+                }}
+              />
+            )}
+          </View>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t('home.a11y.profile')}

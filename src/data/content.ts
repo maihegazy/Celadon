@@ -164,29 +164,6 @@ export const REPORT_PATTERNS: { tone: Tone; text: TranslationKey }[] = [
   { tone: 'mid', text: 'report.pattern.ghee' },
 ];
 
-/* ── Notifications ─────────────────────────────────────────────────────── */
-
-export const NOTIFICATION_GROUPS: {
-  name: TranslationKey;
-  items: { title: TranslationKey; body: TranslationKey; time: TranslationKey; tone: Tone }[];
-}[] = [
-  {
-    name: 'notifs.group.today',
-    items: [
-      { title: 'notifs.lunch.title', body: 'notifs.lunch.body', time: 'notifs.lunch.time', tone: 'good' },
-      { title: 'notifs.shopping.title', body: 'notifs.shopping.body', time: 'notifs.shopping.time', tone: 'flag' },
-    ],
-  },
-  {
-    name: 'notifs.group.week',
-    items: [
-      { title: 'notifs.review.title', body: 'notifs.review.body', time: 'notifs.review.time', tone: 'good' },
-      { title: 'notifs.recipe.title', body: 'notifs.recipe.body', time: 'notifs.recipe.time', tone: 'mid' },
-      { title: 'notifs.tweak.title', body: 'notifs.tweak.body', time: 'notifs.tweak.time', tone: 'mid' },
-    ],
-  },
-];
-
 /* ── Manual entry ──────────────────────────────────────────────────────── */
 
 export const MANUAL_FOODS: {
