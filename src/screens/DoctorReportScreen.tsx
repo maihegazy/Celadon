@@ -10,7 +10,8 @@ import {
   ScreenHeader,
   Text,
 } from '../components';
-import { REPORT_PATTERNS, STAT_CARDS, toneColors } from '../data/content';
+import { REPORT_PATTERNS, toneColors } from '../data/content';
+import { useProgressStats } from '../state/useProgressStats';
 import { useI18n } from '../i18n';
 import { colors, radius } from '../theme';
 import { useAppNavigation } from '../navigation/types';
@@ -22,6 +23,7 @@ import { useAppNavigation } from '../navigation/types';
 export function DoctorReportScreen() {
   const navigation = useAppNavigation();
   const { t, row } = useI18n();
+  const { statCards } = useProgressStats();
 
   return (
     <Screen tabs>
@@ -33,13 +35,13 @@ export function DoctorReportScreen() {
       />
 
       <View style={{ flexDirection: row, flexWrap: 'wrap', gap: 10 }}>
-        {STAT_CARDS.map((stat) => (
+        {statCards.map((stat) => (
           <Card key={stat.name} style={{ flexGrow: 1, flexBasis: '47%', paddingVertical: 14, paddingHorizontal: 16 }}>
             <Text weight="bold" size={20} color={colors.greenDeep}>
-              {t(stat.value)}
+              {stat.value}
             </Text>
             <Text size={12.5} color={colors.muted} style={{ marginTop: 2 }}>
-              {t(stat.name)}
+              {stat.name}
             </Text>
           </Card>
         ))}

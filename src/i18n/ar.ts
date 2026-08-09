@@ -505,6 +505,7 @@ export const ar: Catalogue = {
   'macro.proteinValue': '٦٤ / ٩٦غ',
   'macro.carbsValue': '١١٠ / ١٥٢غ',
   'macro.fatValue': '٤٢ / ٦٢غ',
+  'macro.progress': '{{total}} / {{target}}غ',
 
   /* ── manual add ─────────────────────────────────────────────────────── */
   'manual.title': 'إضافة طعام',
@@ -620,6 +621,8 @@ export const ar: Catalogue = {
   'progress.weightOff': 'تتبّع الوزن متوقّف — انقر لإظهاره',
   'progress.checkInLink': 'التسجيل اليومي ←',
   'progress.exportLink': 'تصدير لطبيبك',
+  'stat.delta.vsPrior': '{{value}} مقارنة بالأسبوعين السابقين',
+  'progress.empty': 'تسجيلاتك الأولى سترسم هذا الرسم.',
   'stat.avgScore': 'متوسط درجة سيلادون',
   'stat.avgScore.delta': '↑ ٦ عن الشهر الماضي',
   'stat.adherence': 'الالتزام بالخطة',

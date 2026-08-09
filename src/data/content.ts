@@ -121,10 +121,20 @@ export const DIARY_ENTRIES: {
   { time: '4:30', slot: 'slot.snack', name: 'meal.walnutsDates', calories: 180, score: 90 },
 ];
 
-export const MACRO_BARS: { name: TranslationKey; value: TranslationKey; fill: number; color: string }[] = [
-  { name: 'macro.protein', value: 'macro.proteinValue', fill: 0.67, color: colors.green },
-  { name: 'macro.carbs', value: 'macro.carbsValue', fill: 0.72, color: colors.greenMid },
-  { name: 'macro.fat', value: 'macro.fatValue', fill: 0.68, color: colors.greenPale },
+/**
+ * Rough daily reference amounts the macro meters fill against. Reference
+ * points for a gentle progress bar — not prescriptions, and never shown as
+ * targets to hit.
+ */
+export const MACRO_METERS: {
+  name: TranslationKey;
+  key: 'proteinG' | 'carbsG' | 'fatG';
+  target: number;
+  color: string;
+}[] = [
+  { name: 'macro.protein', key: 'proteinG', target: 96, color: colors.green },
+  { name: 'macro.carbs', key: 'carbsG', target: 152, color: colors.greenMid },
+  { name: 'macro.fat', key: 'fatG', target: 62, color: colors.greenPale },
 ];
 
 export const WATER_GLASSES = 8;
@@ -162,22 +172,9 @@ export const SAVED_FILTER_INDEX = 5;
 
 /* ── Progress ──────────────────────────────────────────────────────────── */
 
-export const TREND_VALUES = [65, 40, 80, 75, 25, 85, 90, 70, 88, 92, 30, 85, 95, 90];
-
+/** Bar colour for a day's calm score — quiet green when high, amber when low. */
 export const trendColor = (value: number) =>
   value < 45 ? colors.amberBar : value < 75 ? colors.trendMid : colors.green;
-
-export const STAT_CARDS: {
-  value: TranslationKey;
-  name: TranslationKey;
-  delta: TranslationKey;
-  tone: 'good' | 'flat';
-}[] = [
-  { value: 'stat.avgScore.value', name: 'stat.avgScore', delta: 'stat.avgScore.delta', tone: 'good' },
-  { value: 'stat.adherence.value', name: 'stat.adherence', delta: 'stat.adherence.delta', tone: 'flat' },
-  { value: 'stat.calmDays.value', name: 'stat.calmDays', delta: 'stat.calmDays.delta', tone: 'good' },
-  { value: 'stat.checkIns.value', name: 'stat.checkIns', delta: 'stat.checkIns.delta', tone: 'good' },
-];
 
 export const PATTERNS: { tone: Tone; text: TranslationKey }[] = [
   { tone: 'flag', text: 'pattern.nightshades' },

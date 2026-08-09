@@ -13,20 +13,31 @@ import {
   Text,
   TextButton,
 } from '../components';
-import { PATTERNS, STAT_CARDS, toneColors, trendColor, TREND_VALUES } from '../data/content';
+import { PATTERNS, toneColors, trendColor } from '../data/content';
 import { useAppState } from '../state/AppState';
+import { TREND_DAYS, useProgressStats } from '../state/useProgressStats';
 import { useI18n } from '../i18n';
 import { colors, radius, tracking } from '../theme';
 import { useAppNavigation } from '../navigation/types';
 
+const shortDate = (daysAgo: number, locale: string): string => {
+  const date = new Date();
+  date.setDate(date.getDate() - daysAgo);
+  return date.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
+};
+
 /**
- * Trends and observations. Correlations are always framed as things worth
- * watching — never as findings, and never as advice.
+ * Trends and observations, drawn from the person's own check-ins.
+ * Correlations are always framed as things worth watching — never as
+ * findings, and never as advice.
  */
 export function ProgressScreen() {
   const navigation = useAppNavigation();
   const { state, set } = useAppState();
-  const { t, row } = useI18n();
+  const { t, row, lang } = useI18n();
+  const { scores, statCards, hasData } = useProgressStats();
+
+  const dateLocale = lang === 'ar' ? 'ar-EG' : 'en-GB';
 
   return (
     <Screen tabs>
@@ -35,22 +46,19 @@ export function ProgressScreen() {
       </Display>
 
       <View style={{ flexDirection: row, flexWrap: 'wrap', gap: 10 }}>
-        {STAT_CARDS.map((stat) => (
+        {statCards.map((stat) => (
           <Card key={stat.name} style={{ flexGrow: 1, flexBasis: '47%', paddingVertical: 14, paddingHorizontal: 16 }}>
             <Text weight="bold" size={20} color={colors.greenDeep}>
-              {t(stat.value)}
+              {stat.value}
             </Text>
             <Text size={12.5} color={colors.muted} style={{ marginTop: 2 }}>
-              {t(stat.name)}
+              {stat.name}
             </Text>
-            <Text
-              weight="semibold"
-              size={11.5}
-              color={stat.tone === 'good' ? colors.green : colors.faint}
-              style={{ marginTop: 4 }}
-            >
-              {t(stat.delta)}
-            </Text>
+            {stat.delta ? (
+              <Text weight="semibold" size={11.5} color={colors.faint} style={{ marginTop: 4 }}>
+                {stat.delta}
+              </Text>
+            ) : null}
           </Card>
         ))}
       </View>
@@ -65,31 +73,31 @@ export function ProgressScreen() {
           </Text>
         </View>
         <View style={{ flexDirection: row, alignItems: 'flex-end', gap: 5, height: 90 }}>
-          {TREND_VALUES.map((value, i) => (
+          {scores.map((value, i) => (
             <View
               key={i}
               style={{
                 flex: 1,
-                height: `${value}%`,
+                height: value === null ? '4%' : `${Math.max(value, 4)}%`,
                 borderTopLeftRadius: 4,
                 borderTopRightRadius: 4,
                 borderBottomLeftRadius: 2,
                 borderBottomRightRadius: 2,
-                backgroundColor: trendColor(value),
+                backgroundColor: value === null ? colors.sunken : trendColor(value),
               }}
             />
           ))}
         </View>
         <View style={{ flexDirection: row, justifyContent: 'space-between', marginTop: 8 }}>
           <Text size={11} color={colors.faint}>
-            {t('progress.chartStart')}
+            {shortDate(TREND_DAYS - 1, dateLocale)}
           </Text>
           <Text size={11} color={colors.faint}>
-            {t('progress.chartEnd')}
+            {shortDate(0, dateLocale)}
           </Text>
         </View>
         <Text size={13.5} color={colors.muted} lineHeight={20} style={{ marginTop: 12 }}>
-          {t('progress.chartNote')}
+          {hasData ? t('progress.chartNote') : t('progress.empty')}
         </Text>
       </Card>
 
