@@ -2,10 +2,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LocalTrackingRepository } from '../LocalTrackingRepository';
 import { OfflineFirstTrackingRepository } from '../OfflineFirstTrackingRepository';
 import {
+  CheckInDay,
   CheckInRecord,
   DayRecord,
   DiaryEntryRecord,
   EMPTY_DAY,
+  MealScanRecord,
   TrackingRepository,
 } from '../types';
 
@@ -26,6 +28,11 @@ const entry = (id: string, name = 'Bessara'): DiaryEntryRecord => ({
   name,
   calories: 320,
   score: 88,
+  proteinG: null,
+  carbsG: null,
+  fatG: null,
+  fibreG: null,
+  scanId: null,
 });
 
 const checkIn = (energy: number): CheckInRecord => ({
@@ -82,6 +89,22 @@ class FakeRemote implements TrackingRepository {
       ...current,
       entries: current.entries.filter((e) => e.id !== entryId),
     });
+  }
+
+  async logScan(
+    userId: string,
+    day: string,
+    scan: MealScanRecord,
+    value: DiaryEntryRecord,
+  ): Promise<void> {
+    this.guard(`scan:${scan.id}`);
+    await this.addEntry(userId, day, value);
+    this.log.pop(); // the addEntry guard logged too; keep one line per op
+  }
+
+  async loadCheckInRange(): Promise<CheckInDay[]> {
+    this.guard('loadCheckInRange');
+    return [];
   }
 }
 
