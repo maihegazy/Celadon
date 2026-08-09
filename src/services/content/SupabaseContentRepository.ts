@@ -2,6 +2,7 @@ import { requireSupabase } from '../supabase';
 import {
   Classification,
   ContentRepository,
+  FoodRecord,
   IngredientTone,
   RecipeDetail,
   RecipeSummary,
@@ -125,6 +126,38 @@ export class SupabaseContentRepository implements ContentRepository {
         toAr: row.to_ar,
       })),
     };
+  }
+
+  async listFoods(): Promise<FoodRecord[]> {
+    const { data, error } = await requireSupabase()
+      .from('foods')
+      .select('slug, name_en, name_ar, note_en, note_ar, celadon_score, tone, category, calories_per_100g')
+      .order('celadon_score', { ascending: false })
+      .returns<
+        {
+          slug: string;
+          name_en: string;
+          name_ar: string;
+          note_en: string | null;
+          note_ar: string | null;
+          celadon_score: number | null;
+          tone: IngredientTone;
+          category: string | null;
+          calories_per_100g: number | string | null;
+        }[]
+      >();
+    if (error) throw error;
+    return (data ?? []).map((row) => ({
+      slug: row.slug,
+      nameEn: row.name_en,
+      nameAr: row.name_ar,
+      noteEn: row.note_en,
+      noteAr: row.note_ar,
+      score: row.celadon_score,
+      tone: row.tone,
+      category: row.category,
+      caloriesPer100g: row.calories_per_100g === null ? null : Number(row.calories_per_100g),
+    }));
   }
 
   async listSavedSlugs(userId: string): Promise<string[]> {

@@ -52,9 +52,24 @@ export type RecipeDetail = RecipeSummary & {
   substitutions: RecipeSubstitution[];
 };
 
+/** One ingredient in the shared reference catalogue (the `foods` table). */
+export type FoodRecord = {
+  slug: string;
+  nameEn: string;
+  nameAr: string;
+  noteEn: string | null;
+  noteAr: string | null;
+  /** 0–100, how well the food supports an anti-inflammatory pattern. */
+  score: number | null;
+  tone: IngredientTone;
+  category: string | null;
+  caloriesPer100g: number | null;
+};
+
 export interface ContentRepository {
   listRecipes(): Promise<RecipeSummary[]>;
   getRecipe(slug: string): Promise<RecipeDetail | null>;
+  listFoods(): Promise<FoodRecord[]>;
   /** Slugs of the recipes this user has saved. */
   listSavedSlugs(userId: string): Promise<string[]>;
   setSaved(userId: string, slug: string, saved: boolean): Promise<void>;
