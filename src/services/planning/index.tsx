@@ -6,7 +6,9 @@ import { SupabasePlanningRepository } from './SupabasePlanningRepository';
 import { PlanningRepository } from './types';
 
 export * from './types';
-export { buildWeekSeed } from './seed';
+export { buildGroceryItems } from './seed';
+export { generateWeekMeals } from './generator';
+export type { GeneratorProfile } from './generator';
 export { LocalPlanningRepository } from './LocalPlanningRepository';
 export { OfflineFirstPlanningRepository } from './OfflineFirstPlanningRepository';
 export { SupabasePlanningRepository } from './SupabasePlanningRepository';

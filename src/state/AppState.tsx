@@ -36,13 +36,13 @@ export type AppState = {
   numbersOverride: boolean | null;
 
   /* meal plan */
+  /** Selected day in the week strip, 0 = Sunday. */
   planDay: number;
-  /** Completion by meal position — mirrors `planMeals`, kept for the screens. */
-  completedMeals: Record<number, boolean>;
+  /** Sunday of the generated week, or null until hydrated. */
+  planWeekStart: string | null;
   /** This week's persisted meals, hydrated from the planning repository. */
   planMeals: PlannedMealRecord[];
   planRegenerated: boolean;
-  saturdayPlanned: boolean;
 
   /* recipe detail */
   servings: number;
@@ -98,11 +98,10 @@ const initialState: AppState = {
   comfort: 0,
   numbersOverride: null,
 
-  planDay: 5,
-  completedMeals: { 0: true },
+  planDay: new Date().getDay(),
+  planWeekStart: null,
   planMeals: [],
   planRegenerated: false,
-  saturdayPlanned: false,
 
   servings: 2,
 
@@ -131,7 +130,7 @@ const initialState: AppState = {
 type Action =
   | { type: 'set'; patch: Partial<AppState> }
   | { type: 'toggleIn'; key: 'conditions' | 'concerns' | 'avoids' | 'cuisines'; index: number }
-  | { type: 'setMealCompleted'; position: number; completed: boolean }
+  | { type: 'updatePlanMeal'; id: string; patch: Partial<PlannedMealRecord> }
   | { type: 'updateGroceryItem'; id: string; patch: Partial<GroceryItemRecord> }
   | { type: 'addGroceryItemRecord'; item: GroceryItemRecord }
   | { type: 'setCheckIn'; metric: number; value: number }
@@ -154,12 +153,11 @@ function reducer(state: AppState, action: Action): AppState {
         ...state,
         [action.key]: { ...state[action.key], [action.index]: !state[action.key][action.index] },
       };
-    case 'setMealCompleted':
+    case 'updatePlanMeal':
       return {
         ...state,
-        completedMeals: { ...state.completedMeals, [action.position]: action.completed },
         planMeals: state.planMeals.map((meal) =>
-          meal.position === action.position ? { ...meal, completed: action.completed } : meal,
+          meal.id === action.id ? { ...meal, ...action.patch } : meal,
         ),
       };
     case 'updateGroceryItem':

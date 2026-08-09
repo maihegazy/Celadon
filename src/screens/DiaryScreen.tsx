@@ -40,7 +40,7 @@ export function DiaryScreen() {
   const { state, dispatch, numbersOn } = useAppState();
   const { setWater, removeEntry } = useTracking();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const { t, n, row, textAlign, isRTL } = useI18n();
+  const { t, n, row, lang, textAlign, isRTL } = useI18n();
 
   // Without a backend the walkable demo keeps its example entries; against a
   // real one the diary shows only what was actually logged.
@@ -91,7 +91,11 @@ export function DiaryScreen() {
     <Screen tabs>
       <ScreenHeader
         title={t('diary.title')}
-        subtitle={t('home.date')}
+        subtitle={new Date().toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-GB', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+        })}
         onBack={() => navigation.navigate('Home')}
         trailing={
           dayScore !== null ? (

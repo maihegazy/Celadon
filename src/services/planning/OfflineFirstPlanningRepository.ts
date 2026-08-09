@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LocalPlanningRepository } from './LocalPlanningRepository';
-import { GroceryItemRecord, PlanningRepository, WeekPlanRecord } from './types';
+import { GroceryItemRecord, PlannedMealRecord, PlanningRepository, WeekPlanRecord } from './types';
 
 /**
  * Offline-first wrapper, same contract as the tracking one: writes land in
@@ -12,6 +12,8 @@ import { GroceryItemRecord, PlanningRepository, WeekPlanRecord } from './types';
 type Op =
   | { kind: 'ensureWeek'; week: WeekPlanRecord }
   | { kind: 'mealCompleted'; mealId: string; completed: boolean }
+  | { kind: 'swapMeal'; mealId: string; dish: { recipeId: string | null; nameEn: string; nameAr: string | null } }
+  | { kind: 'replaceMeals'; planId: string; weekStart: string; meals: PlannedMealRecord[] }
   | { kind: 'itemChecked'; itemId: string; checked: boolean }
   | { kind: 'dismissItem'; itemId: string }
   | { kind: 'addItem'; listId: string; item: GroceryItemRecord };
@@ -22,6 +24,19 @@ const outboxKey = (userId: string) => `celadon.planning.outbox.${userId}`;
 function enqueue(queue: Op[], op: Op): Op[] {
   if (op.kind === 'mealCompleted') {
     return [...queue.filter((q) => !(q.kind === 'mealCompleted' && q.mealId === op.mealId)), op];
+  }
+  if (op.kind === 'swapMeal') {
+    return [...queue.filter((q) => !(q.kind === 'swapMeal' && q.mealId === op.mealId)), op];
+  }
+  if (op.kind === 'replaceMeals') {
+    // A newer regeneration supersedes an unsent one — and any queued ticks
+    // or swaps against meals the regeneration is about to delete.
+    return [
+      ...queue.filter(
+        (q) => q.kind !== 'replaceMeals' && q.kind !== 'mealCompleted' && q.kind !== 'swapMeal',
+      ),
+      op,
+    ];
   }
   if (op.kind === 'itemChecked') {
     return [...queue.filter((q) => !(q.kind === 'itemChecked' && q.itemId === op.itemId)), op];
@@ -57,6 +72,25 @@ export class OfflineFirstPlanningRepository implements PlanningRepository {
   async setMealCompleted(userId: string, mealId: string, completed: boolean): Promise<void> {
     await this.cache.setMealCompleted(userId, mealId, completed);
     await this.push(userId, { kind: 'mealCompleted', mealId, completed });
+  }
+
+  async swapMeal(
+    userId: string,
+    mealId: string,
+    dish: { recipeId: string | null; nameEn: string; nameAr: string | null },
+  ): Promise<void> {
+    await this.cache.swapMeal(userId, mealId, dish);
+    await this.push(userId, { kind: 'swapMeal', mealId, dish });
+  }
+
+  async replaceMeals(
+    userId: string,
+    planId: string,
+    weekStart: string,
+    meals: PlannedMealRecord[],
+  ): Promise<void> {
+    await this.cache.replaceMeals(userId, planId, weekStart, meals);
+    await this.push(userId, { kind: 'replaceMeals', planId, weekStart, meals });
   }
 
   async setItemChecked(userId: string, itemId: string, checked: boolean): Promise<void> {
@@ -117,6 +151,10 @@ export class OfflineFirstPlanningRepository implements PlanningRepository {
         return this.remote.ensureWeek(userId, op.week);
       case 'mealCompleted':
         return this.remote.setMealCompleted(userId, op.mealId, op.completed);
+      case 'swapMeal':
+        return this.remote.swapMeal(userId, op.mealId, op.dish);
+      case 'replaceMeals':
+        return this.remote.replaceMeals(userId, op.planId, op.weekStart, op.meals);
       case 'itemChecked':
         return this.remote.setItemChecked(userId, op.itemId, op.checked);
       case 'dismissItem':

@@ -15,8 +15,10 @@ export type PlannedMealRecord = {
   /** ISO date the meal is planned for. */
   scheduledOn: string;
   slot: MealSlot;
-  /** Order within the day — the screens address meals by this. */
+  /** Order within the day. */
   position: number;
+  /** The catalogue recipe behind the meal, when there is one. */
+  recipeId: string | null;
   nameEn: string;
   nameAr: string | null;
   completed: boolean;
@@ -54,6 +56,14 @@ export interface PlanningRepository {
    */
   ensureWeek(userId: string, week: WeekPlanRecord): Promise<void>;
   setMealCompleted(userId: string, mealId: string, completed: boolean): Promise<void>;
+  /** Points an existing planned meal at a different dish. */
+  swapMeal(
+    userId: string,
+    mealId: string,
+    dish: { recipeId: string | null; nameEn: string; nameAr: string | null },
+  ): Promise<void>;
+  /** Replaces the week's meals wholesale — what "regenerate" means. */
+  replaceMeals(userId: string, planId: string, weekStart: string, meals: PlannedMealRecord[]): Promise<void>;
   setItemChecked(userId: string, itemId: string, checked: boolean): Promise<void>;
   dismissItem(userId: string, itemId: string): Promise<void>;
   addItem(userId: string, listId: string, item: GroceryItemRecord): Promise<void>;
