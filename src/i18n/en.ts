@@ -578,6 +578,13 @@ export const en = {
   'reintro.tag.testing': 'Testing',
   'reintro.tag.queued': 'Queued',
   'reintro.tag.later': 'Later',
+  'reintro.tag.reacted': 'Reacted',
+  'reintro.tag.paused': 'Paused',
+  'reintro.status.queued': "Up next when you're ready",
+  'reintro.status.testing': 'Testing — day {{day}} of {{total}}',
+  'reintro.status.passed': 'Passed · no reaction',
+  'reintro.status.reacted': 'Reacted — shelved for now',
+  'reintro.status.paused': "Paused — that's okay",
 
   /* ── recipes ────────────────────────────────────────────────────────── */
   'recipes.title': 'Recipes',
