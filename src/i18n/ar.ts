@@ -648,7 +648,10 @@ export const ar: Catalogue = {
 
   /* ── doctor report ──────────────────────────────────────────────────── */
   'report.title': 'تقرير الطبيب',
-  'report.subtitle': '١ – ٣١ يوليو · معدّ لفريق الرعاية',
+  'report.period': '{{from}} – {{to}} · معدّ لفريق الرعاية',
+  'report.trend': 'درجة الهدوء اليومية، آخر {{count}} يومًا',
+  'report.generating': 'جارٍ التحضير…',
+  'report.emailSubject': 'سيلادون — تقرير الغذاء والأعراض',
   'report.patterns': 'أنماط ملاحَظة',
   'report.foodPattern': 'النمط الغذائي',
   'report.foodPattern.body':

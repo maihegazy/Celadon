@@ -640,7 +640,10 @@ export const en = {
 
   /* ── doctor report ──────────────────────────────────────────────────── */
   'report.title': 'Doctor report',
-  'report.subtitle': 'July 1 – 31 · prepared for your care team',
+  'report.period': '{{from}} – {{to}} · prepared for your care team',
+  'report.trend': 'Daily calm score, last {{count}} days',
+  'report.generating': 'Preparing…',
+  'report.emailSubject': 'Celadon — food & symptom report',
   'report.patterns': 'Patterns observed',
   'report.foodPattern': 'Food pattern',
   'report.foodPattern.body':
