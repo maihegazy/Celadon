@@ -75,4 +75,4 @@ jobs:
         run: psql "$DB_URL" -v ON_ERROR_STOP=1 -f supabase/seed.sql
 
       - name: Deploy edge functions
-        run: supabase functions deploy delete-account analyze-meal --project-ref "$PROJECT_REF"
+        run: supabase functions deploy delete-account analyze-meal notify --project-ref "$PROJECT_REF"
