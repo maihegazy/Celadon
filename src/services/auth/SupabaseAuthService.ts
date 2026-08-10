@@ -41,7 +41,15 @@ function messageKeyFor(error: AuthError | null): TranslationKey {
 }
 
 const toSession = (session: Session | null): CeladonSession =>
-  session?.user ? { user: { id: session.user.id, email: session.user.email ?? null } } : null;
+  session?.user
+    ? {
+        user: {
+          id: session.user.id,
+          email: session.user.email ?? null,
+          createdAt: session.user.created_at ?? null,
+        },
+      }
+    : null;
 
 /**
  * Real authentication, backed by Supabase Auth.

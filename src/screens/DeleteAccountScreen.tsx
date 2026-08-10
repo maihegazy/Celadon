@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { Share, View } from 'react-native';
 import {
   BulletRow,
   Card,
@@ -25,11 +25,34 @@ import { useAppNavigation } from '../navigation/types';
  */
 export function DeleteAccountScreen() {
   const navigation = useAppNavigation();
-  const { dispatch } = useAppState();
+  const { state, dispatch } = useAppState();
   const { t, row } = useI18n();
   const { service } = useAuth();
   const { busy, run } = useAuthAction();
   const [error, setError] = useState<TranslationKey | null>(null);
+
+  // Everything hydrated on this device, as JSON the person can keep. Older
+  // history lives server-side and is gone with the account — the bullet list
+  // above says so plainly.
+  const exportData = () => {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      profile: {
+        displayName: state.displayName,
+        birthDate: state.birthDate,
+        heightCm: state.heightCm,
+        weightKg: state.weightKg,
+      },
+      checkIn: { values: state.checkInValues, flare: state.flare, note: state.checkInNote },
+      water: state.water,
+      diaryEntries: state.diaryEntries,
+      planMeals: state.planMeals,
+      groceryItems: state.groceryItems,
+    };
+    Share.share({ message: JSON.stringify(payload, null, 2) }).catch(() => {
+      // Dismissing the share sheet is not an error.
+    });
+  };
 
   const confirmDelete = () =>
     run(async () => {
@@ -74,7 +97,7 @@ export function DeleteAccountScreen() {
         </Text>
       </View>
 
-      <OutlineButton label={t('delete.export')} size={14.5} />
+      <OutlineButton label={t('delete.export')} size={14.5} onPress={exportData} />
 
       {error ? (
         <View style={{ backgroundColor: colors.redLight, borderRadius: radius.tile, paddingVertical: 12, paddingHorizontal: 14 }}>
