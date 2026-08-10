@@ -16,6 +16,7 @@ import { RootNavigator } from './src/navigation/RootNavigator';
 import { AuthProvider } from './src/services/auth';
 import { MealAnalysisProvider } from './src/services/mealAnalysis';
 import { ContentProvider } from './src/services/content';
+import { NotificationsProvider } from './src/services/notifications';
 import { PlanningProvider } from './src/services/planning';
 import { ProfileProvider } from './src/services/profile';
 import { TrackingProvider } from './src/services/tracking';
@@ -51,6 +52,7 @@ export default function App() {
           <AuthProvider>
             <ProfileProvider>
               <ContentProvider>
+                <NotificationsProvider>
                 <TrackingProvider>
                   <PlanningProvider>
                     <AppStateProvider>
@@ -67,6 +69,7 @@ export default function App() {
                     </AppStateProvider>
                   </PlanningProvider>
                 </TrackingProvider>
+                </NotificationsProvider>
               </ContentProvider>
             </ProfileProvider>
           </AuthProvider>

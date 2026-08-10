@@ -68,7 +68,6 @@ export type AppState = {
   /* misc UI */
   recipeFilter: number;
   weightVisible: boolean;
-  notificationsCleared: boolean;
   selectedPlan: number;
   /** Free-tier scans used this week; the design shows "1 free scan left" of 3. */
   scansUsed: number;
@@ -119,7 +118,6 @@ const initialState: AppState = {
 
   recipeFilter: 0,
   weightVisible: false,
-  notificationsCleared: false,
   selectedPlan: 1,
   scansUsed: 2,
   cameraPrimingSeen: false,
