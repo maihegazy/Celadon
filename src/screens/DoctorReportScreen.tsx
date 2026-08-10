@@ -12,7 +12,8 @@ import {
   ScreenHeader,
   Text,
 } from '../components';
-import { REPORT_PATTERNS, toneColors, trendColor } from '../data/content';
+import { toneColors, trendColor } from '../data/content';
+import { useInsights } from '../state/useInsights';
 import { TREND_DAYS, useProgressStats } from '../state/useProgressStats';
 import {
   buildReportHtml,
@@ -31,7 +32,17 @@ export function DoctorReportScreen() {
   const navigation = useAppNavigation();
   const { t, lang, isRTL, row } = useI18n();
   const { statCards, scores } = useProgressStats();
+  const { rows: insights, coverage } = useInsights();
   const [busy, setBusy] = useState(false);
+
+  const coverageBody =
+    coverage && coverage.average !== null
+      ? t('report.coverage.body', {
+          count: coverage.count,
+          days: coverage.days,
+          avg: coverage.average,
+        })
+      : t('report.coverage.none');
 
   const formatDay = (date: Date) =>
     date.toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-GB', { day: 'numeric', month: 'short' });
@@ -51,12 +62,15 @@ export function DoctorReportScreen() {
       color: score === null ? colors.line : trendColor(score),
     })),
     patternsTitle: t('report.patterns'),
-    patterns: REPORT_PATTERNS.map((entry) => ({
-      color: toneColors[entry.tone].dot,
-      text: t(entry.text),
-    })),
-    foodPatternTitle: t('report.foodPattern'),
-    foodPatternBody: t('report.foodPattern.body'),
+    patterns:
+      insights.length > 0
+        ? insights.map((insight) => ({
+            color: toneColors[insight.tone].dot,
+            text: insight.text,
+          }))
+        : [{ color: colors.faint, text: t('insights.empty') }],
+    foodPatternTitle: t('report.coverage'),
+    foodPatternBody: coverageBody,
     disclaimer: t('report.disclaimer'),
   });
 
@@ -117,24 +131,30 @@ export function DoctorReportScreen() {
         <Text weight="semibold" size={15} style={{ marginBottom: 10 }}>
           {t('report.patterns')}
         </Text>
-        <View style={{ gap: 10 }}>
-          {REPORT_PATTERNS.map((pattern) => (
-            <View key={pattern.text} style={{ flexDirection: row, gap: 12 }}>
-              <Dot color={toneColors[pattern.tone].dot} style={{ marginTop: 4 }} />
-              <Text size={13.5} color={colors.inkSoft} lineHeight={20} style={{ flex: 1 }}>
-                {t(pattern.text)}
-              </Text>
-            </View>
-          ))}
-        </View>
+        {insights.length === 0 ? (
+          <Text size={13.5} color={colors.muted} lineHeight={20}>
+            {t('insights.empty')}
+          </Text>
+        ) : (
+          <View style={{ gap: 10 }}>
+            {insights.map((insight) => (
+              <View key={insight.key} style={{ flexDirection: row, gap: 12 }}>
+                <Dot color={toneColors[insight.tone].dot} style={{ marginTop: 4 }} />
+                <Text size={13.5} color={colors.inkSoft} lineHeight={20} style={{ flex: 1 }}>
+                  {insight.text}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
       </Card>
 
       <Card style={{ padding: 18, borderRadius: radius.cardLg }}>
         <Text weight="semibold" size={15} style={{ marginBottom: 6 }}>
-          {t('report.foodPattern')}
+          {t('report.coverage')}
         </Text>
         <Text size={13.5} color={colors.muted} lineHeight={21}>
-          {t('report.foodPattern.body')}
+          {coverageBody}
         </Text>
       </Card>
 

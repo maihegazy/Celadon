@@ -152,18 +152,6 @@ export const SAVED_FILTER_INDEX = 5;
 export const trendColor = (value: number) =>
   value < 45 ? colors.amberBar : value < 75 ? colors.trendMid : colors.green;
 
-export const PATTERNS: { tone: Tone; text: TranslationKey }[] = [
-  { tone: 'flag', text: 'pattern.nightshades' },
-  { tone: 'good', text: 'pattern.sleep' },
-  { tone: 'mid', text: 'pattern.ghee' },
-];
-
-export const REPORT_PATTERNS: { tone: Tone; text: TranslationKey }[] = [
-  { tone: 'flag', text: 'report.pattern.nightshades' },
-  { tone: 'good', text: 'report.pattern.fish' },
-  { tone: 'mid', text: 'report.pattern.ghee' },
-];
-
 /* ── Manual entry ──────────────────────────────────────────────────────── */
 
 export const MANUAL_FOODS: {

@@ -236,7 +236,9 @@ export const en = {
   'home.greeting': 'Good morning, {{name}}',
   'home.greetingPlain': 'Good morning',
   'home.focus.eyebrow': "Today's gentle focus",
-  'home.focus.title': 'Add one omega‑3 source — your salmon bowl at lunch has it covered.',
+  'home.focus.omega3': '{{dish}} has your omega‑3 covered today — the rest can stay simple.',
+  'home.focus.dish': "Today's anchor: {{dish}}. One good meal steadies the day.",
+  'home.focus.fallback': 'Add one omega‑3 source today — fish, walnuts or flax all count.',
   'home.focus.note': "Small steps compound. That's the whole plan.",
   'home.meals': "Today's meals",
   'home.diaryLink': 'Food diary →',
@@ -607,8 +609,6 @@ export const en = {
   'progress.chartNote':
     '11 of 14 days felt calm — your best two weeks since you started. Amber bars are flare days.',
   'progress.insight.eyebrow': "This week's insight",
-  'progress.insight.body':
-    'Your most supportive choices were fish dinners — weeks with 3+ average 1.8 more calm days.',
   'progress.insight.note': 'An observation, not a conclusion — worth watching together.',
   'progress.patterns': "Patterns we're noticing",
   'progress.patterns.note':
@@ -634,9 +634,13 @@ export const en = {
   'stat.adherence.value': '78%',
   'stat.calmDays.value': '11 / 14',
   'stat.checkIns.value': '12',
-  'pattern.nightshades': 'Joint discomfort shows up **2× more often** within a day of eating nightshades.',
-  'pattern.sleep': 'Days above 80 on the Celadon Score tend to be followed by **better sleep check-ins**.',
-  'pattern.ghee': 'Ghee reintroduction: **no symptom change** so far.',
+  'insights.empty': 'Patterns appear after a few more check-ins — keep logging how you feel.',
+  'insight.trendUp': 'Your average calm score is up {{points}} points on the two weeks before.',
+  'insight.trendDown': 'Your average calm score is down {{points}} points on the two weeks before — worth a gentle look together.',
+  'insight.trendSteady': 'Your calm score has held steady across the last four weeks.',
+  'insight.calmestDay': 'Your calmest days tend to land on {{day}}.',
+  'insight.flare': 'On your {{count}} flare days, {{metric}} was the lowest-rated area.',
+  'insight.lowestMetric': '{{metric}} has been your lowest-rated area lately.',
 
   /* ── doctor report ──────────────────────────────────────────────────── */
   'report.title': 'Doctor report',
@@ -645,17 +649,13 @@ export const en = {
   'report.generating': 'Preparing…',
   'report.emailSubject': 'Celadon — food & symptom report',
   'report.patterns': 'Patterns observed',
-  'report.foodPattern': 'Food pattern',
-  'report.foodPattern.body':
-    '24 of 31 days followed an anti-inflammatory pattern. Most frequent supportive foods: salmon, olive oil, molokhia, walnuts. Flagged foods appeared in 9 meals, mostly tomatoes.',
+  'report.coverage': 'Check-in coverage',
+  'report.coverage.body': '{{count}} of {{days}} days logged · average calm score {{avg}}.',
+  'report.coverage.none': 'No check-ins in this window yet.',
   'report.disclaimer':
     'Self-reported data and photo-based estimates, shared as observations for clinical context — not a diagnosis.',
   'report.sharePdf': 'Share as PDF',
   'report.email': 'Email to my nutritionist',
-  'report.pattern.nightshades':
-    'Joint discomfort reported 2× more often within a day of nightshade meals.',
-  'report.pattern.fish': 'Weeks with 3+ fish meals averaged 1.8 more calm days.',
-  'report.pattern.ghee': 'Ghee reintroduction (in progress): no symptom change through day 2.',
 
   /* ── explore ────────────────────────────────────────────────────────── */
   'explore.title': 'Explore',

@@ -13,8 +13,9 @@ import {
   Text,
   TextButton,
 } from '../components';
-import { PATTERNS, toneColors, trendColor } from '../data/content';
+import { toneColors, trendColor } from '../data/content';
 import { useAppState } from '../state/AppState';
+import { useInsights } from '../state/useInsights';
 import { TREND_DAYS, useProgressStats } from '../state/useProgressStats';
 import { useI18n } from '../i18n';
 import { colors, radius, tracking } from '../theme';
@@ -36,6 +37,7 @@ export function ProgressScreen() {
   const { state, set } = useAppState();
   const { t, row, lang } = useI18n();
   const { scores, statCards, hasData } = useProgressStats();
+  const { rows: insights } = useInsights();
 
   const dateLocale = lang === 'ar' ? 'ar-EG' : 'en-GB';
 
@@ -111,7 +113,7 @@ export function ProgressScreen() {
           {t('progress.insight.eyebrow')}
         </Text>
         <Text weight="serif" size={18} color={colors.white} lineHeight={25} style={{ marginTop: 6 }}>
-          {t('progress.insight.body')}
+          {insights[0]?.text ?? t('insights.empty')}
         </Text>
         <Text size={13} color={colors.greenPale} style={{ marginTop: 8 }}>
           {t('progress.insight.note')}
@@ -122,16 +124,22 @@ export function ProgressScreen() {
         <Text weight="semibold" size={15} style={{ marginBottom: 10 }}>
           {t('progress.patterns')}
         </Text>
-        <View style={{ gap: 10 }}>
-          {PATTERNS.map((pattern) => (
-            <View key={pattern.text} style={{ flexDirection: row, gap: 12 }}>
-              <Dot color={toneColors[pattern.tone].dot} style={{ marginTop: 4 }} />
-              <Text size={13.5} color={colors.inkSoft} lineHeight={20} style={{ flex: 1 }}>
-                <EmphasisedText text={t(pattern.text)} />
-              </Text>
-            </View>
-          ))}
-        </View>
+        {insights.length === 0 ? (
+          <Text size={13.5} color={colors.muted} lineHeight={20}>
+            {t('insights.empty')}
+          </Text>
+        ) : (
+          <View style={{ gap: 10 }}>
+            {insights.map((insight) => (
+              <View key={insight.key} style={{ flexDirection: row, gap: 12 }}>
+                <Dot color={toneColors[insight.tone].dot} style={{ marginTop: 4 }} />
+                <Text size={13.5} color={colors.inkSoft} lineHeight={20} style={{ flex: 1 }}>
+                  <EmphasisedText text={insight.text} />
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
         <NoteCard style={{ marginTop: 12, padding: 12 }}>
           <Text size={12.5} color={colors.muted} lineHeight={19}>
             {t('progress.patterns.note')}

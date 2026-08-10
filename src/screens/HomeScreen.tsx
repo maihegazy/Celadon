@@ -48,6 +48,17 @@ export function HomeScreen() {
     .sort((a, b) => a.position - b.position)
     .slice(0, 3);
 
+  // Today's focus names the day's strongest planned dish, not fixture copy.
+  const focusRecipe = todayMeals
+    .map((meal) => (meal.recipeId ? recipeById.get(meal.recipeId) : undefined))
+    .filter((recipe): recipe is NonNullable<typeof recipe> => !!recipe)
+    .sort((a, b) => b.score - a.score)[0];
+  const focusText = focusRecipe
+    ? t(focusRecipe.tags.includes('omega3') ? 'home.focus.omega3' : 'home.focus.dish', {
+        dish: lang === 'ar' ? focusRecipe.nameAr : focusRecipe.nameEn,
+      })
+    : t('home.focus.fallback');
+
   return (
     <Screen tabs gap={18}>
       <View style={{ flexDirection: row, justifyContent: 'space-between', alignItems: 'flex-start', paddingTop: 6 }}>
@@ -114,7 +125,7 @@ export function HomeScreen() {
           {t('home.focus.eyebrow')}
         </Text>
         <Text weight="serif" size={19} color={colors.white} lineHeight={26} style={{ marginTop: 6 }}>
-          {t('home.focus.title')}
+          {focusText}
         </Text>
         <Text size={13} color={colors.greenPale} style={{ marginTop: 8 }}>
           {t('home.focus.note')}
