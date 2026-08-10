@@ -16,7 +16,8 @@ type Op =
   | { kind: 'replaceMeals'; planId: string; weekStart: string; meals: PlannedMealRecord[] }
   | { kind: 'itemChecked'; itemId: string; checked: boolean }
   | { kind: 'dismissItem'; itemId: string }
-  | { kind: 'addItem'; listId: string; item: GroceryItemRecord };
+  | { kind: 'addItem'; listId: string; item: GroceryItemRecord }
+  | { kind: 'replaceItems'; listId: string; weekStart: string; items: GroceryItemRecord[] };
 
 const outboxKey = (userId: string) => `celadon.planning.outbox.${userId}`;
 
@@ -40,6 +41,12 @@ function enqueue(queue: Op[], op: Op): Op[] {
   }
   if (op.kind === 'itemChecked') {
     return [...queue.filter((q) => !(q.kind === 'itemChecked' && q.itemId === op.itemId)), op];
+  }
+  if (op.kind === 'replaceItems') {
+    // Latest regeneration wins. Queued ticks against items it deletes are
+    // left alone — remotely they update zero rows, which is the right end
+    // state — and custom-item adds must still land, so they stay queued too.
+    return [...queue.filter((q) => q.kind !== 'replaceItems'), op];
   }
   return [...queue, op];
 }
@@ -108,6 +115,16 @@ export class OfflineFirstPlanningRepository implements PlanningRepository {
     await this.push(userId, { kind: 'addItem', listId, item });
   }
 
+  async replaceItems(
+    userId: string,
+    listId: string,
+    weekStart: string,
+    items: GroceryItemRecord[],
+  ): Promise<void> {
+    await this.cache.replaceItems(userId, listId, weekStart, items);
+    await this.push(userId, { kind: 'replaceItems', listId, weekStart, items });
+  }
+
   async flush(userId: string): Promise<void> {
     if (!this.flushing) {
       this.flushing = this.drain(userId).finally(() => {
@@ -161,6 +178,8 @@ export class OfflineFirstPlanningRepository implements PlanningRepository {
         return this.remote.dismissItem(userId, op.itemId);
       case 'addItem':
         return this.remote.addItem(userId, op.listId, op.item);
+      case 'replaceItems':
+        return this.remote.replaceItems(userId, op.listId, op.weekStart, op.items);
     }
   }
 

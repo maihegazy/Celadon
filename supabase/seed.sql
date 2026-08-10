@@ -182,3 +182,78 @@ from public.recipes r,
     ('Avocado', 'الأفوكادو', 'extra olive oil and toasted walnuts', 'زيت زيتون إضافي وجوز محمّص')
   ) as v(from_en, from_ar, to_en, to_ar)
 where r.slug = 'salmon-quinoa-bowl';
+
+/* ── remaining recipes: ingredients ───────────────────────────────────────
+   Enough to cook from and to derive the week's shopping list. Linked into
+   the foods catalogue by slug where an entry exists. */
+
+delete from public.recipe_ingredients
+where recipe_id in (select id from public.recipes where slug in
+  ('molokhia-grilled-chicken', 'zaatar-baked-cod', 'shorbet-ads', 'bessara-greens', 'ginger-carrot-soup'));
+
+insert into public.recipe_ingredients
+  (recipe_id, position, food_slug, name_en, name_ar, quantity, unit_en, unit_ar, tone)
+select r.id, v.position, v.food_slug, v.name_en, v.name_ar, v.quantity, v.unit_en, v.unit_ar, v.tone::public.ingredient_tone
+from public.recipes r,
+  (values
+    (1, 'molokhia', 'Molokhia leaves', 'ورق ملوخية', 400, 'g', 'غ', 'supportive'),
+    (2, null, 'Chicken breast', 'صدر دجاج', 500, 'g', 'غ', 'balanced'),
+    (3, null, 'Garlic', 'ثوم', 6, 'clove', 'فص', 'supportive'),
+    (4, null, 'Fresh coriander', 'كزبرة خضراء', 1, 'bunch', 'حزمة', 'supportive'),
+    (5, 'olive-oil', 'Extra-virgin olive oil', 'زيت زيتون بكر ممتاز', 2, 'tbsp', 'ملعقة كبيرة', 'supportive'),
+    (6, null, 'Brown rice', 'أرز بني', 300, 'g', 'غ', 'balanced')
+  ) as v(position, food_slug, name_en, name_ar, quantity, unit_en, unit_ar, tone)
+where r.slug = 'molokhia-grilled-chicken';
+
+insert into public.recipe_ingredients
+  (recipe_id, position, food_slug, name_en, name_ar, quantity, unit_en, unit_ar, tone)
+select r.id, v.position, v.food_slug, v.name_en, v.name_ar, v.quantity, v.unit_en, v.unit_ar, v.tone::public.ingredient_tone
+from public.recipes r,
+  (values
+    (1, null, 'Cod fillets', 'شرائح سمك القد', 400, 'g', 'غ', 'supportive'),
+    (2, null, 'Za''atar', 'زعتر', 2, 'tbsp', 'ملعقة كبيرة', 'supportive'),
+    (3, 'olive-oil', 'Extra-virgin olive oil', 'زيت زيتون بكر ممتاز', 3, 'tbsp', 'ملعقة كبيرة', 'supportive'),
+    (4, null, 'Lemons', 'ليمون', 2, null, null, 'supportive'),
+    (5, 'tomatoes', 'Cherry tomatoes', 'طماطم كرزية', 250, 'g', 'غ', 'balanced')
+  ) as v(position, food_slug, name_en, name_ar, quantity, unit_en, unit_ar, tone)
+where r.slug = 'zaatar-baked-cod';
+
+insert into public.recipe_ingredients
+  (recipe_id, position, food_slug, name_en, name_ar, quantity, unit_en, unit_ar, tone)
+select r.id, v.position, v.food_slug, v.name_en, v.name_ar, v.quantity, v.unit_en, v.unit_ar, v.tone::public.ingredient_tone
+from public.recipes r,
+  (values
+    (1, null, 'Red lentils', 'عدس أحمر', 300, 'g', 'غ', 'supportive'),
+    (2, null, 'Onion', 'بصل', 1, null, null, 'balanced'),
+    (3, null, 'Carrots', 'جزر', 2, null, null, 'supportive'),
+    (4, null, 'Ground cumin', 'كمون مطحون', 2, 'tsp', 'ملعقة صغيرة', 'supportive'),
+    (5, 'turmeric', 'Turmeric', 'كركم', 1, 'tsp', 'ملعقة صغيرة', 'supportive'),
+    (6, 'olive-oil', 'Extra-virgin olive oil', 'زيت زيتون بكر ممتاز', 2, 'tbsp', 'ملعقة كبيرة', 'supportive')
+  ) as v(position, food_slug, name_en, name_ar, quantity, unit_en, unit_ar, tone)
+where r.slug = 'shorbet-ads';
+
+insert into public.recipe_ingredients
+  (recipe_id, position, food_slug, name_en, name_ar, quantity, unit_en, unit_ar, tone)
+select r.id, v.position, v.food_slug, v.name_en, v.name_ar, v.quantity, v.unit_en, v.unit_ar, v.tone::public.ingredient_tone
+from public.recipes r,
+  (values
+    (1, null, 'Split fava beans', 'فول مقشور', 250, 'g', 'غ', 'supportive'),
+    (2, null, 'Leafy greens', 'خضار ورقية', 200, 'g', 'غ', 'supportive'),
+    (3, null, 'Garlic', 'ثوم', 4, 'clove', 'فص', 'supportive'),
+    (4, null, 'Ground cumin', 'كمون مطحون', 1, 'tsp', 'ملعقة صغيرة', 'supportive'),
+    (5, 'olive-oil', 'Extra-virgin olive oil', 'زيت زيتون بكر ممتاز', 2, 'tbsp', 'ملعقة كبيرة', 'supportive')
+  ) as v(position, food_slug, name_en, name_ar, quantity, unit_en, unit_ar, tone)
+where r.slug = 'bessara-greens';
+
+insert into public.recipe_ingredients
+  (recipe_id, position, food_slug, name_en, name_ar, quantity, unit_en, unit_ar, tone)
+select r.id, v.position, v.food_slug, v.name_en, v.name_ar, v.quantity, v.unit_en, v.unit_ar, v.tone::public.ingredient_tone
+from public.recipes r,
+  (values
+    (1, null, 'Carrots', 'جزر', 6, null, null, 'supportive'),
+    (2, null, 'Fresh ginger', 'زنجبيل طازج', 30, 'g', 'غ', 'supportive'),
+    (3, null, 'Onion', 'بصل', 1, null, null, 'balanced'),
+    (4, null, 'Vegetable stock', 'مرق خضار', 1, 'l', 'لتر', 'balanced'),
+    (5, 'olive-oil', 'Extra-virgin olive oil', 'زيت زيتون بكر ممتاز', 2, 'tbsp', 'ملعقة كبيرة', 'supportive')
+  ) as v(position, food_slug, name_en, name_ar, quantity, unit_en, unit_ar, tone)
+where r.slug = 'ginger-carrot-soup';

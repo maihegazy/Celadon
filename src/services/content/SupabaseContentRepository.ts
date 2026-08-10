@@ -72,7 +72,7 @@ export class SupabaseContentRepository implements ContentRepository {
     const [ingredients, steps, substitutions] = await Promise.all([
       client
         .from('recipe_ingredients')
-        .select('position, name_en, name_ar, quantity, unit_en, unit_ar, tone')
+        .select('position, name_en, name_ar, quantity, unit_en, unit_ar, tone, food_slug')
         .eq('recipe_id', recipe.data.id)
         .order('position', { ascending: true })
         .returns<
@@ -84,6 +84,7 @@ export class SupabaseContentRepository implements ContentRepository {
             unit_en: string | null;
             unit_ar: string | null;
             tone: IngredientTone;
+            food_slug: string | null;
           }[]
         >(),
       client
@@ -113,6 +114,7 @@ export class SupabaseContentRepository implements ContentRepository {
         unitEn: row.unit_en,
         unitAr: row.unit_ar,
         tone: row.tone,
+        foodSlug: row.food_slug,
       })),
       steps: (steps.data ?? []).map((row) => ({
         position: row.position,

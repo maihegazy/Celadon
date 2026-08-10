@@ -7,6 +7,7 @@ import { PlanningRepository } from './types';
 
 export * from './types';
 export { buildGroceryItems } from './seed';
+export { buildGroceryItemsFromPlan } from './groceries';
 export { generateWeekMeals } from './generator';
 export type { GeneratorProfile } from './generator';
 export { LocalPlanningRepository } from './LocalPlanningRepository';

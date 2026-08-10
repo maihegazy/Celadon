@@ -3,15 +3,17 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { AppState as RNAppState } from 'react-native';
 import { AVOID_SLUGS, CUISINE_SLUGS } from '../data/assessment';
 import { useAuth } from '../services/auth';
-import { RecipeSummary, useContent } from '../services/content';
+import { RecipeDetail, RecipeSummary, useContent } from '../services/content';
 import {
   buildGroceryItems,
+  buildGroceryItemsFromPlan,
   generateWeekMeals,
   GeneratorProfile,
   usePlanningRepository,
   weekStartISO,
 } from '../services/planning';
-import { GroceryItemRecord, WeekPlanRecord } from '../services/planning/types';
+import { GroceryItemRecord, PlannedMealRecord, WeekPlanRecord } from '../services/planning/types';
+import { isSupabaseConfigured } from '../services/supabase';
 import { AppState as AppStateShape, useAppState } from './AppState';
 
 /**
@@ -54,7 +56,7 @@ const PlanningSyncContext = createContext<PlanningValue | null>(null);
 export function PlanningSyncProvider({ children }: { children: React.ReactNode }) {
   const { session, status } = useAuth();
   const repository = usePlanningRepository();
-  const { recipes } = useContent();
+  const { recipes, foods, getRecipe } = useContent();
   const { state, dispatch } = useAppState();
 
   const userId = session?.user.id ?? null;
@@ -62,9 +64,38 @@ export function PlanningSyncProvider({ children }: { children: React.ReactNode }
   stateRef.current = state;
   const recipesRef = useRef(recipes);
   recipesRef.current = recipes;
+  const foodsRef = useRef(foods);
+  foodsRef.current = foods;
   const weekRef = useRef(weekStartISO());
   const planIdRef = useRef<string | null>(null);
   const hydratedFor = useRef<string | null>(null);
+
+  // The shopping list follows the plan: fetch each planned recipe's
+  // ingredients (the cached repo remembers them) and aggregate. The curated
+  // staples remain the fallback when no ingredient data is reachable — and
+  // in the no-backend demo, where every recipe shares one demo method.
+  const deriveItems = useCallback(
+    async (meals: PlannedMealRecord[]): Promise<GroceryItemRecord[]> => {
+      if (!isSupabaseConfigured) return buildGroceryItems();
+      const ids = [...new Set(meals.map((m) => m.recipeId).filter((id): id is string => !!id))];
+      const details = new Map<string, RecipeDetail>();
+      await Promise.all(
+        ids.map(async (id) => {
+          const recipe = recipesRef.current.find((r) => r.id === id);
+          if (!recipe) return;
+          try {
+            const detail = await getRecipe(recipe.slug);
+            if (detail && detail.ingredients.length > 0) details.set(id, detail);
+          } catch {
+            // Offline with a cold cache — this recipe contributes nothing.
+          }
+        }),
+      );
+      const derived = buildGroceryItemsFromPlan(meals, details, foodsRef.current);
+      return derived.length > 0 ? derived : buildGroceryItems();
+    },
+    [getRecipe],
+  );
 
   const hydrateWeek = useCallback(
     (week: WeekPlanRecord) => {
@@ -91,12 +122,13 @@ export function PlanningSyncProvider({ children }: { children: React.ReactNode }
         let week = await repository.loadWeek(targetUserId, weekStart);
         if (!week) {
           // A fresh week: generate it from the catalogue and this profile.
+          const meals = generateWeekMeals(weekStart, recipesRef.current, profileFor(stateRef.current));
           week = {
             planId: Crypto.randomUUID(),
             listId: Crypto.randomUUID(),
             weekStart,
-            meals: generateWeekMeals(weekStart, recipesRef.current, profileFor(stateRef.current)),
-            items: buildGroceryItems(),
+            meals,
+            items: await deriveItems(meals),
           };
           await repository.ensureWeek(targetUserId, week);
           week = (await repository.loadWeek(targetUserId, weekStart)) ?? week;
@@ -107,7 +139,7 @@ export function PlanningSyncProvider({ children }: { children: React.ReactNode }
         // Offline with a cold cache: the screens show their empty states.
       }
     },
-    [hydrateWeek, repository],
+    [deriveItems, hydrateWeek, repository],
   );
 
   // Generate or load once per signed-in account — but only once the recipe
@@ -169,6 +201,17 @@ export function PlanningSyncProvider({ children }: { children: React.ReactNode }
         );
         dispatch({ type: 'set', patch: { planMeals: meals } });
         persist((uid) => repository.replaceMeals(uid, planId, weekRef.current, meals));
+
+        // The list follows the plan: rebuild the generated rows, keep the
+        // user's own additions exactly as they are.
+        const listId = stateRef.current.groceryListId;
+        deriveItems(meals)
+          .then((items) => {
+            const custom = stateRef.current.groceryItems.filter((item) => item.isCustom);
+            dispatch({ type: 'set', patch: { groceryItems: [...custom, ...items] } });
+            if (listId) persist((uid) => repository.replaceItems(uid, listId, weekRef.current, items));
+          })
+          .catch(() => {});
       },
 
       toggleItem: (id: string) => {
@@ -202,7 +245,7 @@ export function PlanningSyncProvider({ children }: { children: React.ReactNode }
         if (groceryListId) persist((uid) => repository.addItem(uid, groceryListId, item));
       },
     };
-  }, [dispatch, repository, userId]);
+  }, [deriveItems, dispatch, repository, userId]);
 
   return <PlanningSyncContext.Provider value={value}>{children}</PlanningSyncContext.Provider>;
 }

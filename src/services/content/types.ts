@@ -35,6 +35,8 @@ export type RecipeIngredient = {
   unitEn: string | null;
   unitAr: string | null;
   tone: IngredientTone;
+  /** Link into the foods catalogue, when the ingredient has one. */
+  foodSlug: string | null;
 };
 
 export type RecipeStep = { position: number; textEn: string; textAr: string };

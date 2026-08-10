@@ -78,11 +78,11 @@ const FOODS: FoodRecord[] = [
 /** The one fully-written demo method — the salmon bowl from the design. */
 const salmonDetail = () => ({
   ingredients: [
-    { position: 1, nameKey: 'ingredient.salmon' as TranslationKey, quantity: 300, unitEn: 'g', unitAr: 'غ', tone: 'supportive' as const },
-    { position: 2, nameKey: 'ingredient.quinoaCooked' as TranslationKey, quantity: 160, unitEn: 'g', unitAr: 'غ', tone: 'balanced' as const },
-    { position: 3, nameKey: 'ingredient.avocado' as TranslationKey, quantity: 1, unitEn: null, unitAr: null, tone: 'supportive' as const },
-    { position: 4, nameKey: 'ingredient.cucumberHerbs' as TranslationKey, quantity: 2, unitEn: 'cup', unitAr: 'كوب', tone: 'balanced' as const },
-    { position: 5, nameKey: 'ingredient.dressing' as TranslationKey, quantity: 2, unitEn: 'tbsp', unitAr: 'ملعقة كبيرة', tone: 'supportive' as const },
+    { position: 1, nameKey: 'ingredient.salmon' as TranslationKey, quantity: 300, unitEn: 'g', unitAr: 'غ', tone: 'supportive' as const, foodSlug: 'salmon' },
+    { position: 2, nameKey: 'ingredient.quinoaCooked' as TranslationKey, quantity: 160, unitEn: 'g', unitAr: 'غ', tone: 'balanced' as const, foodSlug: 'quinoa' },
+    { position: 3, nameKey: 'ingredient.avocado' as TranslationKey, quantity: 1, unitEn: null, unitAr: null, tone: 'supportive' as const, foodSlug: null },
+    { position: 4, nameKey: 'ingredient.cucumberHerbs' as TranslationKey, quantity: 2, unitEn: 'cup', unitAr: 'كوب', tone: 'balanced' as const, foodSlug: null },
+    { position: 5, nameKey: 'ingredient.dressing' as TranslationKey, quantity: 2, unitEn: 'tbsp', unitAr: 'ملعقة كبيرة', tone: 'supportive' as const, foodSlug: 'olive-oil' },
   ].map(({ nameKey, ...rest }) => ({ ...rest, nameEn: e(nameKey), nameAr: a(nameKey) })),
   steps: (['recipe.step1', 'recipe.step2', 'recipe.step3', 'recipe.step4'] as TranslationKey[]).map(
     (key, index) => ({ position: index + 1, textEn: e(key), textAr: a(key) }),

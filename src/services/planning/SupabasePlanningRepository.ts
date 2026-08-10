@@ -239,23 +239,43 @@ export class SupabasePlanningRepository implements PlanningRepository {
   async addItem(userId: string, listId: string, item: GroceryItemRecord): Promise<void> {
     const { error } = await requireSupabase()
       .from('grocery_items')
-      .upsert(
-        {
-          id: item.id,
-          list_id: listId,
-          user_id: userId,
-          category: item.category,
-          name_en: item.nameEn,
-          name_ar: item.nameAr,
-          quantity_en: item.quantityEn,
-          quantity_ar: item.quantityAr,
-          position: item.position,
-          checked: item.checked,
-          dismissed: item.dismissed,
-          is_custom: item.isCustom,
-        },
-        { onConflict: 'id' },
-      );
+      .upsert(itemToRow(userId, listId, item), { onConflict: 'id' });
     if (error) throw error;
   }
+
+  async replaceItems(
+    userId: string,
+    listId: string,
+    _weekStart: string,
+    items: GroceryItemRecord[],
+  ): Promise<void> {
+    const client = requireSupabase();
+    // Only the generated part is replaced — hand-added items are the user's.
+    const removed = await client
+      .from('grocery_items')
+      .delete()
+      .eq('list_id', listId)
+      .eq('is_custom', false);
+    if (removed.error) throw removed.error;
+    const inserted = await client.from('grocery_items').upsert(
+      items.map((item) => itemToRow(userId, listId, item)),
+      { onConflict: 'id', ignoreDuplicates: true },
+    );
+    if (inserted.error) throw inserted.error;
+  }
 }
+
+const itemToRow = (userId: string, listId: string, item: GroceryItemRecord) => ({
+  id: item.id,
+  list_id: listId,
+  user_id: userId,
+  category: item.category,
+  name_en: item.nameEn,
+  name_ar: item.nameAr,
+  quantity_en: item.quantityEn,
+  quantity_ar: item.quantityAr,
+  position: item.position,
+  checked: item.checked,
+  dismissed: item.dismissed,
+  is_custom: item.isCustom,
+});

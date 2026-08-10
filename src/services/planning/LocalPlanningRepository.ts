@@ -69,6 +69,19 @@ export class LocalPlanningRepository implements PlanningRepository {
     );
   }
 
+  async replaceItems(
+    userId: string,
+    listId: string,
+    _weekStart: string,
+    items: GroceryItemRecord[],
+  ): Promise<void> {
+    await this.updateAll(userId, (week) =>
+      week.listId === listId
+        ? { ...week, items: [...week.items.filter((i) => i.isCustom), ...items] }
+        : week,
+    );
+  }
+
   private async updateItem(
     userId: string,
     itemId: string,

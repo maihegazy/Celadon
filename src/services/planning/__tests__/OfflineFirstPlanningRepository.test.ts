@@ -96,6 +96,15 @@ class FakeRemote implements PlanningRepository {
   async addItem(_userId: string, _listId: string, value: GroceryItemRecord): Promise<void> {
     this.guard(`add:${value.id}`);
   }
+
+  async replaceItems(
+    _userId: string,
+    listId: string,
+    _weekStart: string,
+    items: GroceryItemRecord[],
+  ): Promise<void> {
+    this.guard(`replaceItems:${listId}:${items.length}`);
+  }
 }
 
 describe('OfflineFirstPlanningRepository', () => {
@@ -136,6 +145,20 @@ describe('OfflineFirstPlanningRepository', () => {
     expect(remote.log[0]).toBe('ensureWeek');
     expect(remote.log.slice(1)).toEqual(['meal:meal-1:true', 'dismiss:g2']);
     expect(remote.stored).not.toBeNull();
+  });
+
+  it('keeps only the latest queued list rebuild, and custom adds beside it', async () => {
+    remote.online = false;
+    await repository.ensureWeek(USER, week());
+    await repository.replaceItems(USER, 'list-1', WEEK, [item('d1'), item('d2')]);
+    await repository.addItem(USER, 'list-1', { ...item('c1'), isCustom: true });
+    await repository.replaceItems(USER, 'list-1', WEEK, [item('d3')]);
+
+    remote.online = true;
+    await repository.flush(USER);
+
+    // The first rebuild is superseded; the hand-added item still lands.
+    expect(remote.log).toEqual(['ensureWeek', 'add:c1', 'replaceItems:list-1:1']);
   });
 
   it('lets a queued regeneration supersede ticks against meals it deletes', async () => {

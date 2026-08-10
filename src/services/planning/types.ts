@@ -64,6 +64,8 @@ export interface PlanningRepository {
   ): Promise<void>;
   /** Replaces the week's meals wholesale — what "regenerate" means. */
   replaceMeals(userId: string, planId: string, weekStart: string, meals: PlannedMealRecord[]): Promise<void>;
+  /** Swaps the generated part of the list for `items`; custom items survive. */
+  replaceItems(userId: string, listId: string, weekStart: string, items: GroceryItemRecord[]): Promise<void>;
   setItemChecked(userId: string, itemId: string, checked: boolean): Promise<void>;
   dismissItem(userId: string, itemId: string): Promise<void>;
   addItem(userId: string, listId: string, item: GroceryItemRecord): Promise<void>;
