@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GroceryItemRecord, PlanningRepository, WeekPlanRecord } from './types';
+import { GroceryItemRecord, PlannedMealRecord, PlanningRepository, WeekPlanRecord } from './types';
 
 /**
  * Device-only store, one JSON blob per user per week.
@@ -29,6 +29,28 @@ export class LocalPlanningRepository implements PlanningRepository {
       ...week,
       meals: week.meals.map((meal) => (meal.id === mealId ? { ...meal, completed } : meal)),
     }));
+  }
+
+  async swapMeal(
+    userId: string,
+    mealId: string,
+    dish: { recipeId: string | null; nameEn: string; nameAr: string | null },
+  ): Promise<void> {
+    await this.updateAll(userId, (week) => ({
+      ...week,
+      meals: week.meals.map((meal) =>
+        meal.id === mealId ? { ...meal, ...dish, completed: false } : meal,
+      ),
+    }));
+  }
+
+  async replaceMeals(
+    userId: string,
+    planId: string,
+    _weekStart: string,
+    meals: PlannedMealRecord[],
+  ): Promise<void> {
+    await this.updateAll(userId, (week) => (week.planId === planId ? { ...week, meals } : week));
   }
 
   async setItemChecked(userId: string, itemId: string, checked: boolean): Promise<void> {

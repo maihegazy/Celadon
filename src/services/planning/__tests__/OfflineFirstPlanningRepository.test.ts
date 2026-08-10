@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LocalPlanningRepository } from '../LocalPlanningRepository';
 import { OfflineFirstPlanningRepository } from '../OfflineFirstPlanningRepository';
-import { GroceryItemRecord, PlanningRepository, WeekPlanRecord } from '../types';
+import { GroceryItemRecord, PlannedMealRecord, PlanningRepository, WeekPlanRecord } from '../types';
 
 /**
  * The shopping-list outbox: ticking off groceries in the shop — exactly
@@ -34,6 +34,7 @@ const week = (): WeekPlanRecord => ({
       scheduledOn: WEEK,
       slot: 'lunch',
       position: 0,
+      recipeId: null,
       nameEn: 'Salmon bowl',
       nameAr: 'سلطة السلمون',
       completed: false,
@@ -64,6 +65,24 @@ class FakeRemote implements PlanningRepository {
 
   async setMealCompleted(_userId: string, mealId: string, completed: boolean): Promise<void> {
     this.guard(`meal:${mealId}:${completed}`);
+  }
+
+  async swapMeal(
+    _userId: string,
+    mealId: string,
+    dish: { recipeId: string | null; nameEn: string; nameAr: string | null },
+  ): Promise<void> {
+    this.guard(`swap:${mealId}:${dish.nameEn}`);
+  }
+
+  async replaceMeals(
+    _userId: string,
+    planId: string,
+    _weekStart: string,
+    meals: PlannedMealRecord[],
+  ): Promise<void> {
+    this.guard(`replace:${planId}:${meals.length}`);
+    if (this.stored) this.stored = { ...this.stored, meals };
   }
 
   async setItemChecked(_userId: string, itemId: string, checked: boolean): Promise<void> {
@@ -117,6 +136,20 @@ describe('OfflineFirstPlanningRepository', () => {
     expect(remote.log[0]).toBe('ensureWeek');
     expect(remote.log.slice(1)).toEqual(['meal:meal-1:true', 'dismiss:g2']);
     expect(remote.stored).not.toBeNull();
+  });
+
+  it('lets a queued regeneration supersede ticks against meals it deletes', async () => {
+    remote.online = false;
+    await repository.ensureWeek(USER, week());
+    await repository.setMealCompleted(USER, 'meal-1', true);
+    await repository.replaceMeals(USER, 'plan-1', WEEK, []);
+
+    remote.online = true;
+    await repository.flush(USER);
+
+    // The tick targeted a meal the regeneration removed — replaying it
+    // would be an update against a deleted row.
+    expect(remote.log).toEqual(['ensureWeek', 'replace:plan-1:0']);
   });
 
   it('answers reads from the device while the backend is unreachable', async () => {

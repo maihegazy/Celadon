@@ -1,27 +1,48 @@
 import * as Crypto from 'expo-crypto';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { AppState as RNAppState } from 'react-native';
+import { AVOID_SLUGS, CUISINE_SLUGS } from '../data/assessment';
 import { useAuth } from '../services/auth';
-import { buildWeekSeed, usePlanningRepository, weekStartISO } from '../services/planning';
+import { RecipeSummary, useContent } from '../services/content';
+import {
+  buildGroceryItems,
+  generateWeekMeals,
+  GeneratorProfile,
+  usePlanningRepository,
+  weekStartISO,
+} from '../services/planning';
 import { GroceryItemRecord, WeekPlanRecord } from '../services/planning/types';
-import { useAppState } from './AppState';
+import { AppState as AppStateShape, useAppState } from './AppState';
 
 /**
  * Keeps the week's plan and shopping list in step with the account.
  *
- * The first load of a week materialises it — for now from the bundled demo
- * content, later from the plan generator — after which every meal tick,
- * grocery check, dismissal and custom item is a persisted row. Writes go
- * through the offline-first repository, so they work in the shop with no
- * signal and sync later.
+ * The first load of a week generates it — a real week, built from the recipe
+ * catalogue around this person's avoids, cuisines and meals-per-day — after
+ * which every tick, swap, dismissal and custom item is a persisted row.
+ * Writes go through the offline-first repository, so they work in the shop
+ * with no signal and sync later.
  */
 
 /** Custom grocery items land in the pantry group, as they do in the design. */
 const CUSTOM_ITEM_CATEGORY = 'pantry';
 
+const selectedSlugs = (slugs: readonly string[], selected: Record<number, boolean>): string[] =>
+  slugs.filter((_, index) => selected[index]);
+
+const profileFor = (state: AppStateShape): GeneratorProfile => ({
+  avoids: selectedSlugs(AVOID_SLUGS, state.avoids),
+  cuisines: selectedSlugs(CUISINE_SLUGS, state.cuisines),
+  mealsPerDay: state.mealsPerDay,
+});
+
 type PlanningValue = {
-  /** Ticks or unticks the meal at `position` in the day's list. */
-  toggleMeal: (position: number) => void;
+  /** Ticks or unticks a planned meal. */
+  toggleMeal: (id: string) => void;
+  /** Replaces a planned meal with a different recipe. */
+  swapMeal: (id: string, recipe: RecipeSummary) => void;
+  /** Rebuilds the week's meals with a fresh rotation. */
+  regenerate: () => void;
   toggleItem: (id: string) => void;
   /** "Already have it" — hides the item without deleting it. */
   dismissItem: (id: string) => void;
@@ -33,25 +54,27 @@ const PlanningSyncContext = createContext<PlanningValue | null>(null);
 export function PlanningSyncProvider({ children }: { children: React.ReactNode }) {
   const { session, status } = useAuth();
   const repository = usePlanningRepository();
+  const { recipes } = useContent();
   const { state, dispatch } = useAppState();
 
   const userId = session?.user.id ?? null;
   const stateRef = useRef(state);
   stateRef.current = state;
+  const recipesRef = useRef(recipes);
+  recipesRef.current = recipes;
   const weekRef = useRef(weekStartISO());
+  const planIdRef = useRef<string | null>(null);
   const hydratedFor = useRef<string | null>(null);
 
   const hydrateWeek = useCallback(
     (week: WeekPlanRecord) => {
-      const completedMeals: Record<number, boolean> = {};
-      week.meals.forEach((meal) => {
-        if (meal.completed) completedMeals[meal.position] = true;
-      });
+      planIdRef.current = week.planId;
       dispatch({
         type: 'set',
         patch: {
           planMeals: week.meals,
-          completedMeals,
+          planWeekStart: week.weekStart,
+          planDay: new Date().getDay(),
           groceryListId: week.listId,
           groceryItems: week.items,
         },
@@ -67,25 +90,34 @@ export function PlanningSyncProvider({ children }: { children: React.ReactNode }
       try {
         let week = await repository.loadWeek(targetUserId, weekStart);
         if (!week) {
-          // A fresh week: materialise it so there are rows to tick.
-          week = buildWeekSeed(weekStart);
+          // A fresh week: generate it from the catalogue and this profile.
+          week = {
+            planId: Crypto.randomUUID(),
+            listId: Crypto.randomUUID(),
+            weekStart,
+            meals: generateWeekMeals(weekStart, recipesRef.current, profileFor(stateRef.current)),
+            items: buildGroceryItems(),
+          };
           await repository.ensureWeek(targetUserId, week);
           week = (await repository.loadWeek(targetUserId, weekStart)) ?? week;
         }
         if (hydratedFor.current !== targetUserId) return;
         hydrateWeek(week);
       } catch {
-        // Offline with a cold cache: the in-memory demo content still works.
+        // Offline with a cold cache: the screens show their empty states.
       }
     },
     [hydrateWeek, repository],
   );
 
+  // Generate or load once per signed-in account — but only once the recipe
+  // catalogue is in, since the generator draws from it.
   useEffect(() => {
-    if (status !== 'signedIn' || !userId || hydratedFor.current === userId) return;
+    if (status !== 'signedIn' || !userId || recipes.length === 0) return;
+    if (hydratedFor.current === userId) return;
     hydratedFor.current = userId;
     hydrate(userId);
-  }, [hydrate, status, userId]);
+  }, [hydrate, recipes.length, status, userId]);
 
   useEffect(() => {
     if (status === 'signedOut') hydratedFor.current = null;
@@ -111,11 +143,32 @@ export function PlanningSyncProvider({ children }: { children: React.ReactNode }
     };
 
     return {
-      toggleMeal: (position: number) => {
-        const meal = stateRef.current.planMeals.find((m) => m.position === position);
-        const completed = !stateRef.current.completedMeals[position];
-        dispatch({ type: 'setMealCompleted', position, completed });
-        if (meal) persist((uid) => repository.setMealCompleted(uid, meal.id, completed));
+      toggleMeal: (id: string) => {
+        const meal = stateRef.current.planMeals.find((m) => m.id === id);
+        if (!meal) return;
+        const completed = !meal.completed;
+        dispatch({ type: 'updatePlanMeal', id, patch: { completed } });
+        persist((uid) => repository.setMealCompleted(uid, id, completed));
+      },
+
+      swapMeal: (id: string, recipe: RecipeSummary) => {
+        const dish = { recipeId: recipe.id, nameEn: recipe.nameEn, nameAr: recipe.nameAr };
+        dispatch({ type: 'updatePlanMeal', id, patch: { ...dish, completed: false } });
+        persist((uid) => repository.swapMeal(uid, id, dish));
+      },
+
+      regenerate: () => {
+        const planId = planIdRef.current;
+        if (!planId) return;
+        // A different salt, a different rotation — same rules.
+        const meals = generateWeekMeals(
+          weekRef.current,
+          recipesRef.current,
+          profileFor(stateRef.current),
+          1 + Math.floor(Math.random() * 5),
+        );
+        dispatch({ type: 'set', patch: { planMeals: meals } });
+        persist((uid) => repository.replaceMeals(uid, planId, weekRef.current, meals));
       },
 
       toggleItem: (id: string) => {

@@ -11,10 +11,16 @@ type MealRow = {
   scheduled_on: string;
   slot: PlannedMealRecord['slot'];
   position: number;
+  recipe_id: string | null;
   custom_name_en: string | null;
   custom_name_ar: string | null;
   completed: boolean;
 };
+
+/** Bundled-catalogue ids aren't rows the foreign key can point at. */
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const dbRecipeId = (recipeId: string | null): string | null =>
+  recipeId && UUID_RE.test(recipeId) ? recipeId : null;
 
 type ItemRow = {
   id: string;
@@ -34,9 +40,23 @@ const rowToMeal = (row: MealRow): PlannedMealRecord => ({
   scheduledOn: row.scheduled_on,
   slot: row.slot,
   position: row.position,
+  recipeId: row.recipe_id,
   nameEn: row.custom_name_en ?? '',
   nameAr: row.custom_name_ar,
   completed: row.completed,
+});
+
+const mealToRow = (userId: string, planId: string, meal: PlannedMealRecord) => ({
+  id: meal.id,
+  plan_id: planId,
+  user_id: userId,
+  scheduled_on: meal.scheduledOn,
+  slot: meal.slot,
+  position: meal.position,
+  recipe_id: dbRecipeId(meal.recipeId),
+  custom_name_en: meal.nameEn,
+  custom_name_ar: meal.nameAr,
+  completed: meal.completed,
 });
 
 const rowToItem = (row: ItemRow): GroceryItemRecord => ({
@@ -81,8 +101,9 @@ export class SupabasePlanningRepository implements PlanningRepository {
     const [meals, items] = await Promise.all([
       client
         .from('planned_meals')
-        .select('id, scheduled_on, slot, position, custom_name_en, custom_name_ar, completed')
+        .select('id, scheduled_on, slot, position, recipe_id, custom_name_en, custom_name_ar, completed')
         .eq('plan_id', plan.data.id)
+        .order('scheduled_on', { ascending: true })
         .order('position', { ascending: true })
         .returns<MealRow[]>(),
       client
@@ -131,17 +152,7 @@ export class SupabasePlanningRepository implements PlanningRepository {
     if (stored.meals.length > 0 || stored.items.length > 0) return;
 
     const meals = await client.from('planned_meals').upsert(
-      week.meals.map((meal) => ({
-        id: meal.id,
-        plan_id: stored.planId,
-        user_id: userId,
-        scheduled_on: meal.scheduledOn,
-        slot: meal.slot,
-        position: meal.position,
-        custom_name_en: meal.nameEn,
-        custom_name_ar: meal.nameAr,
-        completed: meal.completed,
-      })),
+      week.meals.map((meal) => mealToRow(userId, stored.planId, meal)),
       { onConflict: 'id', ignoreDuplicates: true },
     );
     if (meals.error) throw meals.error;
@@ -172,6 +183,41 @@ export class SupabasePlanningRepository implements PlanningRepository {
       .update({ completed, completed_at: completed ? new Date().toISOString() : null })
       .eq('id', mealId);
     if (error) throw error;
+  }
+
+  async swapMeal(
+    userId: string,
+    mealId: string,
+    dish: { recipeId: string | null; nameEn: string; nameAr: string | null },
+  ): Promise<void> {
+    const { error } = await requireSupabase()
+      .from('planned_meals')
+      .update({
+        recipe_id: dbRecipeId(dish.recipeId),
+        custom_name_en: dish.nameEn,
+        custom_name_ar: dish.nameAr,
+        // A different dish hasn't been eaten yet.
+        completed: false,
+        completed_at: null,
+      })
+      .eq('id', mealId);
+    if (error) throw error;
+  }
+
+  async replaceMeals(
+    userId: string,
+    planId: string,
+    _weekStart: string,
+    meals: PlannedMealRecord[],
+  ): Promise<void> {
+    const client = requireSupabase();
+    const removed = await client.from('planned_meals').delete().eq('plan_id', planId);
+    if (removed.error) throw removed.error;
+    const inserted = await client.from('planned_meals').upsert(
+      meals.map((meal) => mealToRow(userId, planId, meal)),
+      { onConflict: 'id', ignoreDuplicates: true },
+    );
+    if (inserted.error) throw inserted.error;
   }
 
   async setItemChecked(userId: string, itemId: string, checked: boolean): Promise<void> {

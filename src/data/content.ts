@@ -30,14 +30,6 @@ export const MEALS: Meal[] = [
 /** Home and the plan preview show breakfast, lunch and dinner. */
 export const TODAY_MEALS = [MEALS[0], MEALS[1], MEALS[3]];
 
-export const SWAP_ALTERNATIVES: { name: TranslationKey; minutes: number; calories: number; score: number }[] = [
-  { name: 'meal.cod', minutes: 20, calories: 480, score: 88 },
-  { name: 'meal.lentilSoup', minutes: 30, calories: 460, score: 85 },
-  { name: 'meal.gingerChicken', minutes: 30, calories: 510, score: 83 },
-];
-
-export const DAY_SCORE = 84;
-
 /* ── Ingredient tones ──────────────────────────────────────────────────── */
 
 export type Tone = 'good' | 'mid' | 'flag' | 'limit';
@@ -279,6 +271,3 @@ export const WEEKDAYS: TranslationKey[] = [
   'weekday.sat',
 ];
 
-/** The design's week runs 26 July – 1 August. */
-export const WEEK_DATES = [26, 27, 28, 29, 30, 31, 1];
-export const UNPLANNED_DAY = 6;

@@ -1,15 +1,16 @@
 import * as Crypto from 'expo-crypto';
-import { GROCERY_CATEGORIES, MEALS } from '../../data/content';
+import { GROCERY_CATEGORIES } from '../../data/content';
 import { en } from '../../i18n/en';
 import { ar } from '../../i18n/ar';
 import type { TranslationKey } from '../../i18n';
-import { todayISO } from '../tracking/types';
-import { GroceryItemRecord, PlannedMealRecord, WeekPlanRecord } from './types';
+import { GroceryItemRecord } from './types';
 
 /**
- * Builds a week from the bundled demo content, resolving each translation
- * key into both languages so the stored rows are self-contained — exactly
- * the shape plan generation will produce once it exists.
+ * The standard shopping list a fresh week starts with, resolved into both
+ * languages so the stored rows are self-contained. Deriving the list from
+ * the generated meals needs per-recipe ingredients for the whole catalogue —
+ * the database has them for one recipe so far — so until that content lands,
+ * the curated staples list is the honest starting point.
  */
 
 const inEnglish = (key: TranslationKey): string => en[key];
@@ -18,22 +19,9 @@ const inArabic = (key: TranslationKey): string | null => ar[key] ?? null;
 /** 'groceryCat.produce' → 'produce'. */
 const categorySlug = (key: TranslationKey): string => key.split('.').pop() as string;
 
-/** 'slot.breakfast' → 'breakfast'. */
-const slotSlug = (key: TranslationKey) => key.split('.').pop() as PlannedMealRecord['slot'];
-
-export function buildWeekSeed(weekStart: string): WeekPlanRecord {
-  const meals: PlannedMealRecord[] = MEALS.map((meal, position) => ({
-    id: Crypto.randomUUID(),
-    scheduledOn: todayISO(),
-    slot: slotSlug(meal.slot),
-    position,
-    nameEn: inEnglish(meal.name),
-    nameAr: inArabic(meal.name),
-    completed: false,
-  }));
-
+export function buildGroceryItems(): GroceryItemRecord[] {
   let position = 0;
-  const items: GroceryItemRecord[] = GROCERY_CATEGORIES.flatMap((category) =>
+  return GROCERY_CATEGORIES.flatMap((category) =>
     category.items.map((item) => ({
       id: Crypto.randomUUID(),
       category: categorySlug(category.name),
@@ -47,12 +35,4 @@ export function buildWeekSeed(weekStart: string): WeekPlanRecord {
       isCustom: false,
     })),
   );
-
-  return {
-    planId: Crypto.randomUUID(),
-    listId: Crypto.randomUUID(),
-    weekStart,
-    meals,
-    items,
-  };
 }

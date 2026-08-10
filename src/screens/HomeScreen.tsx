@@ -10,25 +10,48 @@ import {
   TextButton,
 } from '../components';
 import { BellIcon, DiamondIcon, SearchIcon, TrendIcon } from '../components/Icons';
-import { TODAY_MEALS } from '../data/content';
+import { useContent } from '../services/content';
+import { todayISO } from '../services/tracking/types';
 import { useAppState } from '../state/AppState';
 import { useI18n } from '../i18n';
+import type { TranslationKey } from '../i18n';
 import { colors, radius, tracking } from '../theme';
 import { useAppNavigation } from '../navigation/types';
+
+/** First matching tag decides a meal row's badge. */
+const TAG_BADGES: Record<string, TranslationKey> = {
+  omega3: 'badge.omega3',
+  supportive: 'badge.supportive',
+  'gut-gentle': 'badge.gutGentle',
+};
 
 /** Daily dashboard — one focus, today's meals, and two quiet entry points. */
 export function HomeScreen() {
   const navigation = useAppNavigation();
   const { state, numbersOn } = useAppState();
-  const { t, row, chevronForward } = useI18n();
+  const { recipes } = useContent();
+  const { t, row, lang, chevronForward } = useI18n();
   const name = state.displayName.trim();
+
+  const todaysDate = new Date().toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+
+  // The generated plan's breakfast, lunch and dinner for today.
+  const recipeById = new Map(recipes.map((recipe) => [recipe.id, recipe]));
+  const todayMeals = state.planMeals
+    .filter((meal) => meal.scheduledOn === todayISO() && meal.slot !== 'snack')
+    .sort((a, b) => a.position - b.position)
+    .slice(0, 3);
 
   return (
     <Screen tabs gap={18}>
       <View style={{ flexDirection: row, justifyContent: 'space-between', alignItems: 'flex-start', paddingTop: 6 }}>
         <View>
           <Text weight="medium" size={13.5} color={colors.faint}>
-            {t('home.date')}
+            {todaysDate}
           </Text>
           <Display size={27} style={{ marginTop: 2 }}>
             {name ? t('home.greeting', { name }) : t('home.greetingPlain')}
@@ -91,24 +114,28 @@ export function HomeScreen() {
           />
         </View>
         <View style={{ gap: 10 }}>
-          {TODAY_MEALS.map((meal) => (
-            <MealRow
-              key={meal.name}
-              slot={t(meal.slot)}
-              name={t(meal.name)}
-              meta={
-                numbersOn
-                  ? t('common.minutesAndCalories', { count: meal.minutes, calories: meal.calories })
-                  : t('common.minutes', { count: meal.minutes })
-              }
-              badge={t(meal.badge)}
-              onPress={
-                meal.recipeSlug
-                  ? () => navigation.navigate('RecipeDetail', { slug: meal.recipeSlug as string })
-                  : undefined
-              }
-            />
-          ))}
+          {todayMeals.map((meal) => {
+            const recipe = meal.recipeId ? recipeById.get(meal.recipeId) : undefined;
+            const badgeTag = recipe?.tags.find((tag) => TAG_BADGES[tag]);
+            return (
+              <MealRow
+                key={meal.id}
+                slot={t(`slot.${meal.slot}` as TranslationKey)}
+                name={lang === 'ar' && meal.nameAr ? meal.nameAr : meal.nameEn}
+                meta={
+                  recipe
+                    ? numbersOn && recipe.calories !== null
+                      ? t('common.minutesAndCalories', { count: recipe.minutes, calories: recipe.calories })
+                      : t('common.minutes', { count: recipe.minutes })
+                    : ''
+                }
+                badge={badgeTag ? t(TAG_BADGES[badgeTag]) : ''}
+                onPress={
+                  recipe ? () => navigation.navigate('RecipeDetail', { slug: recipe.slug }) : undefined
+                }
+              />
+            );
+          })}
         </View>
       </View>
 
