@@ -11,7 +11,7 @@ import { isSupabaseConfigured } from '../supabase';
 import { BundledContentRepository } from './BundledContentRepository';
 import { CachedContentRepository } from './CachedContentRepository';
 import { SupabaseContentRepository } from './SupabaseContentRepository';
-import { ContentRepository, RecipeDetail, RecipeSummary } from './types';
+import { ContentRepository, FoodRecord, RecipeDetail, RecipeSummary } from './types';
 
 export * from './types';
 export { BundledContentRepository } from './BundledContentRepository';
@@ -27,6 +27,8 @@ export function createDefaultContentRepository(): ContentRepository {
 type ContentValue = {
   /** The recipe library; never empty once loaded (bundled floor). */
   recipes: RecipeSummary[];
+  /** The reference food catalogue, score-descending. */
+  foods: FoodRecord[];
   savedSlugs: string[];
   toggleSaved: (slug: string) => void;
   getRecipe: (slug: string) => Promise<RecipeDetail | null>;
@@ -46,6 +48,7 @@ export function ContentProvider({
   const userId = session?.user.id ?? null;
 
   const [recipes, setRecipes] = useState<RecipeSummary[]>([]);
+  const [foods, setFoods] = useState<FoodRecord[]>([]);
   const [savedSlugs, setSavedSlugs] = useState<string[]>([]);
 
   // The catalogue is only readable once signed in (RLS), so load then.
@@ -56,6 +59,12 @@ export function ContentProvider({
       .listRecipes()
       .then((list) => {
         if (active) setRecipes(list);
+      })
+      .catch(() => {});
+    repo
+      .listFoods()
+      .then((list) => {
+        if (active) setFoods(list);
       })
       .catch(() => {});
     if (userId) {
@@ -88,8 +97,8 @@ export function ContentProvider({
   const getRecipe = useCallback((slug: string) => repo.getRecipe(slug), [repo]);
 
   const value = useMemo<ContentValue>(
-    () => ({ recipes, savedSlugs, toggleSaved, getRecipe }),
-    [getRecipe, recipes, savedSlugs, toggleSaved],
+    () => ({ recipes, foods, savedSlugs, toggleSaved, getRecipe }),
+    [foods, getRecipe, recipes, savedSlugs, toggleSaved],
   );
 
   return <ContentContext.Provider value={value}>{children}</ContentContext.Provider>;

@@ -164,35 +164,6 @@ export const REPORT_PATTERNS: { tone: Tone; text: TranslationKey }[] = [
   { tone: 'mid', text: 'report.pattern.ghee' },
 ];
 
-/* ── Explore ───────────────────────────────────────────────────────────── */
-
-export const EXPLORE_CATEGORIES: { name: TranslationKey; dot: string }[] = [
-  { name: 'exploreCat.greens', dot: colors.green },
-  { name: 'exploreCat.fish', dot: colors.waterBorder },
-  { name: 'exploreCat.spices', dot: colors.amber },
-  { name: 'exploreCat.fermented', dot: colors.plum },
-  { name: 'exploreCat.grains', dot: colors.wheat },
-  { name: 'exploreCat.fruit', dot: colors.berry },
-];
-
-export const POPULAR_FOODS: {
-  name: TranslationKey;
-  note: TranslationKey;
-  tag: TranslationKey;
-  tone: 'good' | 'limit';
-}[] = [
-  { name: 'popular.turmeric', note: 'popular.turmeric.note', tag: 'popular.turmeric.tag', tone: 'good' },
-  { name: 'popular.sumac', note: 'popular.sumac.note', tag: 'popular.sumac.tag', tone: 'good' },
-  { name: 'popular.pita', note: 'popular.pita.note', tag: 'popular.pita.tag', tone: 'limit' },
-];
-
-export const COMPARE_ROWS: { key: TranslationKey; a: TranslationKey; b: TranslationKey }[] = [
-  { key: 'compare.score', a: 'compare.score.a', b: 'compare.score.b' },
-  { key: 'compare.sodium', a: 'compare.sodium.a', b: 'compare.sodium.b' },
-  { key: 'compare.calories', a: 'compare.calories.a', b: 'compare.calories.b' },
-  { key: 'compare.character', a: 'compare.character.a', b: 'compare.character.b' },
-];
-
 /* ── Notifications ─────────────────────────────────────────────────────── */
 
 export const NOTIFICATION_GROUPS: {

@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BundledContentRepository } from './BundledContentRepository';
-import { ContentRepository, RecipeDetail, RecipeSummary } from './types';
+import { ContentRepository, FoodRecord, RecipeDetail, RecipeSummary } from './types';
 
 /**
  * Reads from the backend, remembers the result on device, and serves the
@@ -12,6 +12,7 @@ import { ContentRepository, RecipeDetail, RecipeSummary } from './types';
  */
 export class CachedContentRepository implements ContentRepository {
   private listKey = 'celadon.content.recipes';
+  private foodsKey = 'celadon.content.foods';
   private detailKey = (slug: string) => `celadon.content.recipe.${slug}`;
 
   constructor(
@@ -32,6 +33,21 @@ export class CachedContentRepository implements ContentRepository {
     const cached = await AsyncStorage.getItem(this.listKey);
     if (cached) return JSON.parse(cached) as RecipeSummary[];
     return this.bundled.listRecipes();
+  }
+
+  async listFoods(): Promise<FoodRecord[]> {
+    try {
+      const foods = await this.remote.listFoods();
+      if (foods.length > 0) {
+        await AsyncStorage.setItem(this.foodsKey, JSON.stringify(foods));
+        return foods;
+      }
+    } catch {
+      // Offline — fall through to the cache.
+    }
+    const cached = await AsyncStorage.getItem(this.foodsKey);
+    if (cached) return JSON.parse(cached) as FoodRecord[];
+    return this.bundled.listFoods();
   }
 
   async getRecipe(slug: string): Promise<RecipeDetail | null> {
